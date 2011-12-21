@@ -1,0 +1,79 @@
+<% if (!logged_user) { %>
+	Please log in.
+<% } else { %>
+	Hello, <%= logged_user.displayName %>
+	<p>
+		info:<%= JSON.stringify(logged_user) %>
+	</p>
+<% } %>
+
+<p><strong>no funciona, no te molestes en escribir</strong></p>
+
+<div class="row">
+	<span class="span8">
+		<form action="/editprofile" method="post">
+			<div class="clearfix">
+				<label>Nombre:</label> 
+				<div class="input">
+					<input type="text" name="name">
+				</div>
+			</div>
+
+			<div class="clearfix">
+				<label>Bio:</label> 
+				<div class="input">
+					<textarea type="text" name="bio"></textarea>
+				</div>
+			</div>
+
+			<div class="clearfix">
+				<label>Email:</label> 
+				<div class="input">
+					<textarea type="text" name="email"></textarea>
+				</div>
+			</div>
+
+			<div class="clearfix">
+				<label>Twitter:</label> 
+				<div class="input">
+					<textarea type="text" name="twitter"></textarea>
+				</div>
+			</div>
+
+			<div class="clearfix">
+				<label>Región:</label> 
+				<div class="input">
+					<select>
+						<option>Zaragoza</option>
+						<option>Huesca</option>
+						<option>Teruel</option>
+						<option>--</option>
+				
+						<option>aqui el resto de provincias orden alfabético</option>
+						<option>Fuera de españa</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="clearfix">
+				<label>Localidad:</label> 
+				<div class="input">
+					<textarea type="text" name="city"></textarea>
+				</div>
+			</div>
+
+			<div class="actions">
+				<input type="submit" class="btn primary" value="Enviar">
+			</div>
+		</form>
+	</span>
+	<span class="span4">
+		<p>foto: de linkedin? permitimos colocar url de imagen online? (por no complicarnos con uploads..)</p>
+		
+		aquí info general
+		<p>info aprobación perfil</p>
+		<p>etc</p>
+		<p>todo: selección de categorías y tags</p>
+	</span>
+</div>
+	

@@ -1,0 +1,47 @@
+<div class="row">
+	<div class="span3">
+		<h3>Categorías</h3>
+		<%-partial ('partial/listcategories', {categories : categories})%>
+		<br style="clear:both">
+		<a href="/editprofile">alta/modificar perfil</a>
+		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
+	</div>
+	
+	<div class="professionals_list span10">
+		<h3>Profesionales <small><span data-bind="text: filter"></span></small></h3>
+		<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
+	</div>
+	
+	<div class="profile span10">
+		<div class="span10" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
+	</div>
+
+	<div class="tags span2">
+		<h3>Especialidades</h3>
+		<ul data-bind='template: {name:"tagsTemplate", foreach: tags}'></ul>
+	</div>		
+</div>
+
+<%for(var i=0;i<users.length;i++){%>
+	<a href="/user/<%=users[i].id%>/<%=users[i].name%>"><%=users[i].name%></a>
+<%}%>
+
+<!--templates-->
+<script id='tagsTemplate' type="text/x-jquery-tmpl">
+    <li><a class="searchBytag" tag="${$data}" href="/tag/${$data}/users">${$data}</a></li>
+</script>
+
+
+<script id='profileTemplate' type="text/x-jquery-tmpl">
+	<h3>${name}</h3>
+	<img src="${image}"/>
+	<span class="bio">${bio}</bio>
+</script>
+
+<script id='professionalTemplate' type="text/x-jquery-tmpl">
+    <li>
+		<a class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>
+		<img src="${image}"/>
+		<span class="bio">${bio}</bio>
+    </li>
+</script>

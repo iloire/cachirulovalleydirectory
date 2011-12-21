@@ -1,0 +1,40 @@
+<h1><%=user.name%> <small>Perfil de usuario</small></h1>
+
+<div class="row">
+	<div class="span12">
+		<div class="user_profile">
+			<img class="avatarmedium" src="<%=user.image%>"/>
+
+			<span class="bio"><%=user.bio%></span> 
+				
+			<p>
+				<span class="location">location: <%=user.location%></span> 
+			</p>
+
+			<p>
+				<span class="tags">tags: 
+				
+				<%for (var i=0;i< user.tags.length;i++) {%>
+					<a href="/tag/<%=user.tags[i]%>/users"><%=user.tags[i]%></a>
+				<%}%>
+				</span> 
+			</p>
+			<p>
+				<span class="tags">cats: <%=user.cats%></span> 
+			</p>
+		</div>
+	</div>
+	
+	<div class="span4">
+		<h3>Otros #diseñadores#</h3>
+		<ul>
+			<li>bla bla</li>
+			<li>bla bla</li>
+			<li>bla bla</li>
+		</ul>
+	</div>
+	
+</div>
+
+
+

@@ -1,0 +1,73 @@
+body {
+  padding-top: 60px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-image: url(../images/bgnoise_lg.png);
+}
+
+div.what{display:none;} 
+
+div.wrapper {
+	border-radius: 5px;
+	padding:20px;
+	background-color:white;
+	width:980px;
+	margin: 0 auto;
+	display:block;
+	box-shadow: 0px 0px 15px #aaa;
+}
+
+ul#categories li span{
+	font-size:0.8em;
+	padding:1px 3px;
+	border-radius: 5px;
+	box-shadow: 0px 0px 5px #aaa;
+}
+
+ul#categories li.selected{
+	text-decoration:underline;
+}
+
+ul#categories li.selected a{
+	color:black !important;
+}
+
+div.row div.professionals_list, div.row div.profile, div.row div.tags {
+	display:none;
+}
+
+ul#professionals {
+	padding-top:30px;
+	
+}
+
+ul#professionals li img{
+	box-shadow: 0px 0px 10px #aaa;
+	max-width:40px;
+	max-height:40px;
+	float:left;
+	margin-right:10px;
+}
+
+ul#professionals li{
+	clear:both;
+	margin-bottom:15px;
+}
+input#searchBox{
+	margin-top:5px;
+}
+img.logo{
+	width:130px;
+	margin-left:10px;
+}
+
+img#loading{	display:none; /*initial state*/;}
+
+a {
+  color: #00B7FF;
+}
+
+div.profile img{
+	float:left;
+	margin:0px 10px 5px 0px;
+	max-width:200px;
+}
