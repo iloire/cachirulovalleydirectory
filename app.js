@@ -30,7 +30,7 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new LinkedInStrategy({
     consumerKey: config.LINKEDIN_API_KEY,
     consumerSecret: config.LINKEDIN_SECRET_KEY,
-    callbackURL: config.base_url + ":" + port + "/auth/linkedin/callback"
+    callbackURL: config.base_url + "/auth/linkedin/callback"
   },
   function(token, tokenSecret, profile, done) {
      //User.findOrCreate({ linkedinId: profile.id }, function (err, user) {
