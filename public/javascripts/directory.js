@@ -10,11 +10,11 @@ var server_root = '';
 function hidePanels(){
 	$('.professionals_list').hide();
 	$('.profile').hide();
-	$('.tags').fadeIn();
+	$('.tags').hide();
 }
 
 function LoadProfile(id_profile){
-	hidePanels();
+	$('.professionals_list').hide();
 	$.ajax({ url: 'api/users/byid', data: {id:id_profile}, dataType: 'jsonp', success: function (data) {
 		$('.profile').fadeIn();
 		viewModel.profile (data.user);
@@ -24,7 +24,7 @@ function LoadProfile(id_profile){
 }
 
 function LoadProfessionalsByTag(idtag){
-	hidePanels();
+	$('.profile').hide();
 	$.ajax({ url: '/api/users/bytag', data: {id:idtag}, dataType: 'jsonp', success: function (data) {
 		$('.professionals_list').fadeIn();
 		viewModel.professionals (data.users);
@@ -34,7 +34,7 @@ function LoadProfessionalsByTag(idtag){
 }
 
 function LoadProfessionalsByCat(idcat){
-	hidePanels();
+	$('.profile').hide();
 	$.ajax({ url: '/api/users/bycat', data: {id:idcat}, dataType: 'jsonp', success: function (data) {
 		$('.professionals_list').fadeIn();
 		$('.tags').fadeIn();
