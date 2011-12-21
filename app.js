@@ -90,7 +90,6 @@ app.get('/api/users/bycat', function(req, res){
 	var params = {id : req.query["id"]}
 	module_users.GetUsersByCat (redis, params, function (err, users){
 		module_tags.GetTagsByCat(redis, params, function (err, tags){
-			console.log (tags)
 			common.renderJSON(req, res, {users:users, tags: tags}, 200, req.query["callback"])
 		});
 	});
@@ -112,9 +111,7 @@ app.get('/api/users/byid', function(req, res){
 
 app.get('/api/search', function(req, res){
 	var params = {q : req.query["q"]}
-	console.log(params)
 	module_users.Search (redis, params, function (err, users){
-		console.log (users)
 		common.renderJSON(req, res, {users:users}, 200, req.query["callback"])
 	})
 });
