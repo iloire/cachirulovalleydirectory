@@ -7,13 +7,15 @@
 		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
 	</div>
 	
-	<div class="professionals_list span10">
-		<h3>Profesionales <small><span data-bind="text: filter"></span></small></h3>
-		<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
-	</div>
+	<div class="span10">
+		<div class="professionals_list">
+			<h3>Profesionales <small><span data-bind="text: filter"></span></small></h3>
+			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
+		</div>
 	
-	<div class="profile span10">
-		<div class="span10" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
+		<div class="profile">
+			<div class="span10" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
+		</div>
 	</div>
 
 	<div class="tags span2">
