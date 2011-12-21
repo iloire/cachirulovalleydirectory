@@ -2,7 +2,7 @@ var _redis = require("redis")
 var redis = _redis.createClient()
 var common = require ('../lib/common.js');
 
-var Faker = require('./faker/Faker');
+var Faker = require('Faker');
 
 var module_cats = require("../lib/modules/cats.js")
 var module_users = require("../lib/modules/users.js")
@@ -227,11 +227,8 @@ function AddUsersFromTwitterByKeyWord(hashtag, callback){
 
 function PopulateUsers(callback){
 	var params = {users: users}
-	module_users.AddUsers(redis, params, function (data){
-		if (data.error)
-			callback(data.error,'')
-		else
-			callback(null, 'users populated')
+	module_users.AddUsers(redis, params, function (err, data){
+		callback (err, err ? null : 'users populated');
 	});
 }
 
