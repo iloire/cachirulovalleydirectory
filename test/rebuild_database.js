@@ -21,7 +21,7 @@ var cats = [
 			{name:'Sistemas',descr:'Administradores de sistemas'},
 			{name:'UX',descr:'Usabilidad y experiencia de usuario'},
 			{name:'Inversores',descr:'Inversores, capital riesgo, business angels'},
-			{name:'LSWC',descr:'Libre Software World Conference Zaragoza'},
+//			{name:'LSWC',descr:'Libre Software World Conference Zaragoza'},
 			]
 
 /*some dummy default users*/
@@ -31,7 +31,7 @@ var users =
 				bio:'desarrollador de software y formador freelance, emprendedor, fotógrafo aficionado y trotamundos (2earth.org), en ese orden. O en orden inverso, déjame pensar..', 
 				email: 'ivan@iloire.com', location: 'Zufaria, Zaragoza', 
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1180004088/bigorre_300_reasonably_small.jpg', 
-				cats: [0,4],
+				cats: [1,5],
 				twitter : 'ivanloire',
 				tags: ['c#','node.js', 'asp.net mvc3']
 			},
@@ -40,7 +40,7 @@ var users =
 				bio:'Entrepreneur and developer. Interested in mobile apps (iphone ipad) and high scalability (nodejs and redis). Creator of http://iosboilerplate.com', 
 				email: 'gimenete@gmail.com', location: 'Zaragoza', 
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1174085383/_J106410_reasonably_small.JPG', 
-				cats: [0,4],
+				cats: [1,5],
 				twitter : 'gimenete',
 				tags: ['redis','node.js']
 			},
@@ -49,7 +49,7 @@ var users =
 				bio:'Project Manager de Sonicbyte. Aprendiz de Ruby, metodologías ágiles y UX. Aficionado a las ciencias y la música (guitarra), entre otras. http://sonicbyte.com/', 
 				email: 'jimeno@gmail.com', location: 'Zaragoza', 
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1475799969/pablo-avatar_reasonably_small.png', 
-				cats: [0,1],
+				cats: [1,2],
 				twitter : 'pablojimeno',
 				tags: ['ror','ruby','linux']
 			},
@@ -58,7 +58,7 @@ var users =
 				bio:'Part time dreamer.', 
 				email: 'agustin@pordeciralgo.net', location: 'Zaragoza', 
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1360363459/eldisparate_agustin_reasonably_small.jpg', 
-				cats: [2,3],
+				cats: [3,4],
 				twitter : 'pordeciralgo',
 				tags: ['macosx','iOs','adsense']
 			},
@@ -67,7 +67,7 @@ var users =
 				bio:'Developer! developer! developer! Jobsket.com co-founder. Beer lover. Pueblerino', 
 				email: 'dani@danilat.com', location: 'Zaragoza', 
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1432570237/la_foto__1__reasonably_small.JPG', 
-				cats: [0,4],
+				cats: [1,4],
 				twitter : 'dani_latorre',
 				tags: ['groovy','java','mongo']
 			},
@@ -76,7 +76,7 @@ var users =
 				bio:'Probador de software y servicios web, :)', 
 				email: 'blabla@blabla', location: 'Zaragoza', 
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1369467781/avatar-comic_reasonably_small.jpg', 
-				cats: [0,2],
+				cats: [1,3,4],
 				twitter : 'superwillyfoc',
 				tags: ['html','html5','wordpress']
 			},
@@ -85,10 +85,20 @@ var users =
 				bio:'Diseñador.. y programador!', 
 				email: 'blabla@blabla', location: 'Zaragoza', 
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1258768022/fer-avatar_reasonably_small.jpg', 
-				cats: [0,1],
+				cats: [1,2],
 				twitter : 'aaromindo',
 				tags: ['ror','photoshop','art']	
+			},
+			{
+				name:'Mamen Pradel',
+				bio:'Diseño visual y de interacción', 
+				email: 'blabla@blabla', location: 'Zaragoza', 
+				image: 'https://twimg0-a.akamaihd.net/profile_images/1490167269/mamen-1sm2_reasonably_small.jpg', 
+				cats: [2],
+				twitter : 'pensieve',
+				tags: ['ror','photoshop','art']	
 			}
+			
 		]
 
 //some tags also
@@ -259,7 +269,7 @@ async.series([
 	PopulateTags,
 	PopulateCats,
 	AddExtraFakeUsers,
-	ImportFromFile,
+	//ImportFromFile,
 	//AddUsersFromTwitter,
 	PopulateUsers,
 	QuitDB
