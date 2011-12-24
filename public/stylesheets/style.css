@@ -4,6 +4,7 @@ body {
   background-image: url(../images/bgnoise_lg.png);
 }
 
+div.clearfix {clear:both;}
 div.what{display:none;} 
 
 div.wrapper {
@@ -23,11 +24,11 @@ ul#categories li span{
 	box-shadow: 0px 0px 5px #aaa;
 }
 
-ul#categories li.selected{
+ul#categories li.selected , ul#tags li.selected{
 	text-decoration:underline;
 }
 
-ul#categories li.selected a{
+ul#categories li.selected a, ul#tags li.selected a{
 	color:black !important;
 }
 
@@ -37,7 +38,6 @@ div.row div.professionals_list, div.row div.profile, div.row div.tags {
 
 ul#professionals {
 	padding-top:30px;
-	
 }
 
 ul#professionals li img{
@@ -71,3 +71,24 @@ div.profile img{
 	margin:0px 10px 5px 0px;
 	max-width:200px;
 }
+
+form.editprofile textarea{
+	min-height:80px;
+}
+
+form span.descr {
+	font-size:0.9em;
+	color:gray;
+}
+	
+form div.input img {
+	float:left;
+	margin:0px 10px 5px 0px;
+}
+
+form span.error {
+	color:red;
+	font-size:0.9em;
+	display:block;
+}
+

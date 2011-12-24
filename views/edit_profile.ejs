@@ -1,79 +1,150 @@
-<% if (!logged_user) { %>
-	Please log in.
-<% } else { %>
-	Hello, <%= logged_user.displayName %>
-	<p>
-		info:<%= JSON.stringify(logged_user) %>
+<div class="alert-message block-message warning">
+	<h3>
+		Hola <%= user.name %>
+    </h3>
+    <p>Crea o edita tu perfil CachiruloValley. Tus datos no serán cedidos a terceras partes. Te pedimos los mínimos datos para
+	completar tu perfil.
 	</p>
-<% } %>
-
-<p><strong>no funciona, no te molestes en escribir</strong></p>
-
-<div class="row">
-	<span class="span8">
-		<form action="/editprofile" method="post">
-			<div class="clearfix">
-				<label>Nombre:</label> 
-				<div class="input">
-					<input type="text" name="name">
-				</div>
-			</div>
-
-			<div class="clearfix">
-				<label>Bio:</label> 
-				<div class="input">
-					<textarea type="text" name="bio"></textarea>
-				</div>
-			</div>
-
-			<div class="clearfix">
-				<label>Email:</label> 
-				<div class="input">
-					<textarea type="text" name="email"></textarea>
-				</div>
-			</div>
-
-			<div class="clearfix">
-				<label>Twitter:</label> 
-				<div class="input">
-					<textarea type="text" name="twitter"></textarea>
-				</div>
-			</div>
-
-			<div class="clearfix">
-				<label>Región:</label> 
-				<div class="input">
-					<select>
-						<option>Zaragoza</option>
-						<option>Huesca</option>
-						<option>Teruel</option>
-						<option>--</option>
-				
-						<option>aqui el resto de provincias orden alfabético</option>
-						<option>Fuera de españa</option>
-					</select>
-				</div>
-			</div>
-
-			<div class="clearfix">
-				<label>Localidad:</label> 
-				<div class="input">
-					<textarea type="text" name="city"></textarea>
-				</div>
-			</div>
-
-			<div class="actions">
-				<input type="submit" class="btn primary" value="Enviar">
-			</div>
-		</form>
-	</span>
-	<span class="span4">
-		<p>foto: de linkedin? permitimos colocar url de imagen online? (por no complicarnos con uploads..)</p>
-		
-		aquí info general
-		<p>info aprobación perfil</p>
-		<p>etc</p>
-		<p>todo: selección de categorías y tags</p>
-	</span>
 </div>
-	
+
+<%if (typeof(success)!="undefined" && success.length){%>
+<div class="alert-message block-message success">
+	<h3>Formulario enviado con éxito</h3>
+	<p><%=success%></p>
+
+</div>
+<%} else if (error){%>
+<div class="alert-message block-message error">
+	<h3>Error :S</h3>
+	<p><%=error%></p>
+</div>
+<%}%>
+
+<form action="/editprofile" method="post" class="editprofile">
+	<div class="row">
+		<div class="span8">
+			<h3>1. Datos generales</h3>
+			
+				<% if (user.image) {%>
+				<div class="clearfix">
+					<div class="input">
+						<img src="<%=user.image%>"/>
+						<span class="descr">Este directorio usa la imagen que has seleccionado en linkedin</span>
+					</div>
+				</div>
+				<% }%>	
+				
+				<div class="clearfix">
+					<label>Nombre (*):</label> 
+					<div class="input">
+						<input type="text" name="name" value="<%=user.name || "" %>">
+						<%-partial ('partial/display_error', {error: validation_errors['name'] })%>
+					</div>
+				</div>
+
+				<div class="clearfix">
+					<label>Bio (*):</label> 
+					<div class="input">
+						<textarea type="text" name="bio"><%=user.bio || ""%></textarea>
+						<%-partial ('partial/display_error', {error: validation_errors['bio'] })%>
+					</div>
+				</div>
+
+				<div class="clearfix">
+					<label>Email (*):</label> 
+					<div class="input">
+						<input type="text" name="email" value="<%=user.email || ""%>">
+						<%-partial ('partial/display_error', {error: validation_errors['email'] })%>
+					</div>
+				</div>
+
+				<div class="clearfix">
+					<label>Twitter:</label> 
+					<div class="input">
+						<input type="text" name="twitter" value="<%=user.twitter || ""%>">
+					</div>
+				</div>
+
+				<div class="clearfix">
+					<label>Región (*):</label> 
+					<div class="input">
+						<select name="region">
+							<%for (r=0;r<regions.length;r++){%>
+								<option value="<%=regions[r].value%>"<%if (regions[r].value==user.region){%> selected <%}%>><%=regions[r].name%></option>
+							<%}%>
+						</select>
+						<%-partial ('partial/display_error', {error: validation_errors['region'] })%>
+					</div>
+				</div>
+
+				<div class="clearfix">
+					<label>Localidad (*):</label> 
+					<div class="input">
+						<input type="text" name="location" value="<%=user.location || ""%>">
+						<%-partial ('partial/display_error', {error: validation_errors['location'] })%>
+					</div>
+				</div>
+		</div>
+		<div class="span8">
+			<h3>Categorías o grupos profesionales</h3>
+			<p>¿En qué grupos o categorías te incluirías? (máx 3)</p>
+			<ul>
+
+			<%for (var c=0;c<categories_available.length;c++){
+				var exists = false;
+				if (user.cats){
+					for (k=0;k<user.cats.length;k++){
+						if (user.cats[k]==categories_available[c].id)
+							exists=true
+					}
+				}
+				if (exists){
+				%>
+					<li><input type="checkbox" checked="checked" name="categories_available" value="<%=categories_available[c].id%>"> <%=categories_available[c].name%></li>
+				<%	
+				}
+				else{
+				%>
+					<li><input type="checkbox" name="categories_available" value="<%=categories_available[c].id%>"> <%=categories_available[c].name%></li>
+				<%
+				}
+			}
+			%>
+			</ul>
+			<%-partial ('partial/display_error', {error: validation_errors['cats'] })%>
+
+			<h3>Especialidades</h3>
+			<p>Añade tus especialidades (máx 15)</p>
+			<input type="text" id="tags_input" name="tags" value="<%=user.tags || ""%>" placeholder="php, node.js, marketing, etc.">
+			<%-partial ('partial/display_error', {error: validation_errors['tags'] })%>
+
+			<h3>Otros datos</h3>
+			<p>
+				Estoy abierto/interesado en propuestas de negocio / creación de empresas
+				<ul>
+					<li><input type="checkbox" name="vc_partner" value="true" <%if (user.other_data.vc_partner) {%>checked="checked" <%}%>> como socio capitalista 
+					<li><input type="checkbox" name="tech_partner" value="true" <%if (user.other_data.tech_partner) {%>checked="checked" <%}%>> como socio técnico
+					<li><input type="checkbox" name="business_partner" value="true" <%if (user.other_data.business_partner) {%>checked="checked" <%}%>> como socio de negocio
+				</ul>
+			</p>
+			<p>
+				<input type="checkbox" name="entrepreneur" value="true" <%if (user.other_data.entrepreneur) {%>checked="checked" <%}%>> Tengo experiencia montando empresas
+			</p>
+			<p>
+				<input type="checkbox" name="freelance" value="true" <%if (user.other_data.freelance) {%>checked="checked" <%}%>> Soy autónomo
+			</p>
+			<p>
+				<input type="checkbox" name="looking_for_contracts" value="true" <%if (user.other_data.looking_for_contracts) {%>checked="checked" <%}%>> Disponible para trabajar como freelance
+			</p>			
+		</div>
+	</div>
+	<div class="actions">
+		<input type="submit" class="btn primary" value="Enviar">
+	</div>
+</form>
+
+<script>
+	$('#tags_input').tagsInput({
+	  autocomplete_url:'http://localhost:3000/api/tagsautocomplete'
+	});
+</script>

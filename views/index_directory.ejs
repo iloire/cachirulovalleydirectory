@@ -1,0 +1,84 @@
+<div class="row">
+	<div class="span3">
+		<h3>Categorías</h3>
+		<%-partial ('partial/listcategories', {categories : categories})%>
+		<br style="clear:both">
+		<a href="/editprofile">alta/modificar perfil</a>
+		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
+	</div>
+	
+	<div class="span10">
+		<div class="region_scope">
+			<input type="checkbox" name="region_scope" id="regional_scope" value="aragon" checked="checked"> Aragoneses
+			<input type="checkbox" name="region_scope" id="national_scope" value="spain"> España
+			<input type="checkbox" name="region_scope" value="worldwide_scope"> Internacional
+		</div>
+		
+		<div class="professionals_list">
+			<h3>Profesionales <small><span data-bind="text: filter"></span></small></h3>
+			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
+		</div>
+	
+		<div class="profile">
+			<div class="span10" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
+		</div>
+	</div>
+
+	<div class="tags span2">
+		<h3>Especialidades</h3>
+		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tags}'></ul>
+	</div>		
+</div>
+
+<%for(var i=0;i<users.length;i++){%>
+	<a href="/user/<%=users[i].id%>/<%=users[i].name%>"><%=users[i].name%></a>
+<%}%>
+
+<!--templates-->
+<script id='tagsTemplate' type="text/x-jquery-tmpl">
+    <li><a tag="${$data}" href="/tag/${$data}/users">${$data}</a></li>
+</script>
+
+
+<script id='profileTemplate' type="text/x-jquery-tmpl">
+	<h3>${name}</h3>
+	<img src="${image}"/>
+	<span class="bio">${bio}</span>
+	
+	<div class="clearfix"></div>
+	
+	<h3>Información de contacto</h3>
+	<p>twitter: <a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></p>
+	<p>linkedin profile: <a target="_blank" href="${linkedin_profile_url}">${linkedin_profile_url}</a></p>
+	
+	<p>${location}  (${region_display})</p>	
+	
+	<h3>Más cosas sobre mi</h3>
+	<div>
+	   <ul>
+	   {{if other_data.entrepreneur}}
+		 <li>Me considero emprendedor. Estoy interesado en crear empresas a corto plazo.</li>
+	   {{/if}}
+
+	   {{if other_data.freelance}}
+		 <li>Soy un profesional dado de alta como autónomo.</li>
+	   {{else}}
+		 <li>No soy autónomo</li>
+	   {{/if}}
+
+	   {{if other_data.looking_for_contracts}}
+		 <li>Busco proyectos como freelance</li>
+	   {{/if}}
+		</ul>
+
+	</div>
+</script>
+
+<script id='professionalTemplate' type="text/x-jquery-tmpl">
+    <li>
+		<a class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>
+		<img src="${image}"/>
+		<span class="bio">${bio}</span>
+		(<span class="location">${location}</span>)
+    </li>
+</script>

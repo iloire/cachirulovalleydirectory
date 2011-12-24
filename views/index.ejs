@@ -1,51 +1,63 @@
-<div class="row">
-	<div class="span3">
-		<h3>Categorías</h3>
-		<%-partial ('partial/listcategories', {categories : categories})%>
-		<br style="clear:both">
-		<a href="/editprofile">alta/modificar perfil</a>
-		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
-	</div>
-	
-	<div class="span10">
-		<div class="professionals_list">
-			<h3>Profesionales <small><span data-bind="text: filter"></span></small></h3>
-			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
-		</div>
-	
-		<div class="profile">
-			<div class="span10" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
-		</div>
-	</div>
-
-	<div class="tags span2">
-		<h3>Especialidades</h3>
-		<ul data-bind='template: {name:"tagsTemplate", foreach: tags}'></ul>
-	</div>		
+<div class=row>
+	<h1>Directorio, logo, etc</h1>
 </div>
+<div class=row>
+	<div class="span8">
+		<h3>Presentación</h3>
+		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
+		<p>Hola, ya sabes quienes somos y lo que hacemos (si no lo sabes, accede a la <a href="http://cachirulovalley.com" target="_blank">página principal de CachiruloValley</a>, así que
+		no te habrá sorprendido que hayamos creado un directorio de profesionales.
+		</p>
 
-<%for(var i=0;i<users.length;i++){%>
-	<a href="/user/<%=users[i].id%>/<%=users[i].name%>"><%=users[i].name%></a>
-<%}%>
+		<h3>A quién va orientado</h3>
+		<p>
+			Ya que nuestro ámbito de actuación es local (Aragón), este directorio está orientado a empresas y profesionales con vínculo con Aragón.
+		</p>
+	</div>
+	<div class="span8">
+		<h3>Qué pretendemos</h3>
+		<p>Sabemos que existen muchos directorios de profesionales, pero queríamos 
+			hacer uno con nuestra filosofía, para poder daros la oportunidad de: 
+		<ul>
+			<li>Buscar <strong>perfiles complementarios</strong> en vuestra región</li>
+			<li>Buscar profesionales de perfil emprendedor que están en este momento queriendo montar una empresa</li>
+			<li>Encontrar <strong>freelancers</strong></li>
+			<li>Encontrar empresas que necesitan freelancers</li>
+		</ul>	
+		</p>
+		<p>
+			Darte de alta sólo lleva 5 minutos, y únicamente necesitas una cuenta en linkedin.
+		</p>
+		<p>	
+			<a href="/editprofile" class="btn large">Registrarse o editar perfil</a>
+			<a href="/directory" class="btn large">Buscar profesionales</a>
+		</p>
+	</div>
+</div>
+<div class="row">
+	<div class="span6">
+		<h3>Últimas incorporaciones</h3>
+		<ul>
+			<li>asdf</li>
+			<li>asdf</li>
+			<li>asdf</li>
+		</ul>
+	</div>
+	<div class="span5">
+		<h3>Categorías  etc..</h3>
+		<ul>
+			<li>asdf</li>
+			<li>asdf</li>
+			<li>asdf</li>
+		</ul>
+	</div>
 
-<!--templates-->
-<script id='tagsTemplate' type="text/x-jquery-tmpl">
-    <li><a class="searchBytag" tag="${$data}" href="/tag/${$data}/users">${$data}</a></li>
-</script>
-
-
-<script id='profileTemplate' type="text/x-jquery-tmpl">
-	<h3>${name}</h3>
-	<img src="${image}"/>
-	<span class="bio">${bio}</bio>
-	
-	<p>twitter: <a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></p>
-</script>
-
-<script id='professionalTemplate' type="text/x-jquery-tmpl">
-    <li>
-		<a class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>
-		<img src="${image}"/>
-		<span class="bio">${bio}</bio>
-    </li>
-</script>
+	<div class="span5">
+		<h3>otro....</h3>
+		<ul>
+			<li>asdf</li>
+			<li>asdf</li>
+			<li>asdf</li>
+		</ul>
+	</div>
+</div>

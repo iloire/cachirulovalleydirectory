@@ -17,34 +17,6 @@
 
   </head>
   <body>	
-	<div class="topbar">
-		<div class="fill">
-			<div class="container fixed">
-				<h3><a href="/">Cachirulo directory</a></h3>
-				<ul class="nav">
-					<li><a id="what" href="#">what??</a></li>
-				</ul>
-				<ul class="secondary-nav">
-					<li>
-						<img id="loading" src="images/ajax-loader.gif" alt="loading...">
-						<input id="searchBox" type="text" placeholder="Search professionals">
-					</li>
-					<li>
-					<% if (!user) { %>
-						<a href="/editprofile">
-							Entrar
-						</a>
-					<% } else { %>
-						<a href="#">
-							Hola <%= user.name %>!
-						</a>
-					<% } %>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
-	
 	<div class="wrapper">
 		<div class="alert-message warning what">
 		  <p>
