@@ -73,7 +73,7 @@ app.get('/api/tagsautocomplete', function(req, res){
 });
 
 app.get('/api/users/bycat', function(req, res){
-	var params = {id : req.query["id"], region_scope: req.query["region_scope"]}
+	var params = {id : req.query["id"], scope: req.query["scope"]}
 	module_users.GetUsersByCat (redis, params, function (err, users){
 		module_tags.GetTagsByCat(redis, params, function (err, tags){
 			common.renderJSON(req, res, {users:users, tags: tags}, 200, req.query["callback"])
@@ -82,7 +82,7 @@ app.get('/api/users/bycat', function(req, res){
 });
 
 app.get('/api/users/bytag', function(req, res){
-	var params = {id : req.query["id"], region_scope: req.query["region_scope"]}
+	var params = {id : req.query["id"], scope: req.query["scope"]}
 	module_users.GetUsersByTag (redis, params, function (err, users) {
 		common.renderJSON(req, res, {users:users}, 200, req.query["callback"])
 	})
@@ -98,6 +98,7 @@ app.get('/api/users/byid', function(req, res){
 app.get('/api/search', function(req, res){
 	var params = {q : req.query["q"]}
 	module_users.Search (redis, params, function (err, users){
+		console.log (users)
 		common.renderJSON(req, res, {users:users}, 200, req.query["callback"])
 	})
 });
@@ -197,6 +198,7 @@ app.post ('/editprofile', function (req,res){
 				bio : req.param('bio'),
 				location : req.param('location'),
 				region : req.param('region'),
+				web : req.param('web'),
 				image : user_linkedin.pictureUrl,
 				twitter : req.param('twitter'),
 				cats : req.param ('categories_available') || [],
@@ -266,9 +268,18 @@ app.post ('/editprofile', function (req,res){
 
 			//tag validation
 			var tags_max = 15
+			var tag_max_length = 25
 			if (user.tags.length > tags_max){
 				validation_errors['tags'] = 'El número máximo de tags es ' + tags_max;
 				valid = false
+			}
+			
+			for (t=0;t<user.tags.length;t++){
+				if (user.tags[t].length>tag_max_length){
+					validation_errors['tags'] = 'Tag "' + user.tags[t] + '" inválido (' + user.tags[t].length + ' caracteres). El máximo número de caractéres para cada tag es ' + tag_max_length;
+					valid = false
+					break;
+				}
 			}
 
 			//region

@@ -45,7 +45,7 @@
 				<div class="clearfix">
 					<label>Bio (*):</label> 
 					<div class="input">
-						<textarea type="text" name="bio"><%=user.bio || ""%></textarea>
+						<textarea type="text" placeholder="something about you" name="bio"><%=user.bio || ""%></textarea>
 						<%-partial ('partial/display_error', {error: validation_errors['bio'] })%>
 					</div>
 				</div>
@@ -53,8 +53,16 @@
 				<div class="clearfix">
 					<label>Email (*):</label> 
 					<div class="input">
-						<input type="text" name="email" value="<%=user.email || ""%>">
+						<input type="text" name="email" placeholder="your email address" value="<%=user.email || ""%>">
 						<%-partial ('partial/display_error', {error: validation_errors['email'] })%>
+					</div>
+				</div>
+
+				<div class="clearfix">
+					<label>Web site (*):</label> 
+					<div class="input">
+						<input type="text" name="web" placeholder="http://yoursite.com" value="<%=user.web || ""%>">
+						<%-partial ('partial/display_error', {error: validation_errors['web'] })%>
 					</div>
 				</div>
 
@@ -114,7 +122,7 @@
 			<%-partial ('partial/display_error', {error: validation_errors['cats'] })%>
 
 			<h3>Especialidades</h3>
-			<p>Añade tus especialidades (máx 15)</p>
+			<p>Añade tus especialidades (máx 15) tags</p>
 			<input type="text" id="tags_input" name="tags" value="<%=user.tags || ""%>" placeholder="php, node.js, marketing, etc.">
 			<%-partial ('partial/display_error', {error: validation_errors['tags'] })%>
 

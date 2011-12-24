@@ -59,7 +59,7 @@ var users =
 				cats: [1,2],
 				linkedin_id: '',
 				twitter : 'pablojimeno',
-				tags: ['ror','ruby','linux'],
+				tags: ['ror','ruby','linux', 'html5'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
 			},
 			{
@@ -71,7 +71,7 @@ var users =
 				cats: [3,4],
 				linkedin_id: '',
 				twitter : 'pordeciralgo',
-				tags: ['macosx','iOs','adsense'],
+				tags: ['macosx','iOs','adsense','marketing online'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
 			},
 			{
@@ -107,7 +107,7 @@ var users =
 				cats: [1,2],
 				linkedin_id: 'M90XVN4Qk9',
 				twitter : 'aaromindo',
-				tags: ['ror','photoshop','art'],
+				tags: ['ror','photoshop','art', 'html5', 'css3'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: false}
 			},
 			{
@@ -119,7 +119,7 @@ var users =
 				cats: [2],
 				linkedin_id: '',
 				twitter : 'pensieve',
-				tags: ['photoshop','art'],
+				tags: ['photoshop','art', 'html5'],
 				other_data : {freelance: false}
 			}
 			
@@ -295,8 +295,11 @@ function PopulateUsers(callback){
 function CheckPopulatedUsers(callback){
 	var params = {users: users}
 	module_users.GetUsers(redis, params, function (err, users_db){
-		if (users.length!=users_db.length)
+		if (users.length!=users_db.length){
+			console.log (users.length)
+			console.log (users_db.length)
 			throw 'Error checking users.. '
+		}
 
 		for (var u=0;u<users.length;u++){
 			var user = users[u];
@@ -316,6 +319,16 @@ function CheckPopulatedUsers(callback){
 			
 		//console.log(users_db)
 		//console.log(users)
+		callback (err, err ? null : 'users populated');
+	});
+}
+
+function CheckSearch(callback){
+	var params = {q: 'Zaragoza'}
+	module_users.Search (redis, params, function (err, users){
+		if (users.length==0){
+			throw 'Error checking users search.. '
+		}
 		callback (err, err ? null : 'users populated');
 	});
 }
@@ -353,6 +366,7 @@ async.series([
 	//AddUsersFromTwitter,
 	PopulateUsers,
 	CheckPopulatedUsers,
+	CheckSearch,	
 	QuitDB
 ],
 function(err, results){

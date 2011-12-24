@@ -7,15 +7,17 @@
 		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
 	</div>
 	
-	<div class="span10">
-		<div class="region_scope">
-			<input type="checkbox" name="region_scope" id="regional_scope" value="aragon" checked="checked"> Aragoneses
-			<input type="checkbox" name="region_scope" id="national_scope" value="spain"> España
-			<input type="checkbox" name="region_scope" value="worldwide_scope"> Internacional
-		</div>
-		
+	<div class="span10">		
 		<div class="professionals_list">
 			<h3>Profesionales <small><span data-bind="text: filter"></span></small></h3>
+			<div class="region_scope">
+				<input type="checkbox" name="region_scope" id="regional_scope" checked="checked"> Aragoneses
+				<input type="checkbox" name="region_scope" id="national_scope" > España
+				<input type="checkbox" name="region_scope" id="worldwide_scope"> Internacional
+			</div>
+			<div class="otherdata_scope">
+				<input type="checkbox" name="freelance" id="freelance_scope" value="freelance"> Sólo autónomos (freelances)
+			</div>
 			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
 		</div>
 	
@@ -48,10 +50,16 @@
 	<div class="clearfix"></div>
 	
 	<h3>Información de contacto</h3>
+	{{if (twitter)}}
 	<p>twitter: <a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></p>
+	{{/if}}
+	
 	<p>linkedin profile: <a target="_blank" href="${linkedin_profile_url}">${linkedin_profile_url}</a></p>
 	
 	<p>${location}  (${region_display})</p>	
+	{{if (web)}}
+	<p>web site: <a target="_blank" href="${web}">${web}</a></p>
+	{{/if}}
 	
 	<h3>Más cosas sobre mi</h3>
 	<div>
