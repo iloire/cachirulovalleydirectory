@@ -3,7 +3,6 @@
 		<h3>Categorías</h3>
 		<%-partial ('partial/listcategories', {categories : categories})%>
 		<br style="clear:both">
-		<a href="/editprofile">alta/modificar perfil</a>
 		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
 	</div>
 	
@@ -11,19 +10,17 @@
 		<div class="professionals_list">
 			<h3>Profesionales <small><span data-bind="text: filter"></span></small></h3>
 			<div class="region_scope">
-				<input type="checkbox" name="region_scope" id="regional_scope" checked="checked"> Aragoneses
-				<input type="checkbox" name="region_scope" id="national_scope" > España
-				<input type="checkbox" name="region_scope" id="worldwide_scope"> Internacional
+				<input type="radio" name="region_scope" id="regional_scope"> Aragoneses
+				<input type="radio" name="region_scope" id="national_scope" > España
+				<input type="radio" name="region_scope" id="worldwide_scope" checked="checked"> Internacional
 			</div>
 			<div class="otherdata_scope">
 				<input type="checkbox" name="freelance" id="freelance_scope" value="freelance"> Sólo autónomos (freelances)
 			</div>
 			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
 		</div>
-	
-		<div class="profile">
-			<div class="span10" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
-		</div>
+
+		<div class="profile" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
 	</div>
 
 	<div class="tags span2">
@@ -43,23 +40,23 @@
 
 
 <script id='profileTemplate' type="text/x-jquery-tmpl">
-	<h3>${name}</h3>
+	<h2>${name}</h2>
 	<img src="${image}"/>
 	<span class="bio">${bio}</span>
 	
 	<div class="clearfix"></div>
 	
 	<h3>Información de contacto</h3>
+	<ul>
 	{{if (twitter)}}
-	<p>twitter: <a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></p>
-	{{/if}}
-	
-	<p>linkedin profile: <a target="_blank" href="${linkedin_profile_url}">${linkedin_profile_url}</a></p>
-	
-	<p>${location}  (${region_display})</p>	
+	<li>twitter: <a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></li>
+	{{/if}}	
+	<li>linkedin profile: <a target="_blank" href="${linkedin_profile_url}">${linkedin_profile_url}</a></li>
+	<li>${location}  (${region_display})</li>
 	{{if (web)}}
-	<p>web site: <a target="_blank" href="${web}">${web}</a></p>
+	<li>web site: <a target="_blank" href="${web}">${web}</a></li>
 	{{/if}}
+	</ul>
 	
 	<h3>Más cosas sobre mi</h3>
 	<div>
@@ -84,9 +81,11 @@
 
 <script id='professionalTemplate' type="text/x-jquery-tmpl">
     <li>
-		<a class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>
-		<img src="${image}"/>
-		<span class="bio">${bio}</span>
-		(<span class="location">${location}</span>)
+		<div class="short">
+			<a class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>
+			<img src="${image}"/>
+			<span class="bio">${bio}</span>
+			(<span class="location">${location}</span>)
+		</div>
     </li>
 </script>

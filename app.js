@@ -107,13 +107,16 @@ app.get('/api/search', function(req, res){
 
 /*MAIN*/
 app.get('/', function(req, res){
-	res.render('index', {layout:'layout_home', title: 'Home', categories : [],  users:[], user: req.session.user});
+	var params = {scope: {region:0, freelance: true}}
+	module_users.GetUsers (redis, params, function(err, users){
+		res.render('index', {layout:'layout_home', title: 'Directorio CachiruloValley', categories : [],  users:users.slice(0,9), user: req.session.user});
+	});
 });
 
 app.get('/directory', function(req, res){
 	module_cats.GetCats (redis, null, function (err, categories){
-		res.render('index_directory', {title: 'Home', categories : categories,  users:[], user: req.session.user});
-	})
+		res.render('index_directory', {title: 'Directorio CachiruloValley', categories : categories,  users:[], user: req.session.user});
+	});
 });
 
 app.get('/login', function(req, res){

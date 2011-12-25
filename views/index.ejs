@@ -1,36 +1,27 @@
 <div class=row>
-	<h1>Directorio, logo, etc</h1>
+	<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley - Directorio">
 </div>
 <div class=row>
 	<div class="span8">
-		<h3>Presentación</h3>
-		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
-		<p>Hola, ya sabes quienes somos y lo que hacemos (si no lo sabes, accede a la <a href="http://cachirulovalley.com" target="_blank">página principal de CachiruloValley</a>, así que
-		no te habrá sorprendido que hayamos creado un directorio de profesionales.
-		</p>
-
-		<h3>A quién va orientado</h3>
-		<p>
-			Ya que nuestro ámbito de actuación es local (Aragón), este directorio está orientado a empresas y profesionales con vínculo con Aragón.
-		</p>
+		<div class="random_professionals">
+		<% for (i=0;i<users.length;i++){%>
+			<img src="<%=users[i].image%>" alt="">
+		<%}%>
+			<p>
+				Darte de alta sólo lleva 5 minutos, y únicamente necesitas una cuenta en linkedin.
+			</p>
+			<p><a href="/editprofile" class="btn large">Registrarse o editar perfil</a></p>
+		</div>
 	</div>
-	<div class="span8">
-		<h3>Qué pretendemos</h3>
-		<p>Sabemos que existen muchos directorios de profesionales, pero queríamos 
-			hacer uno con nuestra filosofía, para poder daros la oportunidad de: 
+	<div class="span7 intro">
+		<h3>Directorio de Cachirulo Valley</h3>
 		<ul>
-			<li>Buscar <strong>perfiles complementarios</strong> en vuestra región</li>
-			<li>Buscar profesionales de perfil emprendedor que están en este momento queriendo montar una empresa</li>
-			<li>Encontrar <strong>freelancers</strong></li>
-			<li>Encontrar empresas que necesitan freelancers</li>
+			<li>Busca <strong>perfiles complementarios</strong> en Aragón o fuera</li>
+			<li>Busca profesionales de perfil emprendedor que están en este momento queriendo montar una empresa</li>
+			<li>Encuentra <strong>freelancers</strong></li>
 		</ul>	
-		</p>
-		<p>
-			Darte de alta sólo lleva 5 minutos, y únicamente necesitas una cuenta en linkedin.
-		</p>
 		<p>	
-			<a href="/editprofile" class="btn large">Registrarse o editar perfil</a>
-			<a href="/directory" class="btn large">Buscar profesionales</a>
+			<a href="/directory" class="btn large primary">Entrar al directorio</a>
 		</p>
 	</div>
 </div>
@@ -55,5 +46,6 @@
 	<div class="span5">
 		<h3>También para iPhone</h3>
 		<img src="https://github.com/iloire/CachiruloValley-iOS/raw/master/screenshots/directorio.png" style="max-width:100px">
+		<p>bla bla bla</p>
 	</div>
 </div>
