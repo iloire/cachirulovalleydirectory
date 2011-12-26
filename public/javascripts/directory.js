@@ -50,6 +50,7 @@ function LoadProfessionalsByTag(idtag, scope){
 }
 
 function LoadProfessionalsByCat(idcat, scope){
+	
 	$.ajax({ url: '/api/users/bycat', data: {id:idcat, scope : scope}, dataType: 'jsonp', success: function (data) {
 		$('.profile').hide().insertAfter('body');	
 		$('ul#professionals li div.short').show();
@@ -82,7 +83,6 @@ function Search(term){
 $(document).ready(function () { 
 	
 	tags_initial_offset = $('.tags').offset();
-	console.log (tags_initial_offset)
 	
 	function getScope(){ 
 		var scope = {}
@@ -163,7 +163,36 @@ $(document).ready(function () {
 	
 	ko.applyBindings(viewModel);
 	
-	//click on first link categories
-	$('ul#categories li a').first().click();
+	//deep linking
+	$.address.init(function(event) {
+		var path=$.address.value();
+		//cat?
+		if (path.indexOf('/categories')==0){
+			var idcat = path.split ('/')[2];
+			$('ul#categories li a').each(function() {
+				if ($(this).attr('idcat') == idcat) {
+					$(this).click();
+				}
+			});
+		}
+		
+		//tags?
+		if (path.indexOf('/tags')==0){
+			var tag = path.split ('/')[2];
+			$.ajax({ url: '/api/tags', data: {id:''}, dataType: 'jsonp', success: function (data) {
+				viewModel.tags (data.tags);
+				$('ul#tags li a').each(function() {
+					if ($(this).attr('tag') == tag) {
+						$(this).click();
+					}
+				});
+				
+			}});
+		}
+
+	}).change(function(event) {
+		//$.address.title('[title].concat(names).join(' | ')');
+	});
+   
 });
 
