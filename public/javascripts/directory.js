@@ -84,6 +84,12 @@ $(document).ready(function () {
 	
 	tags_initial_offset = $('.tags').offset();
 	
+	//edit profile page
+	$('#tags_input').tagsInput({
+	  autocomplete_url: '/api/tagsautocomplete'
+	});
+	
+	
 	function getScope(){ 
 		var scope = {}
 		scope.freelance = ($('#freelance_scope').is(':checked')) ? true : false

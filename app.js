@@ -152,7 +152,6 @@ app.get('/editprofile', function (req,res){
 				user_linkedin.other_data = {}
 
 				module_users.GetUserByLinkedinId(redis, params, function (err, user){
-					console.log (user)
 					req.session.user = user || user_linkedin
 					module_cats.GetCats (redis, null, function (err, categories){
 						res.render ('edit_profile', 
