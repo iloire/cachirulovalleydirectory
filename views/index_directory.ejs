@@ -25,7 +25,8 @@
 
 	<div class="tags span2">
 		<h3>Especialidades</h3>
-		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tags}'></ul>
+		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tags}'>
+		</ul>
 	</div>		
 </div>
 
@@ -35,7 +36,7 @@
 
 <!--templates-->
 <script id='tagsTemplate' type="text/x-jquery-tmpl">
-    <li><a tag="${$data}" href="/tag/${$data}/users">${$data}</a></li>
+    <li><a tag="${$data}" rel="address:/tags/${$data}" href="/tag/${$data}/users">${$data}</a></li>
 </script>
 
 
@@ -51,7 +52,9 @@
 	{{if (twitter)}}
 	<li>twitter: <a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></li>
 	{{/if}}	
+	{{if (linkedin_profile_url)}}
 	<li>linkedin profile: <a target="_blank" href="${linkedin_profile_url}">${linkedin_profile_url}</a></li>
+	{{/if}}
 	<li>${location}  (${region_display})</li>
 	{{if (web)}}
 	<li>web site: <a target="_blank" href="${web}">${web}</a></li>

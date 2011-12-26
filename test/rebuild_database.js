@@ -35,6 +35,7 @@ var users =
 				cats: [1,5],
 				linkedin_id: 'HWHfu0v9eX',
 				twitter : 'ivanloire',
+				web: 'http://www.iloire.com',
 				tags: ['c#','node.js', 'asp.net mvc3', 'redis'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
 			},
@@ -119,6 +120,18 @@ var users =
 				cats: [2],
 				linkedin_id: '',
 				twitter : 'pensieve',
+				tags: ['photoshop','art', 'html5'],
+				other_data : {freelance: false}
+			},
+			{
+				name:'Juan Pérez',
+				bio:'Dummy user', 
+				email: 'blabla@blabla', 
+				location: 'Zaragoza', region : '10',
+				image: '', //no image
+				cats: [1,2],
+				linkedin_id: '',
+				twitter : 'dummy_user',
 				tags: ['photoshop','art', 'html5'],
 				other_data : {freelance: false}
 			}

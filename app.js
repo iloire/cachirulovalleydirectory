@@ -49,26 +49,19 @@ app.configure('production', function (){
 /*REST*/
 app.get('/api/tags', function(req, res){
 	module_tags.GetTags (redis, {}, function (err, tags){
-		res.send ( {tags:tags});
+		common.renderJSON(req, res, {tags:tags} , 200, req.query["callback"])	
 	});
 });
 
 app.get('/api/cats', function(req, res){
 	module_cats.GetCats (redis, {}, function (err, tags){
-		res.send ( {cats:tags});
+		common.renderJSON(req, res, {cats:cats} , 200, req.query["callback"])	
 	});
 });
 
 app.get('/api/tagsautocomplete', function(req, res){
 	module_tags.GetTags (redis, {}, function (err, tags){
 		res.send (tags.join('\n'))
-		/*
-		var tags_autocomplete = []
-		for (var i=0;i<tags.length;i++){
-			tags_autocomplete.push (tags[i])
-		}
-		res.send (tags_autocomplete.join('\n'))
-		*/
 	});
 });
 
@@ -98,7 +91,6 @@ app.get('/api/users/byid', function(req, res){
 app.get('/api/search', function(req, res){
 	var params = {q : req.query["q"]}
 	module_users.Search (redis, params, function (err, users){
-		console.log (users)
 		common.renderJSON(req, res, {users:users}, 200, req.query["callback"])
 	})
 });
@@ -107,15 +99,17 @@ app.get('/api/search', function(req, res){
 
 /*MAIN*/
 app.get('/', function(req, res){
-	var params = {scope: {region:0, freelance: true}}
+	var params = {scope: {region:2, freelance: false}}
 	module_users.GetUsers (redis, params, function(err, users){
 		res.render('index', {layout:'layout_home', title: 'Directorio CachiruloValley', categories : [],  users:users.slice(0,9), user: req.session.user});
 	});
 });
 
 app.get('/directory', function(req, res){
-	module_cats.GetCats (redis, null, function (err, categories){
-		res.render('index_directory', {title: 'Directorio CachiruloValley', categories : categories,  users:[], user: req.session.user});
+	module_cats.GetCats (redis, {}, function (err, categories){
+		module_tags.GetTags (redis, {}, function (err, tags){
+			res.render('index_directory', {title: 'Directorio CachiruloValley', categories : categories, tags:tags,  users:[], user: req.session.user});
+		});	
 	});
 });
 
