@@ -3,8 +3,9 @@
   , "version": "0.0.1"
   , "private": true
   , "dependencies": {
-      "express": "2.4.3"
+      "express": "2.5.0"
     , "ejs": ">= 0.0.1"
+	, "redis": ">=0.7.1"
     , "linkedin-js": ">= 0.1.4"
     , "reds": ">= 0.1.1"
     , "Faker": ">= 0.1.3"
