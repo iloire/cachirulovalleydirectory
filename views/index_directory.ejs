@@ -16,6 +16,7 @@
 			</div>
 			<div class="otherdata_scope">
 				<input type="checkbox" name="freelance" id="freelance_scope" value="freelance"> Sólo autónomos (freelances)
+				<input type="checkbox" name="entrepreneur" id="entrepreneur_scope" value="freelance"> Interesado en fundar empresa
 			</div>
 			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
 		</div>
@@ -25,7 +26,7 @@
 
 	<div class="tags span2">
 		<h3>Especialidades</h3>
-		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tags}'>
+		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tagslist}'>
 		</ul>
 	</div>		
 </div>
@@ -36,7 +37,7 @@
 
 <!--templates-->
 <script id='tagsTemplate' type="text/x-jquery-tmpl">
-    <li><a tag="${$data}" rel="address:/tags/${$data}" href="/tag/${$data}/users">${$data}</a></li>
+    <li><a tag="${name}" rel="address:/tags/${safe_name}" href="/tag/${safe_name}/users">${name}</a></li>
 </script>
 
 
@@ -70,15 +71,22 @@
 
 	   {{if other_data.freelance}}
 		 <li>Soy un profesional dado de alta como autónomo.</li>
-	   {{else}}
-		 <li>No soy autónomo</li>
 	   {{/if}}
 
 	   {{if other_data.looking_for_contracts}}
 		 <li>Busco proyectos como freelance</li>
 	   {{/if}}
 		</ul>
-
+	</div>
+	{{if portfolio.length}}
+	<h3>Portfolio</h3>
+	<div class="portfolio">
+	 {{each portfolio}}
+		${$index + 1}: 
+		<a title="${$value.descr}" href="${$value.url}">${$value.url} </a>
+		<span class="descr"></span>
+	 {{/each}}
+	{{/if}}	
 	</div>
 </script>
 

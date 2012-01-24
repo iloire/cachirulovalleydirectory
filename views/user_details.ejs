@@ -13,8 +13,7 @@
 
 			<p>
 				<span class="tags">tags: 
-				
-				<%for (var i=0;i< user.tags.length;i++) {%>
+				<%for (var i=0, len = user.tags.length; i<len; i++) {%>
 					<a href="/tag/<%=user.tags[i]%>/users"><%=user.tags[i]%></a>
 				<%}%>
 				</span> 

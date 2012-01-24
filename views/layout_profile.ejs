@@ -11,11 +11,7 @@
 				<h3><a href="/">Cachirulo directory</a></h3>
 				<ul class="secondary-nav">
 					<li>
-						<img id="loading" src="../public/images/ajax-loader.gif" alt="loading...">
-						<form method="get" action ="/search">
-							<input name="q" type="text" placeholder="Buscar">
-							<input type=submit />
-						</form>
+						<%-partial ('partial/salutation',{user:user})%>
 					</li>
 				</ul>
 			</div>

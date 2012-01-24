@@ -1,5 +1,6 @@
 var _redis = require("redis")
-var redis = _redis.createClient()
+var config = require ('../config').values
+var redis = _redis.createClient(config.server.database.port, config.server.database.host)
 var common = require ('../lib/common.js');
 
 var module_users = require("../lib/modules/users.js")

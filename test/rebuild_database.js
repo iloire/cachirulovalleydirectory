@@ -1,5 +1,7 @@
 var _redis = require("redis")
-var redis = _redis.createClient()
+var config = require ('../config').values
+var redis = _redis.createClient(config.server.database.port, config.server.database.host)
+
 var common = require ('../lib/common.js');
 
 var Faker = require('Faker');
@@ -14,8 +16,8 @@ function $() { return Array.prototype.slice.call(arguments).join(':') }
 
 /*default categories*/
 var cats = [
-			{name:'Programadores',descr:'Programadores descr'}, 
-			{name:'Diseñadores',descr:'Diseñadores descr'},
+			{name:'Programadores',descr:'Desarrolladores de software'}, 
+			{name:'Diseñadores',descr:'Diseñadores, identidad visual, branding.'},
 			{name:'SEO',descr:'Especialistas en SEO y posicionamiento'},
 			{name:'Marketing',descr:'Especialistas en Marketing'},
 			{name:'Sistemas',descr:'Administradores de sistemas'},
@@ -36,106 +38,159 @@ var users =
 				linkedin_id: 'HWHfu0v9eX',
 				twitter : 'ivanloire',
 				web: 'http://www.iloire.com',
-				tags: ['c#','node.js', 'asp.net mvc3', 'redis'],
-				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
+				tags: ['c#','node.js', 'asp.net mvc3', '.net', 'redis'],
+				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
+				portfolio : [{url:'http://iloire.com', descr:'Portfolio'},{url:'http://letsnode.com', descr:'Node.js related blog'}]
 			},
 			{
 				name:'Alberto Gimeno',
 				bio:'Entrepreneur and developer. Interested in mobile apps (iphone ipad) and high scalability (nodejs and redis). Creator of http://iosboilerplate.com', 
-				email: 'gimenete@gmail.com', 
+				email: '', 
 				location: 'Zaragoza', region : '1',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1174085383/_J106410_reasonably_small.JPG', 
 				cats: [1,5],
 				linkedin_id: '',
 				twitter : 'gimenete',
 				tags: ['redis','node.js', 'iOS'],
-				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
+				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
+				portfolio : []
 			},
 			{
 				name:'Pablo Jimeno',
 				bio:'Project Manager de Sonicbyte. Aprendiz de Ruby, metodologías ágiles y UX. Aficionado a las ciencias y la música (guitarra), entre otras. http://sonicbyte.com/', 
-				email: 'jimeno@gmail.com', 
+				email: '', 
 				location: 'Zaragoza', region : '100',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1475799969/pablo-avatar_reasonably_small.png', 
 				cats: [1,2],
 				linkedin_id: '',
 				twitter : 'pablojimeno',
 				tags: ['ror','ruby','linux', 'html5'],
-				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
+				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
+				portfolio : []
 			},
 			{
 				name:'Agustín Raluy',
 				bio:'Part time dreamer.', 
-				email: 'agustin@pordeciralgo.net', 
+				email: '', 
 				location: 'Zaragoza', region : '2',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1360363459/eldisparate_agustin_reasonably_small.jpg', 
 				cats: [3,4],
 				linkedin_id: '',
 				twitter : 'pordeciralgo',
 				tags: ['macosx','iOs','adsense','marketing online'],
-				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
+				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
+				portfolio : []
 			},
 			{
 				name:'Daniel Latorre',
 				bio:'Developer! developer! developer! Jobsket.com co-founder. Beer lover. Pueblerino', 
-				email: 'dani@danilat.com', 
+				email: '', 
 				location: 'Zaragoza', region : '1',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1432570237/la_foto__1__reasonably_small.JPG', 
 				cats: [1,4],
 				linkedin_id: '',
 				twitter : 'dani_latorre',
 				tags: ['groovy','java','mongo'],
-				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
+				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
+				portfolio : []
 			},
 			{
 				name:'Guillermo Latorre',
 				bio:'Probador de software y servicios web, :)', 
-				email: 'blabla@blabla', 
+				email: '', 
 				location: 'Zaragoza', region : '1',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1369467781/avatar-comic_reasonably_small.jpg', 
 				cats: [1,3,4],
 				linkedin_id: '',
 				twitter : 'superwillyfoc',
 				tags: ['html','html5','wordpress'],
-				other_data : {tech_partner : true, entrepreneur: true, freelance: true}
+				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
+				portfolio : []
 			},
 			{
 				name:'Fernando Val',
 				bio:'Diseñador.. y programador!', 
-				email: 'blabla@blabla', 
+				email: '', 
 				location: 'Zaragoza', region : '1',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1258768022/fer-avatar_reasonably_small.jpg', 
 				cats: [1,2],
 				linkedin_id: 'M90XVN4Qk9',
 				twitter : 'aaromindo',
 				tags: ['ror','photoshop','art', 'html5', 'css3'],
-				other_data : {tech_partner : true, entrepreneur: true, freelance: false}
+				other_data : {tech_partner : true, entrepreneur: true, freelance: false},
+				portfolio : []
 			},
 			{
 				name:'Mamen Pradel',
 				bio:'Diseño visual y de interacción', 
-				email: 'blabla@blabla', 
+				email: '', 
 				location: 'Zaragoza', region : '10',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1490167269/mamen-1sm2_reasonably_small.jpg', 
 				cats: [2],
 				linkedin_id: '',
 				twitter : 'pensieve',
 				tags: ['photoshop','art', 'html5'],
-				other_data : {freelance: false}
-			},
+				other_data : {freelance: false},
+				portfolio : []
+			}
+			,
 			{
-				name:'Juan Pérez',
-				bio:'Dummy user', 
-				email: 'blabla@blabla', 
+				name:'Eduardo Izquiero',
+				bio:'Desarrollador web (Java, .Net) y móvil, creando mis primeras aplicaciones Android, y conociendo otras como Ruby, Grails. Algo hay que hacer.', 
+				email: '', 
 				location: 'Zaragoza', region : '10',
-				image: '', //no image
+				image: 'https://twimg0-a.akamaihd.net/profile_images/1367128454/22b7cfa2-5033-447e-91d7-3f9410575ccf_reasonably_small.png',
 				cats: [1,2],
 				linkedin_id: '',
-				twitter : 'dummy_user',
-				tags: ['photoshop','art', 'html5'],
-				other_data : {freelance: false}
+				twitter : 'SirMartinPiribi',
+				tags: ['grails','java', '.net', 'Android'],
+				other_data : {freelance: false},
+				portfolio : []
 			}
-			
+			,
+			{
+				name:'Santiago Magaña',
+				bio:'Quien volviendo a hacer el camino viejo aprende el nuevo, puede considerarse un maestro.', 
+				email: '', 
+				location: 'Zaragoza', region : '10',
+				image: 'https://twimg0-a.akamaihd.net/profile_images/1318250314/santi_reasonably_small.jpg',
+				cats: [1,2],
+				linkedin_id: '',
+				twitter : 'Shantydroid',
+				tags: ['.NET','iOS', '.net'],
+				other_data : {freelance: false},
+				portfolio : []
+			}
+			,
+			{
+				name:'David Olmos',
+				bio:'Java & iOS developer (iPhone - iPad). Desarrollador de cosicas como @FarmaZGZ, infoZaragoza o @DivisasApp. Desarrollador en @cuentica', 
+				email: '', 
+				location: 'Zaragoza', region : '10',
+				image: 'https://twimg0-a.akamaihd.net/profile_images/1727230211/06D6365D-D90E-4AA1-B60A-AC19EB8B1A4A_reasonably_small', 
+				cats: [1,2],
+				linkedin_id: '',
+				web: 'http://www.davidolmos.com',
+				twitter : 'olmeras',
+				tags: ['iOS'],
+				other_data : {freelance: false},
+				portfolio : []
+			}
+			,
+			{
+				name:'Héctor Rodríguez',
+				bio:'iOS and Java developer. Learning Node', 
+				email: '', 
+				location: 'Zaragoza', region : '10',
+				image: 'https://twimg0-a.akamaihd.net/profile_images/1509955857/ACEA7CF2-8880-4848-B8BA-DAF8BEC0F702_reasonably_small',
+				cats: [1,2],
+				linkedin_id: '',
+				web: 'http://bit.ly/rPFL8H',
+				twitter : 'olmeras',
+				tags: ['iOS','Node.js'],
+				other_data : {freelance: false},
+				portfolio : []
+			}
 		]
 
 //some tags also
@@ -290,7 +345,6 @@ function AddUsersFromTwitterByKeyWord(hashtag, callback){
 				user.tags = [hashtag];
 		
 				users.push (user);
-				//console.log ('user ' + user.name + ' added from hashtag ' + hashtag)
 			}
 			callback (null);
 		}
@@ -325,13 +379,8 @@ function CheckPopulatedUsers(callback){
 					console.log (users[u])
 					throw 'Error checking users. Prop  ' + prop + ' not found. u=' + u + ', ' + JSON.stringify(users_db[u][prop]) + '!=' + JSON.stringify(users[u][prop])
 				}
-				
-				//console.log (user[prop])
 			}
 		}
-			
-		//console.log(users_db)
-		//console.log(users)
 		callback (err, err ? null : 'users populated');
 	});
 }

@@ -1,25 +1,101 @@
 body {
-	padding-top: 60px;
-	font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	padding-top: 120px;
+	font: 14px Helvetica, Arial, sans-serif;
 	background-image: url(../images/bgnoise_lg.png);
+	color: #223345 !important;
 }
 
 body.home{
-	padding-top:10px;
+	padding-top:130px;
+}
+
+a{
+	font-family: 'Ubuntu Condensed', sans-serif;
+}
+p, ul, ol, li{
+	color: #223345;
+}
+h1, h2, h3, h4, h5{
+	font-family: 'Ubuntu', sans-serif;
+	color: #223345;
+}
+.body h3{
+	border-bottom: 1px dotted #28889F;
+	margin-bottom: 10px !important;
+	font-size: 1.5em !important;
+	color: #C64633;
+}
+.wrapper{
+	margin-top: 80px;
 }
 
 div.intro{
 	margin-top:20px;
 }
-div.random_professionals {
-	padding:20px;
+
+.random_professionals img, img.logo{
+	border: 5px solid #fff !important;
+	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
 }
 
-div.random_professionals img {
-	padding:5px;
-	margin:3px;
-	max-width:70px;
+img.logo{
+	float: right;
+	border: 10px solid #fff !important;
+	-webkit-transform: rotate(9deg);	
+	-moz-transform: rotate(9deg);
+	-ms-transform: rotate(9deg);
+	-o-transform: rotate(9deg);
+	transform: rotate(9deg);
+}
+.wrapper img.logo{
+	width:150px;
+}
+.random_professionals img{
+	width: 85px;
+	margin: 0 10px 10px 0;
 	box-shadow: 0px 0px 5px #aaa;	
+}
+.random_professionals{
+	float: left;
+	margin-top: -120px;
+	background-color: #fff;
+	border: 1px dotted #C64633;
+	padding: 10px;
+	border-radius: 5px;
+	margin-bottom: 40px;
+}
+.random_professionals p{
+	font-size: 1.5em;
+	line-height: 1.5em;
+	color: #C64633;
+	font-family: 'Ubuntu', sans-serif;
+}
+.random_professionals .btn{
+	background-color: #C64633 !important;
+	background-image:-webkit-linear-gradient(top, rgba(255, 200, 0, 0.3), #C64633) !important;
+	margin-top: 40px;
+}
+.intro .btn{
+	background-color: #28889F !important;
+	background-image:-webkit-linear-gradient(top, rgba(205, 255, 255, 0.3), #08687F) !important;
+	content: "hola";
+}
+.intro .btn:before, .random_professionals .btn:before{
+	content: "» ";
+}
+.intro .btn, .random_professionals .btn{
+	background-image: none;
+	border-radius: 100px;
+	color: #fff;
+	text-transform: uppercase;
+	text-align: center;
+	font-size: 22px;
+	border-radius: 100px;
+	padding: 10px 40px;
+	border: 2px solid #fff;
+	text-shadow: 0px 1px 0px #000;
+	box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.8) !important;
+	box-shadow: 0px -2px 0px rgba(141, 196, 223, 0.8);
 }
 
 div.clearfix {clear:both;}
@@ -78,10 +154,6 @@ ul#professionals > li{
 input#searchBox{
 	margin-top:5px;
 }
-img.logo{
-	width:130px;
-	margin-left:30px;
-}
 
 img#loading{	display:none; /*initial state*/;}
 
@@ -93,7 +165,7 @@ div.profile {
 	border:solid 1px #c2c2c2;
 	padding:10px 25px 25px 25px;
 	margin-bottom:10px;
-	box-shadow: 0px 0px 10px #aaa;	
+	box-shadow: 0px 0px 10px #aaa;
 }
 
 div.profile h2 {
@@ -107,6 +179,23 @@ div.profile img{
 	float:left;
 	margin:0px 10px 5px 0px;
 	max-width:80px;
+}
+
+div.portfolio label{
+	width:30px; !important;
+}
+
+div.portfolio .input{
+	margin-left:50px; !important;
+}
+
+div.portfolio .input textarea, div.portfolio .input input{
+	width:310px !important;
+}
+
+div.portfolio textarea{
+	height:50px !important;
+	margin:5px 0px 15px 0px;
 }
 
 form.editprofile textarea{
@@ -129,3 +218,62 @@ form span.error {
 	display:block;
 }
 
+.topbar h3 a{
+	color: red !important;
+	display: block;
+	width: 283px;
+	height: 61px;
+	background: none !important;
+	background: url("../images/logo-directorio.png") no-repeat top center !important;
+	text-indent: -2000px;
+	overflow: hidden;
+	border-radius: 0px;
+	margin: 0px 0px;
+	opacity: 0.95;
+	-moz-opacity: 0.95;
+	filter:alpha(opacity=95);
+	margin-top: -20px;
+}
+.topbar h3 a:hover{
+	background: none !important;
+	background: url("../images/logo-directorio.png") no-repeat top center !important;
+	opacity: 1;
+	-moz-opacity: 1;
+	filter:alpha(opacity=1);
+}
+
+.topbar{
+	height: 80px !important;
+	background-image: url(../images/textil-bg.png);
+}
+.topbar-inner,.topbar .fill{
+	height: 80px !important;
+	line-height: 80px !important;
+	padding-top: 20px !important;
+	background: url(../images/textil-bg.png) repeat top left !important;
+}
+
+.topbar a{
+	color: #28889F !important;
+	padding: 4px 10px !important;
+	border-radius: 100px;
+	background-color: #28889F !important;
+	color: #F6F3ED !important;
+	margin-left: 10px;
+	text-shadow: 0px -1px 0px #000;
+	font-size: 1.2em;
+	text-transform: uppercase;
+	box-shadow: 0px 2px 0px #000;
+	box-shadow: 0px -1px 0px rgba(141, 196, 223, 0.8);
+}
+.topbar a:hover{
+	background-color: #8DC4DF !important;
+	color: #fff !important;
+}
+
+.salutation{
+	display: block;	
+	color:white;
+	padding: 10px 10px 11px;
+	line-height: 19px;
+}

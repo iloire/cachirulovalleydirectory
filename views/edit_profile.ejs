@@ -1,12 +1,3 @@
-<div class="alert-message block-message warning">
-	<h3>
-		Hola <%= user.name %>
-    </h3>
-    <p>Crea o edita tu perfil CachiruloValley. Tus datos no serán cedidos a terceras partes. Te pedimos los mínimos datos para
-	completar tu perfil.
-	</p>
-</div>
-
 <%if (typeof(success)!="undefined" && success.length){%>
 <div class="alert-message block-message success">
 	<h3>Formulario enviado con éxito</h3>
@@ -18,13 +9,22 @@
 	<h3>Error :S</h3>
 	<p><%=error%></p>
 </div>
+<%} else {%>
+	<div class="alert-message block-message warning">
+		<h3>
+			Hola <%= user.name %>
+	    </h3>
+	    <p>Crea o edita tu perfil CachiruloValley. Tus datos no serán cedidos a terceras partes. Te pedimos los mínimos datos para
+		completar tu perfil.
+		</p>
+	</div>
 <%}%>
+
 
 <form action="/editprofile" method="post" class="editprofile">
 	<div class="row">
 		<div class="span8">
 			<h3>1. Datos generales</h3>
-			
 				<% if (user.image) {%>
 				<div class="clearfix">
 					<div class="input">
@@ -92,16 +92,30 @@
 						<%-partial ('partial/display_error', {error: validation_errors['location'] })%>
 					</div>
 				</div>
+			<h3>2. Portfolio</h3>
+				<p>Puedes introducir aquí hasta 5 direcciones de proyectos que hayas creado o en los que hayas participado, así como una descripción de los mismos.</p>
+				<div class="portfolio">
+					<%for (var i=0;i<5;i++){%>
+					<label>url <%=(i+1)%>) </label> 
+					<div class="input">
+						<input placeholder="http://mysite.com" type="text" name="portfolio_url<%=i%>" value="<%= user.portfolio[i] ? (user.portfolio[i].url || "") : "" %>">
+						<%-partial ('partial/display_error', {error: validation_errors['portfolio_url' + i] })%>
+						<textarea type="text" placeholder="Descripción de este trabajo" name="portfolio_descr<%=i%>"><%= user.portfolio[i] ? (user.portfolio[i].descr || "") : "" %></textarea>
+						<%-partial ('partial/display_error', {error: validation_errors['portfolio_descr' + i] })%>
+					</div>
+					<%}%>
+				</div>
+			
 		</div>
 		<div class="span8">
 			<h3>Categorías o grupos profesionales</h3>
 			<p>¿En qué grupos o categorías te incluirías? (máx 3)</p>
 			<ul>
 
-			<%for (var c=0;c<categories_available.length;c++){
+			<%for (var c=0, len_cat = categories_available.length; c < len_cat; c++){
 				var exists = false;
 				if (user.cats){
-					for (k=0;k<user.cats.length;k++){
+					for (k=0, k_len = user.cats.length; k < k_len; k++){
 						if (user.cats[k]==categories_available[c].id)
 							exists=true
 					}
@@ -147,6 +161,6 @@
 		</div>
 	</div>
 	<div class="actions">
-		<input type="submit" class="btn primary" value="Enviar">
+		<input type="submit" class="btn primary" value="Guardar datos y crear / modificar perfil">
 	</div>
 </form>
