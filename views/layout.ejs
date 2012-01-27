@@ -10,15 +10,14 @@
 			<div class="container fixed">
 				<h3><a href="/">Cachirulo directory</a></h3>
 				<ul class="nav">
-					<li><a href="/editprofile">alta/modificar perfil</a></li>
+					<li><a class="editprofile" href="/editprofile">alta/modificar perfil</a></li>
 					<li><a id="what" href="#">?</a></li>
 				</ul>
 				<ul class="secondary-nav">
 					<li>
 						<img id="loading" src="images/ajax-loader.gif" alt="loading...">
-						<input id="searchBox" type="text" placeholder="Search professionals">
-					</li>
-					<li>
+						<input id="searchBox" name="searchBox" type="text" placeholder="Search professionals">
+						<br>
 						<%-partial ('partial/salutation',{user:user})%>
 					</li>
 				</ul>

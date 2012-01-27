@@ -1,9 +1,9 @@
 <% if (!user) { %>
-	<a href="/editprofile">
+	<a href="/login">
 		Entrar
 	</a>
 <% } else { %>
 	<span class="salutation">
-		Hola <%= user.name %>!
+		Hola <%= user.name %>! (<a href="/logout">salir</a>)
 	</span>
 <% } %>

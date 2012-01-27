@@ -2,8 +2,10 @@ var viewModel = {
 	professionals: ko.observableArray(),
 	profile: ko.observable(),
 	tags: ko.observableArray(),
-	filter: ko.observable()
+	filter: ko.observableArray()
 };
+
+var tags_initial_offset = 0;
 
 viewModel.tagslist = ko.dependentObservable(function() {
 	var tags=[];
@@ -13,8 +15,6 @@ viewModel.tagslist = ko.dependentObservable(function() {
 	}
 	return tags;
 }, viewModel);
-
-var tags_initial_offset ;
 
 function LoadProfile(id_profile, container){
 	var use_ajax = false;
@@ -37,7 +37,8 @@ function LoadProfile(id_profile, container){
 				viewModel.profile (users[i]);
 				viewModel.tags (users[i].tags);
 				var profile_offset = $('.profile').offset();
-				$('.tags').offset({top:profile_offset.top})
+				$('.tags').offset({top:profile_offset.top});
+				scroll(0,profile_offset.top-100);
 				break;
 			}
 		}
@@ -50,12 +51,54 @@ function set_display_professionals_list (){
 	$('.professionals_list').fadeIn();	
 }
 
+function getScope(){ 
+	var scope = {}
+	
+	scope.freelance = ($('#freelance_scope').is(':checked')) ? true : false
+	scope.entrepreneur = ($('#entrepreneur_scope').is(':checked')) ? true : false
+	
+	if ($('#worldwide_scope').is(':checked')){
+		scope.region=2
+	}
+	else if ($('#national_scope').is(':checked')){
+		scope.region=1
+	}
+	else if ($('#regional_scope').is(':checked')){
+		scope.region=0 //regional
+	}
+	else
+		scope.region=2 //nothing selected
+		
+	return scope;
+}
+
+function setFilterDisplay (initial_filter, scope){
+	if (scope.region==2){
+		initial_filter.push({name: 'Región', value: 'Todos'});
+	}
+	else if (scope.region==1){
+		initial_filter.push({name: 'Región', value: 'Nacional'});
+	}
+	else if (scope.region==0){
+		initial_filter.push({name: 'Región', value: 'Aragonés'});
+	}	
+	
+	if (scope.freelance)
+		initial_filter.push({name: 'Freelance', value: ''});
+
+	if (scope.entrepreneur)
+		initial_filter.push({name: 'Emprendedor', value: ''});
+			
+	viewModel.filter (initial_filter);
+}
+
 function LoadProfessionalsByTag(idtag, scope){
-	$.ajax({ url: '/api/users/bytag', data: {id:idtag, region_scope : scope.region}, dataType: 'jsonp', success: function (data) {
+	$.ajax({ url: '/api/users/bytag', data: {id:idtag, scope : scope}, dataType: 'jsonp', success: function (data) {
 		set_display_professionals_list();
 		viewModel.professionals (data.users);
-		viewModel.filter ('especialidad: ' + idtag);
-		$('.tags').offset({top: tags_initial_offset.top})
+		setFilterDisplay([{name: 'Tag', value: idtag}], scope);
+		$('.tags').offset({top: tags_initial_offset.top});
+		scroll(0,0);
 		}
 	});
 }
@@ -66,8 +109,9 @@ function LoadProfessionalsByCat(idcat, scope){
 		$('.tags').fadeIn();
 		viewModel.professionals (data.users);
 		viewModel.tags (data.tags);
-		viewModel.filter ('categoría: ' + idcat)
-		$('.tags').offset({top: tags_initial_offset.top})
+		setFilterDisplay([{name: 'Categoría', value: data.cat.name}], scope);
+		$('.tags').offset({top: tags_initial_offset.top});
+		scroll(0,0);
 	}
 	});
 }
@@ -82,41 +126,14 @@ function Search(term){
 		$('.professionals_list').fadeIn();
 		viewModel.professionals (data.users)
 		$('#loading').fadeOut();
-		viewModel.filter ('búsqueda: ' + term)
+		viewModel.filter ([{name: 'Search', value: term}]);
 	}
 	});
 }
 
-$(document).ready(function () { 
-	
+$(document).ready(function () {
 	tags_initial_offset = $('.tags').offset();
-	
-	//edit profile page
-	$('#tags_input').tagsInput({
-	  autocomplete_url: '/api/tagsautocomplete'
-	});
-	
-	
-	function getScope(){ 
-		var scope = {}
-		scope.freelance = ($('#freelance_scope').is(':checked')) ? true : false
-		scope.entrepreneur = ($('#entrepreneur_scope').is(':checked')) ? true : false
 		
-		if ($('#worldwide_scope').is(':checked')){
-			scope.region=2
-		}
-		else if ($('#national_scope').is(':checked')){
-			scope.region=1
-		}
-		else if ($('#regional_scope').is(':checked')){
-			scope.region=0 //regional
-		}
-		else
-			scope.region=2 //nothing selected
-			
-		return scope;
-	}
-	
 	function reclick (){
 		if ($('ul#categories li.selected a').length)
 			$('ul#categories li.selected a').click();
@@ -141,6 +158,34 @@ $(document).ready(function () {
 	$('a.viewprofile').live ('click', function(){
 		var id=$(this).attr('idProfile');
 		LoadProfile (id, $(this).closest('div.short'));
+		return false;
+	});
+
+	$('span.voteBox a').live ('click', function(){
+		var id = $(this).attr('idProfile');
+		var vote = $(this).attr('vote');
+		 $.ajax({
+				type: "POST",
+				url: '/vote',
+				data: { user_voted_id: id, vote : vote},
+				success: function onSuccess(data, status){
+					viewModel.profile(data.user);
+					var users = viewModel.professionals();
+					for(var i=0;i<users.length;i++){
+						if (users[i].id==id){
+							users[i] = data.user;
+						}
+					}
+				},
+	        	error: function onError(data, status){
+					if (data.status==403){
+						alert('Error, session expired of permission denied');
+					}else {	
+						alert('Error processing vote');
+					}
+				}
+	    });
+		//alert(id);
 		return false;
 	});
 

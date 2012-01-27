@@ -23,5 +23,16 @@
 	</div>
 
 	<%-partial ('partial/js_includes')%>
+	<script src="/javascripts/jquery.tagsinput.js"></script>
+	<script>
+	$(document).ready(function () { 
+		tags_initial_offset = $('.tags').offset();
+
+		$('#tags_input').tagsInput({
+		  autocomplete_url: '/api/tagsautocomplete'
+		});
+	});	
+	
+	</script
   </body>
 </html>

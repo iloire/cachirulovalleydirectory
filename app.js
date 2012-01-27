@@ -1,6 +1,5 @@
 var express = require('express');
-var app = module.exports = express.createServer();
-var http_wrapper = require ('./lib/http_wrapper.js');
+//var http_wrapper = require ('./lib/http_wrapper.js');
 var config = require ('./config').values
 var common = require ('./lib/common.js');
 var api = require ('./api');
@@ -9,13 +8,16 @@ var module_cats = require("./lib/modules/cats.js")
 var module_tags = require("./lib/modules/tags.js")
 var module_users = require("./lib/modules/users.js")
 
-var linkedin_client = require('linkedin-js')(config.LINKEDIN_API_KEY, config.LINKEDIN_SECRET_KEY, config.base_url + "/editprofile")
+var linkedin_client = require('linkedin-js')(
+	config.LINKEDIN_API_KEY, 
+	config.LINKEDIN_SECRET_KEY, 
+	config.base_url + "/login"
+)
 
-//redis
+var app = module.exports = express.createServer();
+
 var _redis = require("redis")
 var redis = _redis.createClient(config.server.database.port, config.server.database.host)
-
-var port = parseInt(process.argv[2], 10) || 3000
 	
 app.configure(function(){
 	app.set('views', __dirname + '/views');
@@ -24,7 +26,7 @@ app.configure(function(){
 	app.use(express.methodOverride());
 	app.use(express.cookieParser());
 
-	var sessionManagementType=1
+	var sessionManagementType = 1
 	if (sessionManagementType==0){
 		app.use(express.session({ secret: 'your secret here.. shhaahh' }));
 	}
@@ -56,6 +58,73 @@ app.get('/', function(req, res){
 	});
 });
 
+app.get('/login', function(req, res){
+	if (!req.session.user){
+		linkedin_client.getAccessToken(req, res, function (error, token) 
+		{
+		    if (error){
+				res.redirect ('/')
+				return;
+			}
+			req.session.token = token;
+			
+			function get_user_or_new_from_linkedin_data(user_linkedin, callback){
+				var params = {linkedin_id : user_linkedin.linkedin_id}
+				module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
+					if (user_db){
+						callback (user_db);
+					}
+					else{
+						//doesn't exist in the database yet
+						//convert from linkedin user data type to our data type
+						var user = {}
+						user.linkedin_id = user_linkedin.id;
+						user.name = user_linkedin.firstName + ' ' + user_linkedin.lastName;
+						user.bio = user_linkedin.headline;
+						user.image = user_linkedin.pictureUrl;
+						user.location = user_linkedin.location.name;
+						user.other_data = {};
+						user.portfolio = {};
+						callback (user);
+					}
+				});
+			}
+			
+			linkedin_client.apiCall('GET', '/people/~:(' + linkedin_scope +')',
+			{
+				token: {
+					oauth_token_secret: req.session.token.oauth_token_secret,
+					oauth_token: req.session.token.oauth_token
+				}
+				, share: {
+					visibility: {code: 'anyone'}
+				}
+			}
+			, function (error, user_linkedin) {
+				if (error){
+					console.log (error)
+				}else{
+					user_linkedin.linkedin_id = user_linkedin.id; //save id from linkedin in our linkedin_id property
+					user_linkedin.id = null;
+					get_user_or_new_from_linkedin_data(user_linkedin, function (user){
+						req.session.user = user;
+						if (req.session.redirect){
+							res.session.redirect = null;
+							res.redirect(req.session.redirect);
+						}
+						else{
+							res.redirect('/directory');
+						}
+					});
+				}
+			});
+		});	
+	}
+	else{
+		res.redirect('/');
+	}
+});
+
 app.get('/search', function(req, res){
 	res.redirect ('/directory#/search/' + encodeURIComponent(req.query['q']))
 });
@@ -68,8 +137,26 @@ app.get('/directory', function(req, res){
 	});
 });
 
+/*
 app.get('/login', function(req, res){
-	res.redirect ('/auth/linkedin')
+	res.redirect ('/auth/linkedin');
+});
+*/
+
+app.post('/vote', function(req, res){
+	if (!req.session.user){
+		common.renderJSON(req, res, {error: 'no session'}, 403)
+		return;
+	}
+	var params = {uservoted: {id: req.param('user_voted_id')}, user: req.session.user, vote: req.param('vote'), logged_user: req.session.user};
+	module_users.VoteUser (redis, params , function (err, status){
+		if (err){
+			common.renderJSON(req, res, err, 503, req.query["callback"])
+		}
+		else{
+			common.renderJSON(req, res, status, 200, req.query["callback"])
+		}
+	});
 });
 
 app.get('/logout', function(req, res){
@@ -86,10 +173,6 @@ app.get('/editprofile', function (req,res){
 	}
 	
 	function render (user){
-		if (!user.portfolio){
-			user.portfolio = [];
-		}
-		
 		module_cats.GetCats (redis, null, function (err, categories){
 			res.render ('edit_profile', 
 				{
@@ -106,226 +189,201 @@ app.get('/editprofile', function (req,res){
 		})
 	}
 
-	function load_and_render(user_linkedin){
-		var params = {linkedin_id : user_linkedin.id}
-		module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
-			if (user_db){
-				req.session.user = user_db;
-				render (user_db);
-			}
-			else{
-				var user = {}
-				user.name = user_linkedin.firstName + ' ' + user_linkedin.lastName;
-				user.bio = user_linkedin.headline;
-				user.image = user_linkedin.pictureUrl;
-				user.location = user_linkedin.location.name;
-				user.other_data = {};
-				req.session.user = user;
-				render (user);
-			}
-		});
-	}
+
 	
 	if (!req.session.user){
-		linkedin_client.getAccessToken(req, res, function (error, token) {
-		    if (error){
-				res.redirect ('/editprofile')
-				return;
-			}
-			req.session.token = token;
-			linkedin_client.apiCall('GET', '/people/~:(' + linkedin_scope +')',
-			    {
-			      token: {
-			        oauth_token_secret: req.session.token.oauth_token_secret,
-			        oauth_token: req.session.token.oauth_token
-			      }
-				, share: {
-					visibility: {code: 'anyone'}
-			      }
-			    }
-			  , function (error, user_linkedin) {
-					load_and_render(user_linkedin);
-			    }
-			 );
-
-		  });	
+		req.session.redirect = '/editprofile';
+		res.redirect ('/login');
 	}
 	else{
-		console.log (req.session.user)
-		render(req.session.user)
+		var params = {id : req.session.user.id}
+		module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
+			if(user_db)
+				render(user_db)
+			else{
+				render(req.session.user); //user is not recorded yet
+			}
+		});
 	}
 });
 
 //edit or create profile POST
 app.post ('/editprofile', function (req,res){
-	linkedin_client.apiCall('GET', '/people/~:(' + linkedin_scope + ')',
-	    {
-	      token: {
-	        oauth_token_secret: req.session.token.oauth_token_secret,
-	        oauth_token: req.session.token.oauth_token
-	      }
-		, share: {
-			visibility: {code: 'anyone'}
-	      }
-	    }
-	  , function (error, user_linkedin) {
-			if (error){
-				console.log (error)
-				res.end ('error contacting linkedin oauth provider. please try again (sorry!)')
+	if (!config.registration_enabled){
+		res.send ('En este momento el formulario de registro y modificación de perfil no está habilitado')
+		return;
+	}
+	
+	if (!req.session.user){
+		console.log ('user session not found')
+		res.redirect ('/editprofile')
+		return;
+	}
+
+	var user = {
+		id : req.session.user.id,
+		linkedin_id : req.session.user.linkedin_id,
+		name : req.param('name') || '', 
+		email : req.param('email') || '',
+		bio : req.param('bio') || '',
+		location : req.param('location') || '',
+		region : req.param('region') || '',
+		web : req.param('web') || '',
+		image : req.session.user.image,
+		twitter : (req.param('twitter') || '').replace('@',''),
+		cats : req.param ('categories_available') || [],
+		tags : req.param ('tags') ? req.param ('tags').split(',') : [], 
+		other_data :  {
+			vc_partner : req.param ('vc_partner') || false,
+			tech_partner : req.param ('tech_partner') || false,
+			business_partner : req.param ('business_partner') || false,
+			entrepreneur : req.param ('entrepreneur') || false,
+			freelance : req.param ('freelance') || false,
+			looking_for_contracts: req.param ('looking_for_contracts') || false
+		}
+	}
+	
+	//console.log (user)
+
+	user.portfolio=[]
+	for (var i=0;i<5;i++){
+		user.portfolio[i] = {url: req.param('portfolio_url'+i), descr: req.param('portfolio_descr'+i)};
+	}
+
+	//validation
+	var validation_errors=[]
+	var valid=true;
+
+	//validation config
+	var max_name = 50
+	var max_bio=200	
+	var min_bio=10;
+	var cats_min = 1
+	var cats_max = 3
+	var tags_max = 15
+	var tags_min = 3
+	var tag_max_length = 25
+	var max_portfolio_descr = 200
+	var min_portfolio_descr = 5
+	
+
+	if (!user.name){
+		validation_errors['name'] = 'Por favor introduce tu nombre';
+		valid = false;
+	}
+	else if (user.name.length > max_name){
+		validation_errors['name'] = 'Máximo número de carácteres: ' + max_name;
+		valid = false;
+	}
+
+	//bio validation
+	if (!user.bio || user.bio.length<min_bio){
+		validation_errors['bio'] = 'Por favor introduce un texto descriptivo de más de ' + min_bio + ' caracteres';
+		valid = false;
+	}
+	else if (user.bio.length>max_bio){
+		validation_errors['bio'] = 'Máximo número de carácteres: '+ max_bio;
+		valid = false;
+	}
+
+	//email validation
+	if (!user.email){
+		validation_errors['email'] = 'Por favor introduce tu email';
+		valid = false;
+	}
+	else if (!common.validateEmail(user.email)){
+		validation_errors['email'] = 'Por favor introduce un email válido';
+		valid = false;
+	}
+
+	if (user.cats.length > cats_max){
+		validation_errors['cats'] = 'Elige un máximo de ' + cats_max + ' categorías';
+		valid = false
+	}
+	else if (user.cats.length < cats_min){
+		validation_errors['cats'] = 'Elige al menos una categoría';
+		valid = false
+	}
+
+	//tag validation
+	if (user.tags.length < tags_min){
+		validation_errors['tags'] = 'Por favor introduce al menos ' + tags_min + ' tags';
+		valid = false
+	}
+	else if (user.tags.length > tags_max){
+		validation_errors['tags'] = 'El número máximo de tags es ' + tags_max;
+		valid = false
+	}
+	else {
+		for (t=0;t<user.tags.length;t++){
+			if (user.tags[t].length>tag_max_length){
+				validation_errors['tags'] = 'Tag "' + user.tags[t] + '" inválido (' + user.tags[t].length + ' caracteres). El máximo número de caractéres para cada tag es ' + tag_max_length;
+				valid = false
+				break;
 			}
+		}
+	}
+
+	//region
+	if (!user.region){
+		validation_errors['region'] = 'Por favor seleccione su región';
+		valid = false;
+	}
+
+	//location
+	if (!user.location){
+		validation_errors['location'] = 'Por favor seleccione su ubicación';
+		valid = false;
+	}
+	
+	//portfolio validation
+	for (var i=0;i<user.portfolio.length;i++){
+		if (!user.portfolio[i].url){
+			user.portfolio.splice(i,1);
+			i--;
+		}
+		else{ //got url
+			//max_portfolio_descr
+			if (user.portfolio[i].descr.length>max_portfolio_descr){
+				validation_errors['portfolio_descr' + i] = 'Descripción demasiado larga';
+				valid = false;
+			}
+			else if (user.portfolio[i].descr.length<min_portfolio_descr){
+				validation_errors['portfolio_descr' + i] = 'Descripción demasiado corta';
+				valid = false;
+			}
+		}
+	}
+
+	function showErrors (user, validation_errors){
+		module_cats.GetCats (redis, null, function (err, categories){
+			res.render ('edit_profile', {
+				title: 'Crear / editar profile', 
+				error: 'Ha ocurrido un error procesando el formulario. Por favor revisa los datos introducidos', 
+				regions : config.regions,
+				validation_errors : validation_errors,
+				categories_available : categories,
+				user: user,
+				layout: 'layout_profile'
+			});	
+		});
+	}
+
+	if (!valid){
+		showErrors(user, validation_errors);
+	}
+	else{
+		module_users.AddOrEditUser(redis, {user:user}, function (err, user_db){
+			if (err)
+				showErrors(user, validation_errors);
 			else{
-				var user = {
-					linkedin_id : user_linkedin.id,
-					linkedin_profile_url : user_linkedin.publicProfileUrl,
-					name : req.param('name'), 
-					email : req.param('email'),
-					bio : req.param('bio'),
-					location : req.param('location'),
-					region : req.param('region'),
-					web : req.param('web'),
-					image : user_linkedin.pictureUrl,
-					twitter : req.param('twitter'),
-					cats : req.param ('categories_available') || [],
-					tags : (req.param ('tags') || "").split(','),
-					other_data :  {
-						vc_partner : req.param ('vc_partner') || false,
-						tech_partner : req.param ('tech_partner') || false,
-						business_partner : req.param ('business_partner') || false,
-						entrepreneur : req.param ('entrepreneur') || false,
-						freelance : req.param ('freelance') || false,
-						looking_for_contracts: req.param ('looking_for_contracts') || false
-					}
-				}
-			
-				user.portfolio=[]
-				for (var i=0;i<5;i++){
-					user.portfolio[i] = {url: req.param('portfolio_url'+i), descr: req.param('portfolio_descr'+i)};
-				}
-
-				//validation
-				var validation_errors=[]
-				var valid=true;
-
-				//name validation
-				var max_name = 50
-				if (!user.name){
-					validation_errors['name'] = 'Por favor introduce tu nombre';
-					valid = false;
-				}
-
-				if (user.name.length > max_name){
-					validation_errors['name'] = 'Máximo número de carácteres: ' + max_name;
-					valid = false;
-				}
-
-				//bio validation
-				if (!user.bio){
-					validation_errors['bio'] = 'Por favor introduce un texto descriptivo';
-					valid = false;
-				}
-
-				var max_bio=200
-				if (user.bio.length>max_bio){
-					validation_errors['bio'] = 'Máximo número de carácteres: '+ max_bio;
-					valid = false;
-				}
-
-				//email validation
-				if (!user.email){
-					validation_errors['email'] = 'Por favor introduce tu email';
-					valid = false;
-				}
-
-				if (!common.validateEmail(user.email)){
-					validation_errors['email'] = 'Por favor introduce un email válido';
-					valid = false;
-				}
-
-
-				//cat validation
-				var cats_max = 3
-				if (user.cats.length > cats_max){
-					validation_errors['cats'] = 'Elige un máximo de ' + cats_max + ' categorías';
-					valid = false
-				}
-
-				if (user.cats.length < 1){
-					validation_errors['cats'] = 'Elige al menos una categoría';
-					valid = false
-				}
-
-
-				//tag validation
-				var tags_max = 15
-				var tag_max_length = 25
-				if (user.tags.length > tags_max){
-					validation_errors['tags'] = 'El número máximo de tags es ' + tags_max;
-					valid = false
-				}
-			
-				for (t=0;t<user.tags.length;t++){
-					if (user.tags[t].length>tag_max_length){
-						validation_errors['tags'] = 'Tag "' + user.tags[t] + '" inválido (' + user.tags[t].length + ' caracteres). El máximo número de caractéres para cada tag es ' + tag_max_length;
-						valid = false
-						break;
-					}
-				}
-
-				//region
-				if (!user.region){
-					validation_errors['region'] = 'Por favor seleccione su región';
-					valid = false;
-				}
-
-				//location
-				if (!user.location){
-					validation_errors['location'] = 'Por favor seleccione su ubicación';
-					valid = false;
-				}
-			
-				//portfolio validation
-				for (var i=0;i<user.portfolio.length;i++){
-					if (!user.portfolio[i].url){
-						user.portfolio.splice(i,1);
-						i--;
-					}
-				}
-
-				function showErrors (user, validation_errors){
-					module_cats.GetCats (redis, null, function (err, categories){
-						res.render ('edit_profile', {
-							title: 'Crear / editar profile', 
-							error: 'Ha ocurrido un error procesando el formulario. Por favor revisa los datos introducidos', 
-							regions : config.regions,
-							validation_errors : validation_errors,
-							categories_available : categories,
-							user: user,
-							layout: 'layout_profile'
-						});	
-					});
-				}
-
-				if (!valid){
-					showErrors(user, validation_errors);
-				}
-				else{
-					module_users.AddOrEditUser(redis, {user:user}, function (err, user_db){
-						if (err)
-							showErrors(user, validation_errors);
-						else{
-							req.flash ('success','¡Tus datos se han grabado correctamente!')
-							res.redirect('/editprofile')
-						}
-					});
-				}
+				req.session.user = user_db
+				req.flash ('success','¡Tus datos se han grabado correctamente!')
+				res.redirect('/editprofile')
 			}
-	    }
-	 );
+		});
+	}
 });
-
-app.setMaxListeners(1000)
-app.listen(port);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 
 process.on('SIGINT', function () {
 	console.log();
