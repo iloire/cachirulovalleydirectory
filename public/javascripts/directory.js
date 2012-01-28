@@ -38,7 +38,7 @@ function LoadProfile(id_profile, container){
 				viewModel.tags (users[i].tags);
 				var profile_offset = $('.profile').offset();
 				$('.tags').offset({top:profile_offset.top});
-				scroll(0,profile_offset.top-100);
+				scroll(0,profile_offset.top-150);
 				break;
 			}
 		}
@@ -92,18 +92,21 @@ function setFilterDisplay (initial_filter, scope){
 	viewModel.filter (initial_filter);
 }
 
-function LoadProfessionalsByTag(idtag, scope){
+function LoadProfessionalsByTag(item, idtag, scope){
+	$('span',$(item).closest('li')).append('<img class=loading src="/images/menu-loading.gif">');
 	$.ajax({ url: '/api/users/bytag', data: {id:idtag, scope : scope}, dataType: 'jsonp', success: function (data) {
 		set_display_professionals_list();
 		viewModel.professionals (data.users);
 		setFilterDisplay([{name: 'Tag', value: idtag}], scope);
 		$('.tags').offset({top: tags_initial_offset.top});
 		scroll(0,0);
+		$('.loading').remove();
 		}
 	});
 }
 
-function LoadProfessionalsByCat(idcat, scope){
+function LoadProfessionalsByCat(item, idcat, scope){
+	$(item).append('<img class=loading src="/images/menu-loading.gif">');
 	$.ajax({ url: '/api/users/bycat', data: {id:idcat, scope : scope}, dataType: 'jsonp', success: function (data) {
 		set_display_professionals_list();
 		$('.tags').fadeIn();
@@ -112,6 +115,7 @@ function LoadProfessionalsByCat(idcat, scope){
 		setFilterDisplay([{name: 'Categoría', value: data.cat.name}], scope);
 		$('.tags').offset({top: tags_initial_offset.top});
 		scroll(0,0);
+		$('.loading').remove();
 	}
 	});
 }
@@ -133,7 +137,17 @@ function Search(term){
 
 $(document).ready(function () {
 	tags_initial_offset = $('.tags').offset();
-		
+
+	//bootstrap tooltips
+	$("[rel=popover]").popover({
+		live:true,
+		html:true,
+		offset: 10
+	})
+	.click(function(e) {
+		e.preventDefault()
+	});
+
 	function reclick (){
 		if ($('ul#categories li.selected a').length)
 			$('ul#categories li.selected a').click();
@@ -161,7 +175,7 @@ $(document).ready(function () {
 		return false;
 	});
 
-	$('span.voteBox a').live ('click', function(){
+	$('span.voteBox a.vote').live ('click', function(){
 		var id = $(this).attr('idProfile');
 		var vote = $(this).attr('vote');
 		 $.ajax({
@@ -196,7 +210,7 @@ $(document).ready(function () {
 		var tag=$(this).attr('tag');
 		$(this).parent().addClass('selected');
 
-		LoadProfessionalsByTag (tag, getScope());
+		LoadProfessionalsByTag ($(this),tag, getScope());
 		return false;
 	});
 	
@@ -204,7 +218,7 @@ $(document).ready(function () {
 		$('ul#categories li').removeClass('selected'); //style
 		$(this).parent().addClass('selected');
 		var idcat=$(this).attr('idcat');
-		LoadProfessionalsByCat (idcat, getScope());
+		LoadProfessionalsByCat ($(this), idcat, getScope());
 		return false;
 	});
 	
