@@ -207,6 +207,27 @@ ul#professionals > li{
 	min-height:40px;
 	margin-bottom:15px;
 }
+
+ul#professionals li span.votes{
+	color:gray;
+}	
+
+ul#professionals li span.votes span{
+	background-color: #C64633 !important;
+	background-image:-webkit-linear-gradient(top, rgba(255, 200, 0, 0.3), #C64633) !important;
+	border-radius: 100px;
+	color: #fff;
+	text-transform: uppercase;
+	text-align: center;
+	font-size: 11px;
+	border-radius: 100px;
+	padding: 0px 3px;
+	border: 1px solid #fff;
+	text-shadow: 0px 1px 0px #000;
+	box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.8) !important;
+	box-shadow: 0px -2px 0px rgba(141, 196, 223, 0.8);
+}	
+
 input#searchBox{
 	margin-top:5px;
 }
@@ -228,9 +249,18 @@ div.profile h2 {
 	font-size:1.3em;
 }
 div.profile h3 {
-	font-size:1.2em;
+	font-size:16px !important;
+	border-bottom:solid 1px #c2c2c2;
+	padding:3px;
+	line-height:18px;
 }
-	
+
+div.profile .location{
+	color:#c2c2c2;
+	margin-top:5px;
+	display:block;
+}
+
 div.profile img{
 	float:left;
 	margin:0px 10px 5px 0px;
@@ -258,11 +288,11 @@ div.portfolio .item {
 }
 
 span.voteBox{
-	text-align:right;
-	width:160px;
+	text-align:right !important;
+	width:180px;
 	float:right;
-
 }
+
 span.voteBox img{
 	width:30px;
 }
@@ -287,6 +317,10 @@ span.voteBox span.beer span{
 	text-shadow: 0px 1px 0px #000;
 	box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.8) !important;
 	box-shadow: 0px -2px 0px rgba(141, 196, 223, 0.8);	
+}
+.beer_popup{
+	float:left;
+	margin:0px 10px 5px 0px;
 }
 	
 form.editprofile textarea{
