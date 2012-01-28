@@ -109,8 +109,8 @@ app.get('/login', function(req, res){
 					get_user_or_new_from_linkedin_data(user_linkedin, function (user){
 						req.session.user = user;
 						if (req.session.redirect){
-							res.session.redirect = null;
 							res.redirect(req.session.redirect);
+							req.session.redirect = null;
 						}
 						else{
 							res.redirect('/directory');
