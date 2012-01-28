@@ -18,10 +18,10 @@
 			</div>
 			<div class="otherdata_scope">
 				<input type="checkbox" name="freelance" id="freelance_scope" value="freelance"> 
-				<label rel="popover" title="Todos" data-content="Seleccionando esta opción se mostrarán los profesionales registrados como 'áutonomos'" for="freelance_scope">Autónomos</label>
+				<label rel="popover" title="Autónomos" data-content="Seleccionando esta opción se mostrarán los profesionales registrados como 'áutonomos'" for="freelance_scope">Autónomos</label>
 				<br />
 				<input type="checkbox" name="entrepreneur" id="entrepreneur_scope" value="freelance"> 
-				<label rel="popover" title="Todos" data-content="Seleccionando esta opción se mostrarán los profesionales que hayan seleccionado en su perfil que tienen interés en crear una empresa en el corto o medio plazo" for="entrepreneur_scope">Emprendedores</label>
+				<label rel="popover" title="Emprendedores" data-content="Seleccionando esta opción se mostrarán los profesionales que hayan seleccionado en su perfil que tienen interés en crear una empresa en el corto o medio plazo" for="entrepreneur_scope">Emprendedores</label>
 			</div>
 		</div>
 		
@@ -57,8 +57,11 @@
 </script>
 
 <script id='filterTemplate' type="text/x-jquery-tmpl">
-<span class="filtertext">
-	${name} {{if (value)}}: ${value} {{/if}}
+<span class="filteritem">
+	<span class="name">${name}</span> 
+	{{if (value)}}
+		<span class="value">${value}</span>
+	{{/if}}
 </span>
 </script>
 

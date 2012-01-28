@@ -76,8 +76,20 @@ div.intro{
 	margin-bottom:10px;
 }
 
-.filtertext {
-	margin: 4px 0px 20px 0px;
+.filteritem {
+	float:left;
+	min-width:100px;
+}
+
+.filteritem span.name {
+	font-size:12px;
+	color:gray;
+	padding-left:5px;
+}
+
+.filteritem span.value {
+	display:block;
+	margin: 2px 5px 20px 0px;
 	background-color:#C64633;
 	border-radius: 100px;
 	color: #fff;
@@ -86,9 +98,14 @@ div.intro{
 	border-radius: 100px;
 	padding: 4px 8px;
 	border: 1px solid #fff;
-	text-shadow: 0px 1px 0px #000;
-	box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.8) !important;
-	box-shadow: 0px -2px 0px rgba(141, 196, 223, 0.8);	
+}
+
+.filteritem:first-child  {
+	width:150px;	
+}
+.filteritem:first-child span.value {
+	background-color:#EEDC94;
+	color:#000;	
 }
 
 .random_professionals img, img.logo{
@@ -302,8 +319,8 @@ span.voteBox span.beer{
 	position:relative;
 }
 span.voteBox span.beer span{
-	top:7px;
-	left:-3px;
+	top: 11px;
+	left: 18px;
 	background-color:#C64633;
 	position:absolute;
 	border-radius: 100px;
