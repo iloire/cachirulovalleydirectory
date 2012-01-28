@@ -45,7 +45,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	});
 
 	app.get('/api/search', function(req, res){
-		var params = {q : req.query["q"], logged_user: req.session.user}
+		var params = {q : req.query["q"], scope: req.query["scope"], logged_user: req.session.user}
 		module_users.Search (redis, params, function (err, users){
 			common.renderJSON(req, res, {users:common.removeEmail(users)}, 200, req.query["callback"])
 		})
