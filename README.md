@@ -1,7 +1,9 @@
-FreelanceDirectory
-----------------------------------
 
-CachiruloValley.com regional freelance directory
+#CachiruloValley.com professional directory
+
+![screenshot](https://github.com/iloire/CachiruloValleyDirectory/raw/master/screenshots/view01.png)
+
+This is professional directory created in express.js and redis. Once you login (linkedin auth), you can create your profile, tag your skills, and recommend other people.
 
 ## TAGS (change log):
 
