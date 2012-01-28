@@ -6,16 +6,22 @@
 		<h3>Filtros</h3>
 		<div class="filterBox">
 			<div class="region_scope">
-				<input type="radio" name="region_scope" id="regional_scope"> <label for="regional_scope">Aragoneses</label>
+				<input type="radio" name="region_scope" id="regional_scope"> 
+				<label rel="popover" title="Profesionales aragoneses" data-content="Seleccionando esta opción sólamente se mostrarán profesionales que se hayan registrado como aragoneses" for="regional_scope">Aragoneses</label>
+			 	
 				<br />
-				<input type="radio" name="region_scope" id="national_scope" > <label for="national_scope">España</label>
+				<input type="radio" name="region_scope" id="national_scope" >
+				<label rel="popover" title="Profesionales residentes en España" data-content="Seleccionando esta opción sólamente se mostrarán profesionales que se hayan registrado como residentes en España" for="national_scope">España</label>
 				<br />
-				<input type="radio" name="region_scope" id="worldwide_scope" checked="checked"> <label for="worldwide_scope">Todos</label>
+				<input type="radio" name="region_scope" id="worldwide_scope" checked="checked"> 
+				<label rel="popover" title="Todos" data-content="Seleccionando esta opción se mostrarán todos los profesionales" for="worldwide_scope">Todos</label>
 			</div>
 			<div class="otherdata_scope">
-				<input type="checkbox" name="freelance" id="freelance_scope" value="freelance"> <label for="freelance_scope">Autónomos</label>
+				<input type="checkbox" name="freelance" id="freelance_scope" value="freelance"> 
+				<label rel="popover" title="Todos" data-content="Seleccionando esta opción se mostrarán los profesionales registrados como 'áutonomos'" for="freelance_scope">Autónomos</label>
 				<br />
-				<input type="checkbox" name="entrepreneur" id="entrepreneur_scope" value="freelance"> <label for="entrepreneur_scope">Emprendedor</label>
+				<input type="checkbox" name="entrepreneur" id="entrepreneur_scope" value="freelance"> 
+				<label rel="popover" title="Todos" data-content="Seleccionando esta opción se mostrarán los profesionales que hayan seleccionado en su perfil que tienen interés en crear una empresa en el corto o medio plazo" for="entrepreneur_scope">Emprendedores</label>
 			</div>
 		</div>
 		
@@ -59,21 +65,28 @@
 <script id='profileTemplate' type="text/x-jquery-tmpl">
 	<span class="voteBox">
 		{{if (votes)}}
-			<span class="beer">
+			<span class="beer" rel="popover" title="${votes} recomendaciones" 
+			data-placement="left" 
+			data-content="&lt;img class=beer_popup src=/images/beer-badget.png /&gt;${name} tiene &lt;strong&gt;${votes} recomendaciones.&lt;/strong&gt; &lt;br/&gt;&lt;br/&gt;Puedes votar a los profesionales que recomiendas. &lt;br/&gt;&lt;br/&gt;Los votos son anónimos, simplemente se publica el número de los mismos">
 				<span>
 				${votes}
 				</span>
-				<img src="/images/beer.png" />
+				<img src="/images/beer-badget.png" />
 			</span>
 		{{/if}}
 		<%if (user) {%>
 			{{if (id != '<%=user.id%>')}}
 				{{if (voted)}}
-					<a href="/vote" vote="-1" idProfile="${id}">Dejar de Recomendar</a>
+					<a class="vote" href="/vote" vote="-1" idProfile="${id}">Dejar de Recomendar</a>
 				{{else}}
-					<a href="/vote" vote="1" idProfile="${id}">Recomendar</a>
+					<a class="vote" href="/vote" vote="1" idProfile="${id}">Recomendar</a>
 				{{/if}}
 			{{/if}}
+		<%}else {%>
+			<small>
+			 	<a href="#" rel="popover" title="Regístrate o inicia sesión" 
+				data-content="Es necesario registrarse para poder votar. <br />Puedes votar a los profesionales que recomiendas. Los votos son anónimos. Simplemente se publica el número de los mismos">Inicia sesión para votar</a>
+			</small>
 		<%}%>
 	</span>
 
@@ -81,7 +94,9 @@
 	<img src="${image}"/>
 	<span class="bio">${bio}</span>
 	<br />
+	<span class="location">
 	${location}  (${region_display})
+	</span>
 	
 	<div class="clearfix"></div>
 	
@@ -138,8 +153,9 @@
 			<span class="bio">${bio}</span>
 			(<span class="location">${location}</span>)
 			{{if (votes)}}
-				<img width=10 src="/images/beer.png" />
-				${votes} recomendaciones
+				<span class="votes">
+					<span>${votes}</span> recomendaciones
+				</span>
 			{{/if}}
 		</div>
     </li>

@@ -1,7 +1,10 @@
 <%if (categories) {%>
 	<ul id="categories">
 	<% for (var i=0, len = categories.length; i<len; i++) { %>
-	<li><a rel="address:/categories/<%=categories[i].id%>/<%=categories[i].name%>" href="#" idcat="<%=categories[i].id%>"><%=categories[i].name%></a> <span><%=categories[i].users_count%></span></li>
+	<li>
+		<a rel="address:/categories/<%=categories[i].id%>/<%=categories[i].name%>" href="#" idcat="<%=categories[i].id%>"><%=categories[i].name%></a> 
+		<span><%=categories[i].users_count%></span>
+	</li>
 	<% } %>
 	</ul>
 <%}else {%>
