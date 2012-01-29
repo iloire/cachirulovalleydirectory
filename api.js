@@ -21,17 +21,15 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 
 	app.get('/api/users/bycat', function(req, res){
 		var params = {id : req.query["id"], scope: req.query["scope"], logged_user: req.session.user}
-		module_cats.GetCat (redis, params, function (err, cat){
-			module_users.GetUsersByCat (redis, params, function (err, users){
-				module_tags.GetTagsByCat(redis, params, function (err, tags){
-					common.renderJSON(req, res, {users:common.removeEmail(users), tags: tags, cat: cat}, 200, req.query["callback"])
-				});
+		module_cats.GetCat (redis, params, function (err, cat){ //get cat
+			module_users.GetUsersByCat (redis, params, function (err, users){ //get users in that cat
+				common.renderJSON(req, res, {users:common.removeEmail(users), tags: common.get_unique_tags_by_users(users), cat: cat}, 200, req.query["callback"])
 			});
 		});
 	});
 
 	app.get('/api/users/bytag', function(req, res){
-		var params = {id : req.query["id"], scope: req.query["scope"], logged_user: req.session.user}
+		var params = {id : req.query["id"].toLowerCase(), scope: req.query["scope"], logged_user: req.session.user}
 		module_users.GetUsersByTag (redis, params, function (err, users) {
 			common.renderJSON(req, res, {users:common.removeEmail(users)}, 200, req.query["callback"])
 		})
@@ -47,7 +45,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	app.get('/api/search', function(req, res){
 		var params = {q : req.query["q"], scope: req.query["scope"], logged_user: req.session.user}
 		module_users.Search (redis, params, function (err, users){
-			common.renderJSON(req, res, {users:common.removeEmail(users)}, 200, req.query["callback"])
+			common.renderJSON(req, res, {users:common.removeEmail(users), tags: common.get_unique_tags_by_users(users)}, 200, req.query["callback"])
 		})
 	});
 }
