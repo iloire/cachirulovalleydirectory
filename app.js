@@ -50,7 +50,6 @@ app.configure('production', function (){
 //REST
 api.configure(app, redis, module_users, module_cats, module_tags);
 
-/*MAIN*/
 app.get('/', function(req, res){
 	var params = {scope: {region:2, freelance: false}}
 	module_users.GetUsers (redis, params, function(err, users){
@@ -136,12 +135,6 @@ app.get('/directory', function(req, res){
 		});	
 	});
 });
-
-/*
-app.get('/login', function(req, res){
-	res.redirect ('/auth/linkedin');
-});
-*/
 
 app.post('/vote', function(req, res){
 	if (!req.session.user){
