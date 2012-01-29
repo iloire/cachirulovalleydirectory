@@ -4,7 +4,7 @@ var request = require('request')
 var base_address = 'http://localhost:3434';
 
 var mocked_user = {
-	linkedin_id: '555555',  //let's make up a user that doesn't exist
+	linkedin_id: '555554',  //let's make up a user that doesn't exist
 	name : 'mocked profile', 
 	bio: 'im a mock object',
 	email : 'mocked@object.com',
@@ -13,7 +13,7 @@ var mocked_user = {
 	region : 2,
 	location : 'my city, my state',
 	other_data : {},
-	portfolio : {}
+	portfolio : []
 };
 
 exports.setup = function (app){
@@ -42,7 +42,7 @@ exports.tests = [
 	function cats (callback){
 		request(base_address + '/api/cats', function (err,res,body) {
 			assert.equal(res.statusCode, 200)
-			assert.ok(res.body.indexOf ('{"cats":')>-1);
+			assert.ok(body.indexOf ('{"cats":')>-1);
 			callback(null);
 		})
 	}
@@ -50,7 +50,7 @@ exports.tests = [
 	function cats_jsop (callback){
 		request(base_address + '/api/cats?callback=test', function (err,res,body) {
 			assert.equal(res.statusCode, 200)
-			assert.ok(res.body.indexOf ('test({"cats":')>-1);
+			assert.ok(body.indexOf ('test({"cats":')>-1);
 			callback(null);
 		});
 	}
@@ -58,7 +58,8 @@ exports.tests = [
 	function tags (callback){
 		request(base_address + '/api/tags', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
-			assert.ok(res.body.indexOf ('{"tags":')>-1);
+			assert.ok(body.indexOf ('{"tags":')>-1);
+			assert.equal(JSON.parse(body).tags.length,25)
 			callback(null);
 		});
 	}	
@@ -66,10 +67,10 @@ exports.tests = [
 	function tags_jsonp (callback){
 		request(base_address + '/api/tags?callback=test', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
-			assert.ok(res.body.indexOf ('test({"tags":')>-1);
+			assert.ok(body.indexOf ('test({"tags":')>-1);
 			callback(null);
 		});
-	}	
+	}
 	,
 	function tags_autocomplete (callback){
 		request(base_address + '/api/tagsautocomplete', function (err,res,body) {
@@ -77,60 +78,65 @@ exports.tests = [
 			assert.ok(body.indexOf ('html5')>-1);
 			callback(null);
 		});
-	}	
+	}
 	,
 	function users_by_cat (callback){
 		request(base_address + '/api/users/bycat?id=1', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
-			assert.ok(body.indexOf ('"cat":{"id":"1","name":"Programadores"')>-1);
+			assert.equal(JSON.parse(body).users.length, 20);
+			assert.equal(JSON.parse(body).cat.id, 1);
+			assert.equal(JSON.parse(body).cat.name, 'Programadores');
 			callback(null);
 		});
-	}	
+	}
 	,
 	function users_by_cat_jsonp (callback){
 		request(base_address + '/api/users/bycat?id=1&callback=test', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
-			assert.ok(res.body.indexOf ('test({"users":[')>-1);
-			assert.ok(res.body.indexOf ('Loire')>-1);
+			assert.ok(body.indexOf ('test({"users":[')>-1);
+			assert.ok(body.indexOf ('Loire')>-1);
+			assert.ok(body.indexOf ('"cat":{"id":"1","name":"Programadores"')>-1);
 			callback(null);
 		});
-	}	
+	}
 	,
 	function users_by_tag (callback){
 		request(base_address + '/api/users/bytag?id=node.js', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
-			assert.ok(res.body.indexOf ('Loire')>-1);
-			assert.ok(res.body.indexOf('email')==-1); //make sure email is not returned for public calls
+			assert.ok(body.indexOf ('Loire')>-1);
+			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
+			assert.equal(JSON.parse(body).users.length, 3);
 			callback(null);
 		});
 	}	
 	,
 	function users_by_tag_jsonp (callback){
-		request(base_address + '/api/users/bytag?id=node.js', function (err,res,body) {
+		request(base_address + '/api/users/bytag?id=node.js&callback=tagcall', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
-			assert.ok(res.body.indexOf ('Loire')>-1);
-			assert.ok(res.body.indexOf('email')==-1); //make sure email is not returned for public calls
+			assert.ok(body.indexOf ('Loire')>-1);
+			assert.equal(body.indexOf('email'),-1); //make sure email is not returned for public calls
+			assert.equal(body.indexOf('tagcall({"users":[{'),0)
 			callback(null);
 		});
-	}	
+	}
 	,
 	function users_by_id (callback){
 		request(base_address + '/api/users/byid?id=1', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
-			assert.ok(res.body.indexOf ('Loire')>-1);
-			assert.ok(res.body.indexOf('email')==-1); //make sure email is not returned for public calls
+			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
+			assert.ok(JSON.parse(body).user.name.indexOf('Loire')>-1);
 			callback(null);
 		});
-	}	
+	}
 	,
 	function users_by_id_jsonp (callback){
 		request(base_address + '/api/users/byid?id=1&callback=test', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
-			assert.ok(res.body.indexOf ('test({"user":{')>-1);
-			assert.ok(res.body.indexOf ('Loire')>-1);
-			assert.ok(res.body.indexOf('email')==-1); //make sure email is not returned for public calls
+			assert.ok(body.indexOf ('test({"user":{')>-1);
+			assert.ok(body.indexOf ('Loire')>-1);
+			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
 			callback(null);
 		});
 	}	
@@ -138,10 +144,10 @@ exports.tests = [
 	function api_search (callback){
 		request(base_address + '/api/search?q=Zufaria', function (err,res,body) {
 			assert.equal(res.statusCode, 200);
-			assert.ok(res.body.indexOf ('Loire')>-1);
+			assert.ok(body.indexOf ('Loire')>-1);
 			callback(null);
 		});
-	}	
+	}
 	,
 	function web_search (callback){
 		request({url: base_address + '/search?q=gogogo', followRedirect:false}, function (err,res,body) {
@@ -169,7 +175,7 @@ exports.tests = [
 	function vote_with_session_missing_parameters (callback){
 		request.get({url: base_address + '/injectsession'}, function (err,res,body) {
 			request.post({url: base_address + '/vote', json:true, body: {}}, function (err,res,body) {
-				assert.equal(res.statusCode, 503, body); //missing parameter
+				assert.equal(res.statusCode, 503, JSON.stringify(body)); //missing parameter
 				callback(null);
 			});
 		});	

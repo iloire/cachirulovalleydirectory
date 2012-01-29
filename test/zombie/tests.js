@@ -19,7 +19,7 @@ var mocked_user = {
 	region : 2,
 	location : 'my city, my state',
 	other_data : {},
-	portfolio : {}
+	portfolio : []
 };
 
 exports.setup = function (app){
@@ -69,6 +69,23 @@ exports.tests = [
 			})
 		});	
 	}
+	/*.address plugin is not supported
+	,
+	function testTestLandingFromCategory (callback){
+		printCurrentTest();
+		browser = new Browser()
+		browser.visit(base_address + '/directory#/categories/2/Diseñadores', function (err, browser) {
+			browser.wait (function(err, browser){
+				assert.ok(!err)
+				assert.ok(browser.success);
+				assert.ok(!browser.errors.length)
+				console.log (browser.html())
+				assert.ok(browser.queryAll("ul#professionals li").length>5);
+				callback (null);
+			})
+		});	
+	}
+	*/	
 	,
 	function testCreateProfilePage (callback){
 		printCurrentTest();
@@ -144,6 +161,7 @@ exports.tests = [
 								assert.ok(!err)
 								browser.wait(function(err, browser){
 									assert.ok(!err)
+									//console.log (browser.errors)
 									assert.ok(browser.success);
 									//assert.ok(!browser.errors.length);
 
@@ -162,6 +180,36 @@ exports.tests = [
 					})
 				});
 			});	
+		});	
+	}
+	,
+	function testVoteUser (callback){
+		printCurrentTest();
+		browser = new Browser()
+		browser.visit(base_address + '/directory', function (err, browser) {
+			browser.wait (function(err, browser){
+				assert.ok(!err)
+				assert.ok(browser.success);
+				assert.ok(!browser.errors.length)
+
+				//click in category
+				browser.clickLink ('ul#categories li a:first', function(e, browser, status){
+					assert.ok(!browser.errors.length)
+					browser.wait (function (err, browser){
+						assert.ok(browser.queryAll("ul#professionals li").length>5);
+						//console.log (browser.html ('ul#professionals li div a:first'));
+						browser.clickLink ('ul#professionals li div a:first', function(e, browser, status){
+							assert.ok(!browser.errors.length)
+							browser.wait (function (err, browser){
+								assert.ok(!browser.errors.length)	
+								//we should have div.profile filled. zombie's bug?
+								//console.log (browser.html ('div.profile'));
+								callback (null);
+							});
+						});
+					});
+				})
+			})
 		});	
 	}
 ]
