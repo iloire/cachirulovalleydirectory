@@ -156,7 +156,7 @@
 <script id='professionalTemplate' type="text/x-jquery-tmpl">
     <li>
 		<div class="short">
-			<a class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>
+			<a rel="address:/user/${id}/${encodeURIComponent(name)}" class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>
 			<img src="${image}"/>
 			<span class="bio">${bio}</span>
 			(<span class="location">${location}</span>)

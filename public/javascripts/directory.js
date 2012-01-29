@@ -52,8 +52,8 @@ function LoadProfile(id_profile, container){
 	var use_ajax = false;
 	$('ul#professionals li div.short').show();
 	$('.profile').insertAfter($(container)).fadeIn();
-	$('.tags').fadeIn();
 	$(container).hide();
+	$('.tags').fadeIn();
 
 	if (use_ajax){ //thinking whatever issuing a request for a profile, or having them loaded in profiles list json.
 		$.ajax({ url: 'api/users/byid', data: {id:id_profile}, dataType: 'jsonp', success: function (data) {
@@ -271,9 +271,17 @@ $(document).ready(function () {
 				}
 			});
 		}
-		
+		//user?
+		else if (path.indexOf('/user')==0){
+			var id_profile = path.split ('/')[2];
+			$.ajax({ url: 'api/users/byid', data: {id:id_profile}, dataType: 'jsonp', success: function (data) {
+				viewModel.profile (data.user);
+				viewModel.tags (data.user.tags);
+			}
+			});
+		}
 		//tags?
-		else if (path.indexOf('/tags')==0){
+		else if (path.indexOf('/tags')==0) {
 			var tag = decodeURIComponent(path.split ('/')[2]);
 			$.ajax({ url: '/api/tags', data: {id:''}, dataType: 'jsonp', success: function (data) {
 				viewModel.tags (data.tags);
@@ -282,7 +290,6 @@ $(document).ready(function () {
 						$(this).click();
 					}
 				});
-				
 			}});
 		}
 		//search
