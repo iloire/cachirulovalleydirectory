@@ -127,6 +127,7 @@ function LoadProfessionalsByCat(item, idcat){
 }
 
 function Search(term){
+	$.address.value('/search/'+ encodeURIComponent(term));
 	$('#searchBox').val(term); //just in case we came from url	
 	$('ul#categories li, ul#tags li').removeClass('selected'); //deselect cat
 	LoadProfessionals({name:'Búsqueda', item : null, filterdisplay: term, url : '/api/search', q: term});
