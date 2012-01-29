@@ -87,7 +87,7 @@
 			{{/if}}
 		<%}else {%>
 			<small>
-			 	<a href="#" rel="popover" title="Regístrate o inicia sesión" 
+			 	<a href="/login" rel="popover" title="Regístrate o inicia sesión" 
 				data-content="Es necesario registrarse para poder votar. <br />Puedes votar a los profesionales que recomiendas. Los votos son anónimos. Simplemente se publica el número de los mismos">Inicia sesión para votar</a>
 			</small>
 		<%}%>
@@ -113,7 +113,7 @@
 	<li>linkedin profile: <a target="_blank" href="${linkedin_profile_url}">${linkedin_profile_url}</a></li>
 	{{/if}}
 	{{if (web)}}
-	<li>web site: <a target="_blank" href="${web}">${web}</a></li>
+	<li>web: <a target="_blank" href="${web}">${web}</a></li>
 	{{/if}}
 	</ul>
 
