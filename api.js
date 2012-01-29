@@ -3,13 +3,13 @@ var common = require ('./lib/common.js');
 exports.configure = function (app, redis, module_users, module_cats, module_tags){
 	app.get('/api/tags', function(req, res){
 		module_tags.GetTags (redis, {}, function (err, tags){
-			common.renderJSON(req, res, {tags:tags} , 200, req.query["callback"])	
+			common.renderJSON(req, res, {tags:tags} , 200, req.query["callback"])
 		});
 	});
 
 	app.get('/api/cats', function(req, res){
 		module_cats.GetCats (redis, {}, function (err, cats){
-			common.renderJSON(req, res, {cats:cats} , 200, req.query["callback"])	
+			common.renderJSON(req, res, {cats:cats} , 200, req.query["callback"])
 		});
 	});
 
