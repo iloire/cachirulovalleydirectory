@@ -16,6 +16,38 @@ viewModel.tagslist = ko.dependentObservable(function() {
 	return tags;
 }, viewModel);
 
+
+function replaceURLWithHTMLLinks(text) {
+    var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(exp,"<a target=_blank href='$1'>$1</a>"); 
+}
+
+function replaceTwText (text){
+	return replaceURLWithHTMLLinks(text);
+}
+
+function getTwTimeline(user, where){
+	if ($('body').data(user)) { //save in dom via data() jquery attribute
+		$(where).html($('body').data(user));
+	}
+	else{
+		$.getJSON('http://twitter.com/status/user_timeline/'+ user +'.json?count=30&callback=?&exclude_replies=true&trim_user=true', {cache:true}, function(data){
+			//last tweets
+			console.log(data)
+			var output="<ul>";
+			for (var i=0, c=0 ;(c<5 && i<data.length);i++){
+				if (!data[i].in_reply_to_user_id){
+					output = output + '<li>' + replaceTwText(data[i].text) + "</li>"; //todo
+					c++;
+				}
+			}
+			output = output + "</ul>";
+			$(where).html(output);
+			$('body').data(user, output);
+		});
+	}
+}
+
 function LoadProfile(id_profile, container){
 	var use_ajax = false;
 	$('ul#professionals li div.short').show();
@@ -39,6 +71,10 @@ function LoadProfile(id_profile, container){
 				var profile_offset = $('.profile').offset();
 				$('.tags').offset({top:profile_offset.top});
 				scroll(0,profile_offset.top-150);
+				
+				if (users[i].twitter){
+					getTwTimeline(users[i].twitter, $('#tw_timeline'));
+				}
 				break;
 			}
 		}

@@ -270,12 +270,19 @@ div.profile h3 {
 	border-bottom:solid 1px #c2c2c2;
 	padding:3px;
 	line-height:18px;
+	margin-top:15px;
 }
 
 div.profile .location{
 	color:#c2c2c2;
 	margin-top:5px;
 	display:block;
+}
+
+div.profile .twitter ul li {
+	color:gray;
+	font-size:90%;
+	margin-bottom:3px;
 }
 
 div.profile img{
