@@ -99,7 +99,14 @@
 			<h3>2. Portfolio</h3>
 			<p>Puedes introducir aquí hasta 5 direcciones de proyectos que hayas creado o en los que hayas participado, así como una descripción de los mismos.</p>
 			<div class="portfolio">
-				<%for (var i=0;i<5;i++){%>
+				<%
+				if (!user.portfolio)
+					user.portfolio =[]
+
+				for (var i=0;i<5;i++){
+					if (user.portfolio[i])
+						user.portfolio[i] = {}
+				%>
 				<div class="item">
 					<label>url <%=(i+1)%>) </label> 
 					<div class="input">
@@ -147,6 +154,10 @@
 				<%-partial ('partial/display_error', {error: validation_errors['tags'] })%>
 			</div>
 
+			<%
+			if (!user.other_data)
+				user.other_data = {}
+			%>
 			<h3>Otros datos</h3>
 			<p>
 				Estoy abierto/interesado en propuestas de negocio / creación de empresas
