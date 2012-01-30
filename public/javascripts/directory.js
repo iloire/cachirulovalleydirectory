@@ -29,20 +29,21 @@ function replaceTwText (text){
 function getTwTimeline(user, where){
 	if ($('body').data(user)) { //save in dom via data() jquery attribute
 		$(where).html($('body').data(user));
+		$("abbr.timeago").timeago();
 	}
 	else{
-		$.getJSON('http://twitter.com/status/user_timeline/'+ user +'.json?count=30&callback=?&exclude_replies=true&trim_user=true', {cache:true}, function(data){
+		$.getJSON('http://twitter.com/status/user_timeline/'+ user +'.json?count=50&callback=?&exclude_replies=true&trim_user=true&include_rts=false', {cache:true}, function(data){
 			//last tweets
-			console.log(data)
 			var output="<ul>";
 			for (var i=0, c=0 ;(c<5 && i<data.length);i++){
 				if (!data[i].in_reply_to_user_id){
-					output = output + '<li>' + replaceTwText(data[i].text) + "</li>"; //todo
+					output = output + '<li><abbr class="timeago" title="' + data[i].created_at + '">' + data[i].created_at + '</abbr> ' + replaceTwText(data[i].text) + "</li>"; //todo
 					c++;
 				}
 			}
 			output = output + "</ul>";
 			$(where).html(output);
+			$("abbr.timeago").timeago();
 			$('body').data(user, output);
 		});
 	}
@@ -172,6 +173,7 @@ function Search(term){
 }
 
 $(document).ready(function () {
+		
 	tags_initial_offset = $('.tags').offset();
 
 	//bootstrap tooltips

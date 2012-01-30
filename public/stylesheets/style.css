@@ -12,19 +12,23 @@ body.home{
 a{
 	font-family: 'Ubuntu Condensed', sans-serif;
 }
+
 p, ul, ol, li{
 	color: #223345;
 }
+
 h1, h2, h3, h4, h5{
 	font-family: 'Ubuntu', sans-serif;
 	color: #223345;
 }
+
 .body h3{
 	border-bottom: 1px dotted #28889F;
 	margin-bottom: 10px !important;
 	font-size: 1.5em !important;
 	color: #C64633;
 }
+
 .wrapper{
 	margin-top: 80px;
 }
@@ -280,9 +284,14 @@ div.profile .location{
 }
 
 div.profile .twitter ul li {
-	color:gray;
+	color:#666666;
 	font-size:90%;
 	margin-bottom:3px;
+}
+
+div.profile .twitter ul li abbr{
+	font-style:italic;
+	color:#999999;
 }
 
 div.profile img{
