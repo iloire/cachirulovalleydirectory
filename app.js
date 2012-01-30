@@ -166,6 +166,7 @@ var getApp = function (redis) {
 						regions : config.regions,
 						validation_errors:[],
 						categories_available : categories,
+						number_portfolio_urls: config.number_portfolio_urls,
 						success: req.flash('success'),
 						layout: 'layout_profile',
 						user: user
@@ -228,7 +229,7 @@ var getApp = function (redis) {
 		}
 		
 		user.portfolio = []
-		for (var i=0;i<5;i++){
+		for (var i=0;i<config.number_portfolio_urls;i++){
 			user.portfolio[i] = {url: req.param('portfolio_url'+i), descr: req.param('portfolio_descr'+i)};
 		}
 
@@ -246,6 +247,7 @@ var getApp = function (redis) {
 		var tags_min = 3
 		var tag_max_length = 25
 		var max_portfolio_descr = 200
+		var max_portfolio_url = 100
 		var min_portfolio_descr = 5
 
 
@@ -264,7 +266,7 @@ var getApp = function (redis) {
 			valid = false;
 		}
 		else if (user.bio.length>max_bio){
-			validation_errors['bio'] = 'Máximo número de carácteres: '+ max_bio;
+			validation_errors['bio'] = 'Máximo número de carácteres: '+ max_bio + '. Sobran ' + (user.bio.length-max_bio);
 			valid = false;
 		}
 
@@ -320,20 +322,33 @@ var getApp = function (redis) {
 
 		//portfolio validation
 		for (var i=0;i<user.portfolio.length;i++){
-			if (!user.portfolio[i].url){
-				user.portfolio.splice(i,1);
-				i--;
-			}
-			else{ //got url
 				//max_portfolio_descr
-				if (user.portfolio[i].descr.length>max_portfolio_descr){
-					validation_errors['portfolio_descr' + i] = 'Descripción demasiado larga';
+			if (user.portfolio[i].url || user.portfolio[i].descr){
+				if (!user.portfolio[i].url){
+					validation_errors['portfolio_url' + i] = 'Por favor introduce una URL';
 					valid = false;
 				}
-				else if (user.portfolio[i].descr.length<min_portfolio_descr){
-					validation_errors['portfolio_descr' + i] = 'Descripción demasiado corta';
-					valid = false;
+				else{ //got url
+					if (user.portfolio[i].url.length > max_portfolio_url){
+						validation_errors['portfolio_url' + i] = 'URL demasiado larga';
+						valid = false;
+					}
+
+					//check descr
+					if (user.portfolio[i].descr.length>max_portfolio_descr){
+						validation_errors['portfolio_descr' + i] = 'Descripción demasiado larga';
+						valid = false;
+					}
+					else if (user.portfolio[i].descr.length<min_portfolio_descr){
+						validation_errors['portfolio_descr' + i] = 'Descripción demasiado corta';
+						valid = false;
+					}
 				}
+			}
+			else{
+				//not filled, delete it
+				user.portfolio.splice(i,1);
+				i--
 			}
 		}
 
@@ -345,6 +360,7 @@ var getApp = function (redis) {
 					regions : config.regions,
 					validation_errors : validation_errors,
 					categories_available : categories,
+					number_portfolio_urls: config. number_portfolio_urls,
 					user: user,
 					layout: 'layout_profile'
 				});	
@@ -352,7 +368,6 @@ var getApp = function (redis) {
 		}
 
 		if (!valid){
-			user.other_data = {};
 			showErrors(user, validation_errors);
 		}
 		else{
