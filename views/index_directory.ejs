@@ -40,8 +40,8 @@
 		<div class="profile" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
 	</div>
 
-	<div class="tags span2">
-		<h3>Especialidades</h3>
+	<div class="tags span3">
+		<h3 data-bind='text: tag_title'>Especialidades</h3>
 		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tagslist}'>
 		</ul>
 	</div>

@@ -2,7 +2,8 @@ var viewModel = {
 	professionals: ko.observableArray(),
 	profile: ko.observable(),
 	tags: ko.observableArray(),
-	filter: ko.observableArray()
+	filter: ko.observableArray(),
+	tag_title: ko.observable()
 };
 
 var tags_initial_offset = 0;
@@ -53,13 +54,18 @@ function LoadProfile(id_profile, container){
 	$('ul#professionals li div.short').show();
 	$('.tags').fadeIn();
 
+	function render(data){
+		viewModel.profile (data.user);
+		viewModel.tags (data.user.tags);
+		viewModel.tag_title ('⇐ sus tags');
+		if (data.user.twitter){
+			getTwTimeline(data.user.twitter, $('#tw_timeline'));
+		}
+	}
+
 	if (!container){ //thinking whatever issuing a request for a profile, or having them loaded in profiles list json.
 		$.ajax({ url: 'api/users/byid', data: {id:id_profile}, dataType: 'jsonp', success: function (data) {
-			viewModel.profile (data.user);
-			viewModel.tags (data.user.tags);
-			if (data.user.twitter){
-				getTwTimeline(data.user.twitter, $('#tw_timeline'));
-			}
+			render(data);
 		}
 		});
 	}
@@ -70,14 +76,11 @@ function LoadProfile(id_profile, container){
 		var users = viewModel.professionals();
 		for (i=0;i<users.length;i++){
 			if (users[i].id == id_profile){
-				viewModel.profile (users[i]);
-				viewModel.tags (users[i].tags);
+				render({user: users[i]});
+
 				var profile_offset = $('.profile').offset();
 				$('.tags').offset({top:profile_offset.top});
 				scroll(0,profile_offset.top-150);
-				if (users[i].twitter){
-					getTwTimeline(users[i].twitter, $('#tw_timeline'));
-				}
 				break;
 			}
 		}
@@ -144,6 +147,7 @@ function LoadProfessionals (query){
 			last_query=query;
 			set_display_professionals_list();
 			viewModel.professionals (data.users);
+			viewModel.tag_title ('Especialidades');
 			if (data.tags){
 				viewModel.tags (data.tags);
 				$('.tags').fadeIn();
