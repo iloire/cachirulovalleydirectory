@@ -5,7 +5,7 @@ var base_address = 'http://localhost:3434';
 
 var mocked_user = {
 	linkedin_id: '555554',  //let's make up a user that doesn't exist
-	name : 'mocked profile', 
+	name : 'mocked profile ' + new Date().getTime(), 
 	bio: 'im a mock object',
 	email : 'mocked@object.com',
 	web: 'mywebsite.com',

@@ -1,10 +1,10 @@
 var async = require ('async');
-var config = require ('../config').values
-var common = require ('../lib/common')
+var config = require ('../config').values;
+var common = require ('../lib/common');
+var appFactory = require ('../app');
 
 var redis = require("redis").createClient(config.server.database.port, config.server.database.host);
-var app = require ('../app').getApp(redis)
-
+		
 function run_tests (tests, callback){
 	async.series(tests, function(err, results){
 		callback(err, 'ok');
@@ -20,20 +20,32 @@ var tests = [
 	}
 	,
 	function do_http_test (callback){ 
+		var app = new appFactory.getApp(redis);
 		var module = require('./http/tests.js')
+
 		module.setup(app);
-		run_tests(module.tests, callback);
+		var port = 3434
+		app.listen(port);
+		
+		run_tests(module.tests, function(err){
+			app.close();	
+			callback(err, 'http test passed');
+		});
 	}
 	,
 	function do_zombie_test (callback){ 
+		var app = new appFactory.getApp(redis);
 		var module = require('./zombie/tests.js')
 		module.setup(app);
-		run_tests(module.tests, callback);
+		var port = 3434
+		app.listen(port);
+		
+		run_tests(module.tests, function(err){
+			app.close();	
+			callback(err, 'zombie test passed');
+		});
 	}
 ];
-
-var port = 3434
-app.listen(port);
 
 async.series(tests, function(err, results){
 	if (err){
@@ -42,7 +54,6 @@ async.series(tests, function(err, results){
 	}
 	else {
 		console.log ('All tests ok!');
-		app.close();
 		redis.quit();
 		process.exit(0);
 	}
