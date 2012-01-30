@@ -1,6 +1,5 @@
-var getApp = function (redis) {
+var getApp = function (redis, config) {
 	var express = require('express');
-	var config = require ('./config').values
 	var common = require ('./lib/common.js');
 	var api = require ('./api');
 
@@ -29,7 +28,7 @@ var getApp = function (redis) {
 		}
 		else{
 			var RedisStore = require('connect-redis')(express);
-			app.use(express.session({ secret: "keyboard cat", store: new RedisStore }));
+			app.use(express.session({ secret: "keyboard cat", store: new RedisStore({host: config.server.production.session_database.host, port : config.server.production.session_database.port, db : config.server.production.session_database.db}) }));
 		}
 
 		app.use(app.router);

@@ -3,3 +3,5 @@ node_modules/
 npm-debug.log
 .monitor
 dump.rdb
+data.rdb
+test.rdb

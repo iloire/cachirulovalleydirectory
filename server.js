@@ -1,7 +1,8 @@
 var config = require ('./config').values
-var redis = require("redis").createClient(config.server.database.port, config.server.database.host);
+var redis = require("redis").createClient(config.server.production.database.port, config.server.production.database.host);
+redis.select (config.server.production.database.db);
 
-var app = require ('./app').getApp(redis)
+var app = require ('./app').getApp(redis, config)
 
 var port = parseInt(process.argv[2], 10) || 3000
 app.listen(port);

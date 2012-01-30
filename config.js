@@ -1,15 +1,22 @@
 exports.values={
 	server : {
-		database : { port: 1212, host : '127.0.0.1' }
+		production : {
+			database : { port: 1212, host : '127.0.0.1', db: 'cachirulo' },
+			session_database : { port: 1212, host : '127.0.0.1', db: 'cachirulo' }
+		},
+		test : {
+			database : { port: 1213, host : '127.0.0.1', db: 'test' }
+		}
 	}
 	,
+	number_portfolio_urls : 5,
 	base_url : 'http://localhost:3000',
 	project_key: 'CachiruloValleyDirectory',
 	LINKEDIN_API_KEY : "",
 	LINKEDIN_SECRET_KEY : "",
 	registration_enabled : true,
 	suggested_tags : [
-						'php','asp.net', 'asp.net mvc', 'c#', //programming
+						'php','asp.net', 'node.js', 'asp.net mvc', 'c#', //programming
 						'photoshop','illustrator', 'web design', 'banners'  //design
 					],
 	regions : [
@@ -27,7 +34,8 @@ exports.values={
 		{name: 'Ávila', value: '15'},
 		{name: 'Badajoz', value: '16'},
 		{name: 'Barcelona', value: '17'},
-		{name: 'Burgos', value: '18'},	
+		{name: 'Burgos', value: '18'},
+		...
 		*/		
 		{name: '--', value: ''},
 		{name: 'Fuera de España', value: '100'},

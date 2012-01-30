@@ -3,8 +3,12 @@ var config = require ('../config').values;
 var common = require ('../lib/common');
 var appFactory = require ('../app');
 
-var redis = require("redis").createClient(config.server.database.port, config.server.database.host);
-		
+var dbconfig = config.server.test.database;
+var redis = require("redis").createClient(dbconfig.port, dbconfig.host);
+redis.select(dbconfig.db)
+
+config.server.production.session_database = dbconfig; //make sure session for tests is saved in testing database
+
 function run_tests (tests, callback){
 	async.series(tests, function(err, results){
 		callback(err, 'ok');
@@ -20,7 +24,7 @@ var tests = [
 	}
 	,
 	function do_http_test (callback){ 
-		var app = new appFactory.getApp(redis);
+		var app = new appFactory.getApp(redis, config);
 		var module = require('./http/tests.js')
 
 		module.setup(app);
@@ -34,7 +38,7 @@ var tests = [
 	}
 	,
 	function do_zombie_test (callback){ 
-		var app = new appFactory.getApp(redis);
+		var app = new appFactory.getApp(redis, config);
 		var module = require('./zombie/tests.js')
 		module.setup(app);
 		var port = 3434
@@ -47,6 +51,7 @@ var tests = [
 	}
 ];
 
+console.log('Running tests with database: ' + JSON.stringify(dbconfig))
 async.series(tests, function(err, results){
 	if (err){
 		console.log ('ERROR')

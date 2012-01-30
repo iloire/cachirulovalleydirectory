@@ -2,7 +2,7 @@
 	"name": "cachirulovalleydirectory",
 	"version": "0.0.1",
 	"scripts": {
-		"test": "node test/runall.js"
+		"test": "echo '\nlaunching redis-server in background with testing config...\n'; redis-server test/redis.conf; node test/runall.js"
 	},
 	"engines": {
 		"node": ">= 0.4.0"
