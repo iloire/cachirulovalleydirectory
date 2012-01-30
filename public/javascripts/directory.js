@@ -49,20 +49,23 @@ function getTwTimeline(user, where){
 }
 
 function LoadProfile(id_profile, container){
-	var use_ajax = false;
 	$('ul#professionals li div.short').show();
-	$('.profile').insertAfter($(container)).fadeIn();
-	$(container).hide();
 	$('.tags').fadeIn();
 
-	if (use_ajax){ //thinking whatever issuing a request for a profile, or having them loaded in profiles list json.
+	if (!container){ //thinking whatever issuing a request for a profile, or having them loaded in profiles list json.
 		$.ajax({ url: 'api/users/byid', data: {id:id_profile}, dataType: 'jsonp', success: function (data) {
 			viewModel.profile (data.user);
 			viewModel.tags (data.user.tags);
+			if (data.user.twitter){
+				getTwTimeline(data.user.twitter, $('#tw_timeline'));
+			}
 		}
 		});
 	}
 	else{
+		$('.profile').insertAfter($(container)).fadeIn();
+		$(container).hide();
+		
 		var users = viewModel.professionals();
 		for (i=0;i<users.length;i++){
 			if (users[i].id == id_profile){
@@ -71,7 +74,6 @@ function LoadProfile(id_profile, container){
 				var profile_offset = $('.profile').offset();
 				$('.tags').offset({top:profile_offset.top});
 				scroll(0,profile_offset.top-150);
-				
 				if (users[i].twitter){
 					getTwTimeline(users[i].twitter, $('#tw_timeline'));
 				}
@@ -274,11 +276,7 @@ $(document).ready(function () {
 		//user?
 		else if (path.indexOf('/user')==0){
 			var id_profile = path.split ('/')[2];
-			$.ajax({ url: 'api/users/byid', data: {id:id_profile}, dataType: 'jsonp', success: function (data) {
-				viewModel.profile (data.user);
-				viewModel.tags (data.user.tags);
-			}
-			});
+			LoadProfile(id_profile);
 		}
 		//tags?
 		else if (path.indexOf('/tags')==0) {
