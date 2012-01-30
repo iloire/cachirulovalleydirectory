@@ -1,3 +1,4 @@
+
 <%if (typeof(success)!="undefined" && success.length){%>
 <div class="alert-message block-message success">
 	<h3>Tu perfil ha sido modificado satisfactoriamente</h3>
@@ -103,16 +104,17 @@
 				if (!user.portfolio)
 					user.portfolio =[]
 
-				for (var i=0;i<5;i++){
-					if (user.portfolio[i])
+				for (var i=0;i<number_portfolio_urls;i++){
+					if (!user.portfolio[i])
 						user.portfolio[i] = {}
 				%>
+				
 				<div class="item">
 					<label>url <%=(i+1)%>) </label> 
 					<div class="input">
-						<input placeholder="http://mysite.com" type="text" name="portfolio_url<%=i%>" value="<%= user.portfolio[i] ? (user.portfolio[i].url || "") : "" %>">
+						<input placeholder="http://mysite.com" type="text" id="portfolio_url<%=i%>" name="portfolio_url<%=i%>" value="<%= user.portfolio[i] ? (user.portfolio[i].url || "") : "" %>">
 						<%-partial ('partial/display_error', {error: validation_errors['portfolio_url' + i] })%>
-						<textarea type="text" placeholder="Descripción de este trabajo" name="portfolio_descr<%=i%>"><%= user.portfolio[i] ? (user.portfolio[i].descr || "") : "" %></textarea>
+						<textarea type="text" placeholder="Descripción de este trabajo" id="portfolio_descr<%=i%>" name="portfolio_descr<%=i%>"><%= user.portfolio[i] ? (user.portfolio[i].descr || "") : "" %></textarea>
 						<%-partial ('partial/display_error', {error: validation_errors['portfolio_descr' + i] })%>
 					</div>
 				</div>
