@@ -111,7 +111,7 @@ var users =
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1258768022/fer-avatar_reasonably_small.jpg', 
 				cats: [1,2],
 				linkedin_id: 'M90XVN4Qk9',
-				twitter : 'aaromindo',
+				twitter : 'aaromnido',
 				tags: ['ror','photoshop','art', 'html5', 'css3'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: false},
 				portfolio : []
