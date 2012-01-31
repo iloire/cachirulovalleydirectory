@@ -74,7 +74,7 @@ var getApp = function (redis, config) {
 						if (user_db){
 							//user from database. make sure fields from linkedin are filled
 							if (!user_db.linkedin_profile_url)
-								user_db=user_linkedin.linkedin_profile_url;
+								user_db.linkedin_profile_url=user_linkedin.linkedin_profile_url;
 
 							callback (user_db);
 						}
