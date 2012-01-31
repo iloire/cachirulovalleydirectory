@@ -77,24 +77,22 @@ exports.tests = [
 			})
 		});	
 	}
-	/*.address plugin is not supported?
 	,
-	function testTestLandingFromCategory (callback){
+	/*
+	function testTestLandingFromTag (callback){
 		printCurrentTest();
 		browser = new Browser()
-		browser.visit(base_address + '/directory#/categories/2/Diseñadores', function (err, browser) {
+		browser.location = base_address + '/directory#/tags/node.js';
 			browser.wait (function(err, browser){
 				assert.ok(!err)
 				assert.ok(browser.success);
 				assert.ok(!browser.errors.length)
-				console.log (browser.html())
-				assert.ok(browser.queryAll("ul#professionals li").length>5);
+				assert.equal(browser.queryAll("ul#professionals li").length,3);
 				callback (null);
 			})
-		});	
 	}
-	*/	
 	,
+	*/
 	function testCreateProfilePage (callback){
 		printCurrentTest();
 		browser = new Browser()
