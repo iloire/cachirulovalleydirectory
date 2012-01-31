@@ -63,7 +63,15 @@ exports.tests = [
 					browser.wait (function (err, browser){
 						assert.ok(browser.queryAll("ul#professionals li").length>5);
 						assert.ok(browser.queryAll("ul#tags li").length>5);
-						callback (null);
+
+						//click in tag
+						browser.clickLink ('ul#tags li a:first', function(e, browser, status){
+							assert.ok(!browser.errors.length)
+							browser.wait (function (err, browser){
+								assert.equal(browser.queryAll("ul#professionals li").length,3);
+								callback (null);
+							});
+						})
 					});
 				})
 			})
