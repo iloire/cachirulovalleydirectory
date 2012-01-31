@@ -28,7 +28,11 @@ var getApp = function (redis, config) {
 		}
 		else{
 			var RedisStore = require('connect-redis')(express);
-			app.use(express.session({ secret: "keyboard cat", store: new RedisStore({host: config.server.production.session_database.host, port : config.server.production.session_database.port, db : config.server.production.session_database.db}) }));
+			app.use(express.session({ secret: "keyboard cat", store: new RedisStore({
+				host: config.server.production.session_database.host,
+				port : config.server.production.session_database.port, 
+				db : config.server.production.session_database.db
+			}) }));
 		}
 
 		app.use(app.router);
@@ -58,6 +62,7 @@ var getApp = function (redis, config) {
 			linkedin_client.getAccessToken(req, res, function (error, token) 
 			{
 			    if (error){
+					console.log (error);
 					res.redirect ('/')
 					return;
 				}
@@ -103,6 +108,7 @@ var getApp = function (redis, config) {
 				, function (error, user_linkedin) {
 					if (error){
 						console.log (error)
+						res.redirect ('/');
 					}else{
 						get_user_or_new_from_linkedin_data(user_linkedin, function (user){
 							req.session.user = user;
