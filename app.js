@@ -67,6 +67,10 @@ var getApp = function (redis, config) {
 					var params = {linkedin_id : user_linkedin.id}
 					module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
 						if (user_db){
+							//user from database. make sure fields from linkedin are filled
+							if (!user_db.linkedin_profile_url)
+								user_db=user_linkedin.linkedin_profile_url;
+
 							callback (user_db);
 						}
 						else{
