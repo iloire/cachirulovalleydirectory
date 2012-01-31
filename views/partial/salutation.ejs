@@ -1,9 +1,12 @@
+<div class="loginBox">
 <% if (!user) { %>
 	<a href="/login">
 		Entrar
 	</a>
+	<a id="what" href="#">¿Qué es esto?</a>
 <% } else { %>
 	<span class="salutation">
-		Hola <%= user.name %>! (<a href="/logout">salir</a>)
+		Hola <%= user.name %>! ( <a href="/logout">salir</a> )
 	</span>
 <% } %>
+</div>

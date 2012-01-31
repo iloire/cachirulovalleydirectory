@@ -105,7 +105,8 @@ div.intro{
 }
 
 .filteritem:first-child  {
-	width:150px;	
+	min-width:150px;
+	max-width:200px;
 }
 .filteritem:first-child span.value {
 	background-color:#EEDC94;
@@ -431,11 +432,28 @@ form span.error {
 	box-shadow: 0px -1px 0px rgba(141, 196, 223, 0.8);
 }
 .topbar a:hover{
-	background-color: #8DC4DF !important;
+	/*background-color: #8DC4DF !important;*/
 	color: #fff !important;
 }
 
-.salutation{
+.topbar div > ul a, .nav a {
+	display: block;
+	float: none;
+	padding: 0px;
+	line-height: 19px;
+	text-decoration: none;
+}
+
+.loginBox {
+	padding:5px;
+}
+
+.loginBox a{
+	padding: 5px 3px 3px 0px !important;
+	display: inline !important;
+}
+
+.loginBox .salutation{
 	display: block;	
 	color:white;
 	font-size:90%;
