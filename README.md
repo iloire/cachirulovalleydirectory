@@ -7,6 +7,12 @@ This is professional directory created in express.js and redis. Once you login (
 
 ## TAGS (change log):
 
+**0.2**
+
+ * Added twitter recent timeline.
+ * Added github own projects sorter by watchers.
+ * Global improvements
+
 **0.1**
 
  * Added tests (zombie.js based and pure http tests)
@@ -19,6 +25,8 @@ This is professional directory created in express.js and redis. Once you login (
  * Initial work based on previous code : FreelanceDirectory-server + FreelanceDirectory-web
 
 ## TODO
-
+ 
+ * Keyboard navigation
+ * i18n
  * List ordering
  * List pagination
