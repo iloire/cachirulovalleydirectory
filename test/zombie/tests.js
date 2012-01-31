@@ -17,6 +17,7 @@ var mocked_user = {
 	web: 'mywebsite.com',
 	twitter : 'mytwitteraccount',
 	region : 2,
+	github : 'mygitaccount',
 	location : 'my city, my state',
 	other_data : { vc_partner:false, tech_partner: true, freelance:true },
 	portfolio : [{url: 'wwooo.com', descr:'my wwooo.com web site :) '}]
@@ -111,6 +112,7 @@ exports.tests = [
 					assert.equal (browser.query('[name=bio]').value, mocked_user.bio);
 					assert.equal (browser.query('[name=web]').value, mocked_user.web);
 					assert.equal (browser.query('[name=twitter]').value, mocked_user.twitter);
+					assert.equal (browser.query('[name=github]').value, mocked_user.github);
 					assert.equal (browser.query('[name=region]').value, mocked_user.region);
 					assert.equal (browser.query('[name=location]').value, mocked_user.location);
 					assert.equal (browser.query('[name=portfolio_url0]').value, mocked_user.portfolio[0].url);
@@ -175,6 +177,7 @@ exports.tests = [
 							fill("bio", 'new' + mocked_user.bio + Array(200).join('.')). //too big
 							fill("web", 'new' + mocked_user.web).
 							fill("twitter", 'new' + mocked_user.twitter).
+							fill("github", 'new' + mocked_user.github).
 							select("region", '0').
 							fill("location", 'new' + mocked_user.location).
 							check('categories_available').
@@ -203,6 +206,7 @@ exports.tests = [
 									assert.equal (browser.query('[name=email]').value, 'new'+ mocked_user.email);
 									assert.equal (browser.query('[name=web]').value, 'new'+ mocked_user.web);
 									assert.equal (browser.query('[name=twitter]').value, 'new'+ mocked_user.twitter);
+									assert.equal (browser.query('[name=github]').value, 'new'+ mocked_user.github);
 									assert.equal (browser.query('[name=region]').value, '0');
 									assert.equal (browser.query('[name=location]').value, 'new'+ mocked_user.location);
 									assert.equal (browser.query('[name=tags]').value, mocked_tags);
@@ -245,6 +249,7 @@ exports.tests = [
 											assert.equal (browser.query('[name=email]').value, 'new'+ mocked_user.email);
 											assert.equal (browser.query('[name=web]').value, 'new'+ mocked_user.web);
 											assert.equal (browser.query('[name=twitter]').value, 'new'+ mocked_user.twitter);
+											assert.equal (browser.query('[name=github]').value, 'new'+ mocked_user.github);
 											assert.equal (browser.query('[name=region]').value, '0');
 											assert.equal (browser.query('[name=location]').value, 'new'+ mocked_user.location);
 											//assert.equal (browser.query('[name=tags]').value, mocked_tags); //fix order to enable this assert
@@ -291,7 +296,7 @@ exports.tests = [
 							assert.ok(!err)
 							assert.ok(browser.success);
 							assert.ok(!browser.errors.length)
-							browser.wait (function (err, browser){
+							browser.wait (1000,function (err, browser){
 								assert.ok(!err)
 								assert.ok(browser.success);
 								assert.ok(!browser.errors.length)
@@ -300,6 +305,7 @@ exports.tests = [
 								assert.ok(browser.html('.profile').indexOf('Zufaria, Zaragoza')>-1);
 								assert.ok(browser.html('.profile').indexOf('http://www.twitter.com/ivanloire')>-1);
 								assert.ok(browser.html('.profile').indexOf('iloire.com')>-1);
+								//assert.ok(browser.html('.profile').indexOf('WatchMen')>-1); //github project
 								assert.ok(browser.html('.profile').indexOf('letsnode.com')>-1);
 
 								callback (null);

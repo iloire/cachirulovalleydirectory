@@ -220,6 +220,7 @@ var getApp = function (redis, config) {
 			web : req.param('web') || '',
 			image : req.session.user.image,
 			twitter : (req.param('twitter') || '').replace('@',''),
+			github : req.param('github') || '',
 			cats : req.param ('categories_available') || [],
 			tags : req.param ('tags') ? req.param ('tags').split(',') : [], 
 			other_data :  {

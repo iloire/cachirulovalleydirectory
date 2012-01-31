@@ -33,6 +33,7 @@ var users =
 				cats: [1,5],
 				linkedin_id: 'HWHfu0v9eX',
 				twitter : 'ivanloire',
+				github : 'iloire',
 				web: 'http://www.iloire.com',
 				tags: ['c#','node.js', 'asp.net mvc3', '.net', 'redis'],
 				other_data : {tech_partner: true, entrepreneur: true, freelance: true, looking_for_contracts: true},

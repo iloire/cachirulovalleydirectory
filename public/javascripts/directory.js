@@ -78,14 +78,45 @@ var directory = (function () {
 		return replaceURLWithHTMLLinks(text);
 	}
 
+	function getGitHubProjects(user, where){
+		var cachekey = 'github ' + user;
+		if ($('body').data(cachekey)) { //save in dom via data() jquery attribute
+			$(where).html($('body').data(cachekey));
+		}
+		else{
+			$(where).html(loading);
+			$.getJSON('https://api.github.com/users/' + user + '/repos', {cache:true}, function(data, status){
+				var own_projects=[]
+				for(var i=0;i<data.length;i++){
+					if (!data[i].fork)
+						own_projects.push (data[i]);
+				}
+				
+				//sort
+				function sorter(a,b) { return b.watchers - a.watchers; }
+				
+				own_projects.sort(sorter);
+				
+				var output="<ul>";
+				for (var i=0, c=0 ;(c<5 && i<own_projects.length);i++){
+						output = output + '<li>'+ own_projects[i].watchers + ' / ' +  own_projects[i].forks + ': <a target=_blank href="'+ own_projects[i].html_url + '">' + own_projects[i].name + '</a>: ' + own_projects[i].description + '</li>'; //todo
+						c++;
+				}
+				output = output + "</ul>";
+				$(where).html(output);
+				$('body').data(cachekey, output);
+			});
+		}
+	}
+	
 	function getTwTimeline(user, where){
 		if ($('body').data(user)) { //save in dom via data() jquery attribute
 			$(where).html($('body').data(user));
 			$("abbr.timeago").timeago();
 		}
 		else{
-			$('#tw_timeline').html(loading);
-			$.getJSON('http://twitter.com/status/user_timeline/'+ user +'.json?count=50&callback=?&exclude_replies=true&trim_user=true&include_rts=false', {cache:true}, function(data){
+			$(where).html(loading);
+			$.getJSON('http://twitter.com/status/user_timeline/'+ user +'.json?count=50&callback=?&exclude_replies=true&trim_user=true&include_rts=false', {cache:true}, function(data, status){
 				//last tweets
 				var output="<ul>";
 				for (var i=0, c=0 ;(c<5 && i<data.length);i++){
@@ -112,6 +143,9 @@ var directory = (function () {
 			viewModel.tag_title ('⇐ sus tags');
 			if (data.user.twitter){
 				getTwTimeline(data.user.twitter, $('#tw_timeline'));
+			}
+			if (data.user.github){
+				getGitHubProjects(data.user.github, $('#github_projects'));
 			}
 			$(document).trigger("directory.onProfileLoaded", data.user);
 		}
