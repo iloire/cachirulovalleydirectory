@@ -48,6 +48,7 @@ var users =
 				cats: [1,5],
 				linkedin_id: '',
 				twitter : 'gimenete',
+				github : 'gimenete',
 				tags: ['redis','node.js', 'iOS'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
 				portfolio : []
@@ -231,7 +232,7 @@ function AddExtraFakeUsers(callback){
 				user.bio = "This is a fake profile. Most of bla bla, bla bla bla bla of bla bla bla bla, right?" + user.name;
 				user.twitter = 'twiteruser' + i;
 				user.web = 'blabla' + i + '.com';
-				user.image = 'http://lorempixum.com/output/people-q-c-60-60-6.jpg';
+				user.image = 'http://lorempixel.com/output/people-q-c-80-80-7.jpg';
 				user.creation_date = time;
 				user.email = Faker.Internet.email();
 				user.location = 'spain'
@@ -253,6 +254,13 @@ function PopulateUsers(callback){
 	});
 }
 
+function RandomVotes (callback){
+	var params = {uservoted: {id: 7}, vote: 1, user:{id:1}}
+	module_users.VoteUser(redis, params, function(err, data){
+		callback(err, 'random votes');
+	})
+}
+
 /*main*/
 var async = require ('async');
 var scripts = [
@@ -260,7 +268,8 @@ var scripts = [
 	PopulateCats,
 	CheckCats,
 	AddExtraFakeUsers,
-	PopulateUsers
+	PopulateUsers,
+	RandomVotes
 ]
 
 function rebuild_database (redis_instance, callback){

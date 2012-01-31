@@ -34,9 +34,20 @@
 	<div class="span10">
 		<div data-bind='template: {name:"filterTemplate", foreach: filter}'></div>
 		<div class="professionals_list">
+			<div class="sortingOptions">
+				<select id="sortingSelect">
+					<option value="name">Alfabético A..Z</option>
+					<option value="name_">Alfabético Z..A</option>
+					<option value="votes_">Votos</option>
+					<!--
+					<option value="created_at">Antigüedad ASC</option>
+					<option value="created_at_">Antigüedad DESC</option>
+					-->
+				</select>
+			</div>
+			
 			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
 		</div>
-
 		<div class="profile" style="display:none" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
 	</div>
 
@@ -47,10 +58,6 @@
 		<div class="tag_explanation" data-bind='text: tag_explanation'></div>
 	</div>
 </div>
-
-<%for(var i=0;i<users.length;i++){%>
-	<a href="/user/<%=users[i].id%>/<%=users[i].name%>"><%=users[i].name%></a>
-<%}%>
 
 <!--templates-->
 <script id='tagsTemplate' type="text/x-jquery-tmpl">

@@ -196,7 +196,7 @@ var directory = (function () {
 
 	dir.load_professionals = function (query, callback){
 		$(document).trigger("directory.onBeforeProfessionalListLoaded");
-		$.getJSON(query.url, {id:query.id, q:query.q, scope : getScope()}, function (data) 
+		$.getJSON(query.url, {id:query.id, q:query.q, scope : getScope(), sort: $('#sortingSelect').val()}, function (data) 
 			{
 				last_query=query;
 				viewModel.professionals (data.users);
@@ -310,6 +310,13 @@ $(document).ready(function () {
 	})
 	.click(function(e) {
 		e.preventDefault()
+	});
+	
+	$('#sortingSelect').change(function() {
+		if (last_query){
+			directory.load_professionals(last_query);
+			$(document).trigger("directory.onSortingChanged");
+		}		
 	});
 	
 	$('div.filterBox input').click (function ()

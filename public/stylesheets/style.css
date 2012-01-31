@@ -215,6 +215,11 @@ div.professionals_list{
 	margin-top:20px;
 }
 
+div.professionals_list .sortingOptions{
+	text-align:right;
+	clear:both;
+}
+
 ul#professionals {
 	padding:10px 0px 0px 0px;
 	margin:0px;
