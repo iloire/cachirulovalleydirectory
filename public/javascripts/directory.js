@@ -3,7 +3,8 @@ var viewModel = {
 	profile: ko.observable(),
 	tags: ko.observableArray(),
 	filter: ko.observableArray(),
-	tag_title: ko.observable()
+	tag_title: ko.observable(),
+	tag_explanation: ko.observable()	
 };
 
 var tags_initial_offset = 0;
@@ -19,61 +20,55 @@ viewModel.tagslist = ko.dependentObservable(function() {
 
 
 var last_query = null;
+var loading = '<img class=loading alt="loading..." src="/images/menu-loading.gif" />'
+
+function setFilterDisplay (initial_filter){
+	var scope = getScope();
+
+	if (scope.region==2){
+		initial_filter.push({name: 'Región', value: 'Todos'});
+	}
+	else if (scope.region==1){
+		initial_filter.push({name: 'Región', value: 'Nacional'});
+	}
+	else if (scope.region==0){
+		initial_filter.push({name: 'Región', value: 'Aragonés'});
+	}	
+
+	if (scope.freelance)
+		initial_filter.push({name: 'Freelance', value: 'SI'});
+
+	if (scope.entrepreneur)
+		initial_filter.push({name: 'Emprendedor', value: 'SI'});
+
+	viewModel.filter (initial_filter);
+}
+
+function getScope(){ 
+	var scope = {}
+
+	scope.freelance = ($('#freelance_scope').is(':checked')) ? true : false
+	scope.entrepreneur = ($('#entrepreneur_scope').is(':checked')) ? true : false
+
+	if ($('#worldwide_scope').is(':checked')){
+		scope.region=2
+	}
+	else if ($('#national_scope').is(':checked')){
+		scope.region=1
+	}
+	else if ($('#regional_scope').is(':checked')){
+		scope.region=0 //regional
+	}
+	else
+		scope.region=2 //nothing selected
+
+	return scope;
+}
 
 var directory = (function () {
 	var dir = {}
-
+	
 	//PRIVATE
-	function setFilterDisplay (initial_filter){
-		var scope = getScope();
-
-		if (scope.region==2){
-			initial_filter.push({name: 'Región', value: 'Todos'});
-		}
-		else if (scope.region==1){
-			initial_filter.push({name: 'Región', value: 'Nacional'});
-		}
-		else if (scope.region==0){
-			initial_filter.push({name: 'Región', value: 'Aragonés'});
-		}	
-
-		if (scope.freelance)
-			initial_filter.push({name: 'Freelance', value: 'SI'});
-
-		if (scope.entrepreneur)
-			initial_filter.push({name: 'Emprendedor', value: 'SI'});
-
-		viewModel.filter (initial_filter);
-	}
-
-	function getScope(){ 
-		var scope = {}
-
-		scope.freelance = ($('#freelance_scope').is(':checked')) ? true : false
-		scope.entrepreneur = ($('#entrepreneur_scope').is(':checked')) ? true : false
-
-		if ($('#worldwide_scope').is(':checked')){
-			scope.region=2
-		}
-		else if ($('#national_scope').is(':checked')){
-			scope.region=1
-		}
-		else if ($('#regional_scope').is(':checked')){
-			scope.region=0 //regional
-		}
-		else
-			scope.region=2 //nothing selected
-
-		return scope;
-	}
-
-	function set_display_professionals_list (){
-		$('.profile').hide().insertAfter('body');
-		$('ul#professionals li div.short').show();
-		$('.professionals_list').fadeIn();	
-	}
-
-
 	function replaceURLWithHTMLLinks(text) {
 	    var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
 	    return text.replace(exp,"<a target=_blank href='$1'>$1</a>"); 
@@ -89,6 +84,7 @@ var directory = (function () {
 			$("abbr.timeago").timeago();
 		}
 		else{
+			$('#tw_timeline').html(loading);
 			$.getJSON('http://twitter.com/status/user_timeline/'+ user +'.json?count=50&callback=?&exclude_replies=true&trim_user=true&include_rts=false', {cache:true}, function(data){
 				//last tweets
 				var output="<ul>";
@@ -109,7 +105,6 @@ var directory = (function () {
 	//PUBLIC
 	dir.load_profile = function (id_profile, container){
 		$('ul#professionals li div.short').show();
-		$('.tags').fadeIn();
 
 		function render(data){
 			viewModel.profile (data.user);
@@ -118,12 +113,13 @@ var directory = (function () {
 			if (data.user.twitter){
 				getTwTimeline(data.user.twitter, $('#tw_timeline'));
 			}
+			$(document).trigger("directory.onProfileLoaded", data.user);
 		}
 
 		if (!container){ //thinking whatever issuing a request for a profile, or having them loaded in profiles list json.
-			$.ajax({ url: 'api/users/byid', data: {id:id_profile}, dataType: 'jsonp', success: function (data) {
+			$.getJSON('api/users/byid', {id:id_profile}, function (data) {
+				$('.profile').fadeIn();
 				render(data);
-			}
 			});
 		}
 		else{
@@ -134,54 +130,79 @@ var directory = (function () {
 			for (i=0;i<users.length;i++){
 				if (users[i].id == id_profile){
 					render({user: users[i]});
-
-					var profile_offset = $('.profile').offset();
-					$('.tags').offset({top:profile_offset.top});
-					scroll(0,profile_offset.top-150);
 					break;
 				}
 			}
 		}
 	}
 
-	dir.load_professionals_by_tag = function (item, idtag){
-		this.load_professionals({name:'Tag', item : item, filterdisplay: item.text(), url : '/api/users/bytag', id: idtag});
+	dir.load_professionals_by_tag = function (tag, callback){
+		this.load_professionals({name:'Tag', url : '/api/users/bytag', id: tag}, function(err, data){
+			viewModel.tag_title ('relacionado');
+			viewModel.tag_explanation('tags relacionados con ' + tag)
+			$(document).trigger("directory.onSelectedTagChanged", tag);
+			if (callback)
+				callback(err, data);
+		});
 	}
 
-	dir.load_professionals_by_cat = function (item, idcat){
-		this.load_professionals({name:'Categoría', item : item, filterdisplay: item.text(), url : '/api/users/bycat', id: idcat});
+	dir.load_professionals_by_cat = function (idcat, callback){
+		this.load_professionals({name:'Categoría', url : '/api/users/bycat', id: idcat}, function(err, data){
+			$(document).trigger("directory.onSelectedCatChanged", data.cat);
+			if (callback)
+				callback(err, data);
+		});
 	}
-	
-	dir.load_professionals = function load_professionals (query){
-		if (query.item)
-			$(query.item).append('<img class=loading src="/images/menu-loading.gif">');
 
-		$.ajax({ url: query.url, data: {id:query.id, q:query.q, scope : getScope()}, dataType: 'jsonp', success: function (data) 
+	dir.load_professionals = function (query, callback){
+		$(document).trigger("directory.onBeforeProfessionalListLoaded");
+		$.getJSON(query.url, {id:query.id, q:query.q, scope : getScope()}, function (data) 
 			{
 				last_query=query;
-				set_display_professionals_list();
 				viewModel.professionals (data.users);
 				viewModel.tag_title ('Especialidades');
+				viewModel.tag_explanation('');
 				if (data.tags){
 					viewModel.tags (data.tags);
-					$('.tags').fadeIn();
 				}
 
-				setFilterDisplay([{name: query.name, value: query.filterdisplay}]);
-				$('.tags').offset({top: tags_initial_offset.top});
-				scroll(0,0);
-				$('.loading').remove();
+				if (callback)
+					callback(null, data);
 			}
-		});	
+		);	
 	}
 
-	dir.search = function search(term){
+	dir.search = function (term){
 		$.address.value('/search/'+ encodeURIComponent(term));
-		$('#searchBox').val(term); //just in case we came from url	
-		$('ul#categories li, ul#tags li').removeClass('selected'); //deselect cat
 		this.load_professionals({name:'Búsqueda', item : null, filterdisplay: term, url : '/api/search', q: term});
+		$(document).trigger("directory.onSearch", term);
 	}
 	
+	dir.set_content_by_hash = function (hash){
+		if (hash.indexOf('/categories')==0){
+			var idcat = hash.split ('/')[2];
+			this.load_professionals_by_cat (idcat);
+		}
+		//user?
+		else if (hash.indexOf('/user')==0){
+			var id_profile = hash.split ('/')[2];
+			this.load_profile(id_profile);
+		}
+		//tags?
+		else if (hash.indexOf('/tags')==0) {
+			var tag = decodeURIComponent(hash.split ('/')[2]);
+			this.load_professionals_by_tag (tag);
+		}
+		//search
+		else if (hash.indexOf('/search')==0){
+			var search = decodeURIComponent(hash.split ('/')[2]);
+			this.search (search, getScope());
+		}
+		else{
+			$('ul#categories li a').first().click();
+		}
+	}
+	    
 	return dir;
 }());
 
@@ -189,6 +210,58 @@ $(document).ready(function () {
 		
 	tags_initial_offset = $('.tags').offset();
 
+	function set_display_professionals_list (){
+		$('ul#professionals li div.short').show();
+	}
+
+	$(document).bind("directory.onBeforeProfessionalListLoaded",function(e){
+		$('.profile').insertAfter($('body')).hide();
+		$('.tags').offset({top: tags_initial_offset.top});
+		scroll(0,0);
+	});
+		
+		
+	$(document).bind("directory.onProfileLoaded",function(e, user){
+		var profile_offset = $('.profile').offset();
+		$('.tags').offset({top:profile_offset.top});
+		scroll(0,profile_offset.top-150);
+	});
+
+	$(document).bind("directory.onSearch",function(e, term){
+		$('#searchBox').val(term); //just in case we came from url	
+		$('ul#categories li, ul#tags li').removeClass('selected'); //deselect cat
+	});
+	
+	$(document).bind("directory.onSelectedCatChanged",function(e, cat){
+		set_display_professionals_list();
+
+		var text = "";
+		$('ul#categories li').removeClass('selected');
+		$('ul#categories li a').each(function() {
+			if ($(this).attr('idcat') == cat.id) {
+				$(this).parent().addClass('selected');
+			}
+		});
+		setFilterDisplay([{name: 'Categoría', value: cat.name}])
+	});
+
+	$(document).bind("directory.onFilterChanged",function(e){
+		setFilterDisplay([viewModel.filter()[0]]); //keep the first element. the others will change depending on filter values
+	});
+	
+	$(document).bind("directory.onSelectedTagChanged",function(e, tag){
+		set_display_professionals_list();
+		
+		$('ul#tags li').removeClass('selected'); //remove selected from tags
+		$('ul#categories li').removeClass('selected'); //remove selected from cats
+		$('ul#tags ul li a').each(function() {
+			if ($(this).attr('tag') == tag) {
+				$(this).parent().addClass('selected');
+			}
+		});
+		setFilterDisplay([{name: 'Tag', value: tag}])
+	});
+	
 	//bootstrap tooltips
 	$("[rel=popover]").popover({
 		live:true,
@@ -201,8 +274,10 @@ $(document).ready(function () {
 	
 	$('div.filterBox input').click (function ()
 	{
-		if (last_query)
+		if (last_query){
 			directory.load_professionals(last_query);
+			$(document).trigger("directory.onFilterChanged");
+		}
 	});
 
 	$('a#what').live ('click', function(){
@@ -244,21 +319,14 @@ $(document).ready(function () {
 	});
 
 	$('div.tags ul li a').live ('click', function(){
-		$('.tags ul li').removeClass('selected'); //remove selected from tags
-		$('ul#categories li').removeClass('selected'); //remove selected from cats
-
 		var tag=$(this).attr('tag');
-		$(this).parent().addClass('selected');
-
-		directory.load_professionals_by_tag ($(this),tag);
+		directory.load_professionals_by_tag (tag);
 		return false;
 	});
 	
 	$('ul#categories li a').live ('click', function(){
-		$('ul#categories li').removeClass('selected'); //style
-		$(this).parent().addClass('selected');
 		var idcat=$(this).attr('idcat');
-		directory.load_professionals_by_cat ($(this), idcat);
+		directory.load_professionals_by_cat (idcat);
 		return false;
 	});
 	
@@ -276,46 +344,13 @@ $(document).ready(function () {
 	
 	ko.applyBindings(viewModel);
 	
-	//deep linking
+	//deep linking	
 	$.address.init(function(event) {
 		var path=$.address.value();
-		//cat?
-		if (path.indexOf('/categories')==0){
-			var idcat = path.split ('/')[2];
-			$('ul#categories li a').each(function() {
-				if ($(this).attr('idcat') == idcat) {
-					$(this).click();
-				}
-			});
-		}
-		//user?
-		else if (path.indexOf('/user')==0){
-			var id_profile = path.split ('/')[2];
-			directory.load_profile(id_profile);
-		}
-		//tags?
-		else if (path.indexOf('/tags')==0) {
-			var tag = decodeURIComponent(path.split ('/')[2]);
-			$.ajax({ url: '/api/tags', data: {id:''}, dataType: 'jsonp', success: function (data) {
-				viewModel.tags (data.tags);
-				$('ul#tags li a').each(function() {
-					if ($(this).attr('tag') == tag) {
-						$(this).click();
-					}
-				});
-			}});
-		}
-		//search
-		else if (path.indexOf('/search')==0){
-			var search = decodeURIComponent(path.split ('/')[2]);
-			directory.search (search, getScope());
-		}
-
-		else{
-			$('ul#categories li a').first().click();
-		}
+		directory.set_content_by_hash(path);
 	}).change(function(event) {
-		//$.address.title('[title].concat(names).join(' | ')');
+		//console.log (event)
+		//directory.set_content_by_hash(window.location.hash);
 	});
    
 });
