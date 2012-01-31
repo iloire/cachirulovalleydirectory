@@ -37,13 +37,14 @@
 			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
 		</div>
 
-		<div class="profile" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
+		<div class="profile" style="display:none" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
 	</div>
 
 	<div class="tags span3">
 		<h3 data-bind='text: tag_title'>Especialidades</h3>
 		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tagslist}'>
 		</ul>
+		<div class="tag_explanation" data-bind='text: tag_explanation'></div>
 	</div>
 </div>
 
@@ -139,11 +140,12 @@
 	{{if portfolio.length}}
 	<h3>Portfolio</h3>
 	<div class="portfolio">
+	<ul>
 	 {{each portfolio}}
-		${$index + 1}: 
-		<a title="${$value.descr}" href="${$value.url}">${$value.url} </a>
-		<span class="descr"></span>
+		<li><a title="${$value.descr}" href="${$value.url}">${$value.url} </a></li>
 	 {{/each}}
+	</ul>
+	<span class="descr"></span>
 	{{/if}}	
 	</div>
 
