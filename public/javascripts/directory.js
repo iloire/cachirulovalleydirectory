@@ -85,11 +85,11 @@ var directory = (function () {
 		}
 		else{
 			$(where).html(loading);
-			$.getJSON('https://api.github.com/users/' + user + '/repos', {cache:true}, function(data, status){
+			$.getJSON('https://api.github.com/users/' + user + '/repos?callback=?', function(data){
 				var own_projects=[]
-				for(var i=0;i<data.length;i++){
-					if (!data[i].fork)
-						own_projects.push (data[i]);
+				for(var i=0;i<data.data.length;i++){
+					if (!data.data[i].fork)
+						own_projects.push (data.data[i]);
 				}
 				
 				//sort
@@ -97,12 +97,18 @@ var directory = (function () {
 				
 				own_projects.sort(sorter);
 				
-				var output="<ul>";
-				for (var i=0, c=0 ;(c<5 && i<own_projects.length);i++){
-						output = output + '<li>'+ own_projects[i].watchers + ' / ' +  own_projects[i].forks + ': <a target=_blank href="'+ own_projects[i].html_url + '">' + own_projects[i].name + '</a>: ' + own_projects[i].description + '</li>'; //todo
-						c++;
+				if (own_projects.length){
+					var output="<ul>";
+					for (var i=0, c=0 ;(c<5 && i<own_projects.length);i++){
+							output = output + '<li>'+ own_projects[i].watchers + ' / ' +  own_projects[i].forks + ': <a target=_blank href="'+ own_projects[i].html_url + '">' + own_projects[i].name + '</a>: ' + own_projects[i].description + '</li>'; //todo
+							c++;
+					}
+					output = output + "</ul>";
 				}
-				output = output + "</ul>";
+				else{
+					output = '<p>No se han encontrado proyectos propios públicos.</p>'
+				}
+				
 				$(where).html(output);
 				$('body').data(cachekey, output);
 			});
