@@ -31,7 +31,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	app.get('/api/users/bytag', function(req, res){
 		var params = {id : req.query["id"].toLowerCase(), scope: req.query["scope"], logged_user: req.session.user}
 		module_users.GetUsersByTag (redis, params, function (err, users) {
-			common.renderJSON(req, res, {users:common.removeEmail(users)}, 200, req.query["callback"])
+			common.renderJSON(req, res, {users:common.removeEmail(users), tags: common.get_unique_tags_by_users(users)}, 200, req.query["callback"])
 		})
 	});
 
