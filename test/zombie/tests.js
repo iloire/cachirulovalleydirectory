@@ -272,6 +272,45 @@ exports.tests = [
 		});	
 	}
 	,
+	function testCreatedProfileInDisplay (callback){ //todo: check with zombie profile div after click on profile thumb
+		printCurrentTest();
+		browser = new Browser()
+		browser.visit(base_address + '/directory', function (err, browser) {
+			assert.ok(!err)
+			browser.wait (function(err, browser){
+				assert.ok(!err)
+				assert.ok(browser.success);
+				assert.ok(!browser.errors.length);
+				browser.clickLink ('ul#categories li a:first', function(e, browser, status){
+					assert.ok(!browser.errors.length)
+					browser.wait (function (err, browser){
+						assert.ok(browser.queryAll("ul#professionals li").length>5);
+						assert.ok(browser.queryAll("ul#tags li").length>5);
+						assert.ok(browser.html().indexOf('Iván Loire')>-1);
+						browser.clickLink ('Iván Loire', function(e, browser, status){
+							assert.ok(!err)
+							assert.ok(browser.success);
+							assert.ok(!browser.errors.length)
+							browser.wait (function (err, browser){
+								assert.ok(!err)
+								assert.ok(browser.success);
+								assert.ok(!browser.errors.length)
+								assert.ok(browser.html('.profile').indexOf('desarrollador de software y formador freelance')>-1);
+								assert.ok(browser.html('.profile').indexOf('@ivanloire')>-1);
+								assert.ok(browser.html('.profile').indexOf('Zufaria, Zaragoza')>-1);
+								assert.ok(browser.html('.profile').indexOf('http://www.twitter.com/ivanloire')>-1);
+								assert.ok(browser.html('.profile').indexOf('iloire.com')>-1);
+								assert.ok(browser.html('.profile').indexOf('letsnode.com')>-1);
+
+								callback (null);
+							});
+						});
+					});
+				})
+			});
+		});	
+	}
+	,
 	function testVoteUser (callback){
 		printCurrentTest();
 		browser = new Browser()
