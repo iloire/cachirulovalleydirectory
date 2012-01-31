@@ -205,6 +205,11 @@ ul#categories li.selected a, ul#tags li.selected a{
 	color:black !important;
 }
 
+div.tags div.tag_explanation{
+	font-size:90%;
+	color:gray;
+}
+
 div.professionals_list{
 	margin-top:20px;
 }
