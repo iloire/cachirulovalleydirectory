@@ -64,20 +64,21 @@ var getApp = function (redis, config) {
 				req.session.token = token;
 
 				function get_user_or_new_from_linkedin_data(user_linkedin, callback){
-					var params = {linkedin_id : user_linkedin.linkedin_id}
+					var params = {linkedin_id : user_linkedin.id}
 					module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
 						if (user_db){
 							callback (user_db);
 						}
 						else{
-							//doesn't exist in the database yet
 							//convert from linkedin user data type to our data type
 							var user = {}
+							user.id = null; //not in db yet 
 							user.linkedin_id = user_linkedin.id;
-							user.name = user_linkedin.firstName + ' ' + user_linkedin.lastName;
-							user.bio = user_linkedin.headline;
+							user.name = (user_linkedin.firstName || '') + ' ' + (user_linkedin.lastName || '');
+							user.bio = user_linkedin.headline || '';
 							user.image = user_linkedin.pictureUrl;
 							user.location = user_linkedin.location.name;
+							user.linkedin_profile_url = user_linkedin.publicProfileUrl || '';
 							user.other_data = {};
 							user.portfolio = [];
 							callback (user);
@@ -99,8 +100,6 @@ var getApp = function (redis, config) {
 					if (error){
 						console.log (error)
 					}else{
-						user_linkedin.linkedin_id = user_linkedin.id; //save id from linkedin in our linkedin_id property
-						user_linkedin.id = null;
 						get_user_or_new_from_linkedin_data(user_linkedin, function (user){
 							req.session.user = user;
 							if (req.session.redirect){
@@ -207,6 +206,8 @@ var getApp = function (redis, config) {
 		var user = {
 			id : req.session.user.id,
 			linkedin_id : req.session.user.linkedin_id,
+			linkedin_profile_url : req.session.user.linkedin_profile_url,
+			
 			name : req.param('name') || '', 
 			email : req.param('email') || '',
 			bio : req.param('bio') || '',
@@ -370,12 +371,12 @@ var getApp = function (redis, config) {
 			showErrors(user, validation_errors);
 		}
 		else{
-			module_users.AddOrEditUser(redis, {user:user}, function (err, user_db){
+			module_users.AddOrEditUser(redis, {user:user}, function (err, users_db){
 				if (err)
 					showErrors(user, validation_errors);
 				else{
-					req.session.user = user_db
-					req.flash ('success','¡Tus datos se han grabado correctamente!')
+					req.session.user = users_db[0];
+					req.flash ('success','¡Tus datos se han grabado correctamente!');
 					res.redirect('/editprofile')
 				}
 			});

@@ -105,7 +105,7 @@ exports.tests = [
 					assert.ok(!err)
 					assert.ok(browser.success);
 					assert.ok(!browser.errors.length);
-					//console.log(browser.html());
+					assert.ok(browser.html().indexOf('undefined'),-1);
 					assert.equal (browser.query('[name=name]').value, mocked_user.name);
 					assert.equal (browser.query('[name=email]').value, mocked_user.email);
 					assert.equal (browser.query('[name=bio]').value, mocked_user.bio);
@@ -198,7 +198,7 @@ exports.tests = [
 									assert.ok(browser.html('div.general').indexOf('Máximo número de carácteres')>-1);
 									assert.ok(browser.html().indexOf('Ha ocurrido un error, por favor revisa los datos introducidos')>-1);									
 
-									//check data is bak ok
+									//check data is back ok
 									assert.equal (browser.query('[name=name]').value, 'new'+ mocked_user.name);
 									assert.equal (browser.query('[name=email]').value, 'new'+ mocked_user.email);
 									assert.equal (browser.query('[name=web]').value, 'new'+ mocked_user.web);
@@ -226,7 +226,10 @@ exports.tests = [
 											//console.log (browser.errors)
 											assert.ok(browser.success);
 											//assert.ok(!browser.errors.length);
+											assert.ok (browser.html().indexOf('satisfactoriamente'))
 											assert.ok(browser.html().indexOf('Tu perfil ha sido modificado satisfactoriamente')>-1)
+											
+											//no erro validation
 											assert.ok(browser.html('div.general').indexOf('Por favor introduce tu nombre')==-1);
 											assert.ok(browser.html('div.general').indexOf('Por favor introduce tu email')==-1);
 											assert.ok(browser.html('div.general').indexOf('Por favor introduce un texto descriptivo')==-1);
@@ -234,6 +237,28 @@ exports.tests = [
 											assert.ok(browser.html('div.general').indexOf('Por favor seleccione su ubicación')==-1);
 											assert.ok(browser.html('div.cats').indexOf('Elige al menos una categoría')==-1);
 											assert.ok(browser.html().indexOf('Por favor introduce al menos')==-1);
+											
+											//check profile data is filled once redirected back to app.get editprofile
+											//check data is back ok
+											
+											assert.equal (browser.query('[name=name]').value, 'new'+ mocked_user.name);
+											assert.equal (browser.query('[name=email]').value, 'new'+ mocked_user.email);
+											assert.equal (browser.query('[name=web]').value, 'new'+ mocked_user.web);
+											assert.equal (browser.query('[name=twitter]').value, 'new'+ mocked_user.twitter);
+											assert.equal (browser.query('[name=region]').value, '0');
+											assert.equal (browser.query('[name=location]').value, 'new'+ mocked_user.location);
+											//assert.equal (browser.query('[name=tags]').value, mocked_tags); //fix order to enable this assert
+
+											assert.equal (browser.query('[name=vc_partner]').checked, true);
+											assert.equal (browser.query('[name=tech_partner]').checked, true);
+											assert.equal (browser.query('[name=business_partner]').checked, true);
+											assert.equal (browser.query('[name=entrepreneur]').checked, true);
+											assert.equal (browser.query('[name=freelance]').checked, true);
+											assert.equal (browser.query('[name=looking_for_contracts]').checked, true);
+
+											assert.equal (browser.query('[name=portfolio_url0]').value, 'myurl.com');
+											assert.equal (browser.query('[name=portfolio_descr0]').value, 'myurl.com descr');
+											
 										
 											callback(null);
 										});
