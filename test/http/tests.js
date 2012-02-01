@@ -74,8 +74,10 @@ exports.tests = [
 			assert.ok(body.indexOf ('{"tags":')>-1);
 			var tags = JSON.parse(body).tags;
 			assert.equal(tags.length,25)
-			assert.equal(tags[1],'adsense');
-			assert.equal(tags[2],'android');
+			assert.equal(tags[1].t,'adsense');
+			assert.equal(tags[1].n, 2);
+			assert.equal(tags[2].t,'android');
+			assert.equal(tags[2].n, 1);
 			callback(null);
 		});
 	}	

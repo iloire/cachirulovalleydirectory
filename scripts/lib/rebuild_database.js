@@ -141,7 +141,7 @@ var users =
 				cats: [1,2],
 				linkedin_id: '',
 				twitter : 'SirMartinPiribi',
-				tags: ['grails','java', '.net', 'Android'],
+				tags: ['grails','java', '.net', 'Android', 'adsense'],
 				other_data : {freelance: false},
 				portfolio : []
 			}
@@ -184,7 +184,7 @@ var users =
 				cats: [1,2],
 				linkedin_id: '',
 				web: 'http://bit.ly/rPFL8H',
-				twitter : 'olmeras',
+				twitter : 'torhector',
 				tags: ['iOS','Node.js'],
 				other_data : {freelance: false},
 				portfolio : []

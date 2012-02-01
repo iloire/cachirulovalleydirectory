@@ -4,7 +4,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 
 	function PrepareForDisplayTags (req, tags){
 		function sorter (a,b){
-			return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+			return ((a.t < b.t) ? -1 : ((a.t > b.t) ? 1 : 0));
 		}
 		return tags.sort(sorter);
 	}
@@ -12,7 +12,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	function PrepareForDisplayUsers (req, users){ //users or user
 		if (users.length==undefined) //single object, not array
 			return common.removeEmail(users);
-			
+
 		var sortfield = req.query["sort"] || 'name';
 		var desc=false
 		if (sortfield[sortfield.length-1]=="_"){
@@ -36,7 +36,11 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 
 	app.get('/api/tagsautocomplete', function(req, res){
 		module_tags.GetTags (redis, {}, function (err, tags){
-			res.send (PrepareForDisplayTags(req, tags).join('\n'))
+			var tags_text=[]
+			for (var i=0, l=tags.length;i<l;i++){
+				tags_text.push(tags[i].t)
+			}
+			res.send (tags_text.join('\n'))
 		});
 	});
 

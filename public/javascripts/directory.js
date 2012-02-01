@@ -13,7 +13,7 @@ viewModel.tagslist = ko.dependentObservable(function() {
 	var tags=[];
 	var tags_list = this.tags();
 	for (var i=0, c=tags_list.length;i<c;i++){
-		tags.push ({name: tags_list[i], safe_name:encodeURIComponent(tags_list[i])});
+		tags.push ({name: tags_list[i].t, safe_name:encodeURIComponent(tags_list[i]), counter: tags_list[i].n});
 	}
 	return tags;
 }, viewModel);
@@ -178,7 +178,7 @@ var directory = (function () {
 
 	dir.load_professionals_by_tag = function (tag, callback){
 		this.load_professionals({name:'Tag', url : '/api/users/bytag', id: tag}, function(err, data){
-			viewModel.tag_title ('relacionado');
+			viewModel.tag_title ('"' + tag + '"');
 			viewModel.tag_explanation('tags relacionados con ' + tag)
 			$(document).trigger("directory.onSelectedTagChanged", tag);
 			if (callback)
