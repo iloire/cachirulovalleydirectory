@@ -7,7 +7,7 @@ var module_tags = require("../../lib/modules/tags.js")
 
 var redis 
 
-var extrausers_for_each_cat = 10
+var extra_users_for_each_cat = 10
 
 function $() { return Array.prototype.slice.call(arguments).join(':') }
 
@@ -198,13 +198,15 @@ var project_key = 'test'
 
 function ClearDB (callback){
 	redis.flushall();
-	callback(null, 'db flushed')
+	console.log ('db flushed')	
+	callback(null, null)
 }
 
 function PopulateCats(callback){
 	var params = {cats:cats};
 	module_cats.AddCategories (redis, params, function(err, data){
-		callback(err, 'cats populated')
+		console.log ('cats populated')
+		callback(err, null)
 	});
 }
 
@@ -225,39 +227,45 @@ function CheckCats(callback){
 function AddExtraFakeUsers(callback){
 	var time = new Date().getTime()
 	module_cats.GetCats (redis, {}, function(err, cats_db){	
+		var counter = 0;
 		for (var c=0;c<cats_db.length;c++){
-			for (var i=0;i<extrausers_for_each_cat;i++){
+			for (var i=0;i<extra_users_for_each_cat;i++){
 				var user = {}
 				user.name = Faker.Name.findName();
+				user.linkedin_id ='';
 				user.bio = "This is a fake profile. Most of bla bla, bla bla bla bla of bla bla bla bla, right?" + user.name;
-				user.twitter = 'twiteruser' + i;
+				user.twitter = 'twitter';
 				user.web = 'blabla' + i + '.com';
 				user.image = 'http://lorempixel.com/output/people-q-c-80-80-7.jpg';
 				user.creation_date = time;
 				user.email = Faker.Internet.email();
 				user.location = 'spain'
-				user.region = 100;
+				user.region = 1000;
 				user.cats = cats_db[c].id;
-				user.tags = ['js', 'javascript'];
-
+				user.tags = ['js', 'javascript', 'customtag' + i];
+				user.other_data = {freelance: (Math.random() > 0.7), entrepreneur : (Math.random()>0.8)}
 				users.push (user);
+				counter++;
 			}
 		}
-		callback (null, 'extra users added')
+		console.log (counter + ' extra users added')
+		callback (null, null)
 	});
 }
 
 function PopulateUsers(callback){
 	var params = {users: users}
 	module_users.AddUsers(redis, params, function (err, users_db){
-		callback (null, 'users populated');
+		console.log (users_db.length + ' users populated');
+		callback (null, null);
 	});
 }
 
 function RandomVotes (callback){
 	var params = {uservoted: {id: 7}, vote: 1, user:{id:1}}
 	module_users.VoteUser(redis, params, function(err, data){
-		callback(err, 'random votes');
+		console.log('random votes created');
+		callback(err, null);
 	})
 }
 
@@ -275,7 +283,6 @@ var scripts = [
 function rebuild_database (redis_instance, callback){
 	redis = redis_instance;
 	async.series(scripts, function(err, results){
-		console.log (results.join('\n'))
 		callback (null, results);
 	});
 }

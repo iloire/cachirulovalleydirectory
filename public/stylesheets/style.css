@@ -82,7 +82,7 @@ div.intro{
 
 .filteritem {
 	float:left;
-	min-width:100px;
+	min-width:70px;
 }
 
 .filteritem span.name {
@@ -104,11 +104,11 @@ div.intro{
 	border: 1px solid #fff;
 }
 
-.filteritem:first-child  {
+.filteritem.primary  {
 	min-width:150px;
 	max-width:200px;
 }
-.filteritem:first-child span.value {
+.filteritem.primary span.value {
 	background-color:#EEDC94;
 	color:#000;	
 }
@@ -215,9 +215,18 @@ div.professionals_list{
 	margin-top:20px;
 }
 
+span.professional_counter{
+	color:gray;
+	font-size:12px;
+}
+
 div.professionals_list .sortingOptions{
 	text-align:right;
 	clear:both;
+}
+
+#sortingSelect{
+	width:140px;
 }
 
 ul#professionals {

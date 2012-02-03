@@ -44,33 +44,48 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 		});
 	});
 
-	app.get('/api/users/bycat', function(req, res){
-		var params = {id : req.query["id"], scope: req.query["scope"], logged_user: req.session.user}
-		module_cats.GetCat (redis, params, function (err, cat){ 
-			module_users.GetUsersByCat (redis, params, function (err, users){ //get users in that cat	
-				common.renderJSON(req, res, {users:PrepareForDisplayUsers(req,users), tags: PrepareForDisplayTags(req, common.get_unique_tags_by_users(users)), cat: cat}, 200, req.query["callback"])
-			});
-		});
-	});
-
-	app.get('/api/users/bytag', function(req, res){
-		var params = {id : req.query["id"].toLowerCase(), scope: req.query["scope"], logged_user: req.session.user}
-		module_users.GetUsersByTag (redis, params, function (err, users) {
-			common.renderJSON(req, res, {users:PrepareForDisplayUsers(req, users), tags: PrepareForDisplayTags(req, common.get_unique_tags_by_users(users))}, 200, req.query["callback"])
-		})
-	});
+	app.get('/api/users', function(req, res){
+		var params = {id_cat : req.query["id_cat"], tag : req.query["tag"] || '', scope: req.query["scope"], logged_user: req.session.user}
+		module_cats.GetCats (redis, params, function (err, cats){
+			module_users.GetUsersByScope(redis, params, function(err, users){
+				var cat=null;
+				for (var i=0;i<cats.length;i++){
+					if (cats[i].id==params.id_cat)
+					{
+						cat=cats[i];
+						break;
+					}
+				}
+			
+				common.renderJSON(req, res, {
+					users: PrepareForDisplayUsers(req,users),
+					tags: PrepareForDisplayTags(req, common.get_unique_tags_by_users(users)),
+					cats: cats,
+					cat: cat,
+					tag: params.tag,
+					}, 200, req.query["callback"])
+			});	
+		});	
+	});	
 
 	app.get('/api/users/byid', function(req, res){
 		var params = {id : req.query["id"], logged_user: req.session.user}
 		module_users.GetUser (redis, params, function (err, user){
+			user.tags = PrepareForDisplayTags(req, common.get_unique_tags_by_users([user]));
 			common.renderJSON(req, res, {user: PrepareForDisplayUsers(req, user)}, 200, req.query["callback"])
 		})
 	});
 
 	app.get('/api/search', function(req, res){
-		var params = {q : req.query["q"], scope: req.query["scope"], logged_user: req.session.user}
-		module_users.Search (redis, params, function (err, users){
-			common.renderJSON(req, res, {users:PrepareForDisplayUsers(req, users), tags: PrepareForDisplayTags(req, common.get_unique_tags_by_users(users))}, 200, req.query["callback"])
+		var params = {q : req.query["search"] || req.query["q"] || '', scope: req.query["scope"], logged_user: req.session.user}
+		module_cats.GetCats (redis, params, function (err, cats){		
+			module_users.Search (redis, params, function (err, users){
+				common.renderJSON(req, res, {
+					cats: cats,
+					users:PrepareForDisplayUsers(req, users), 
+					tags: PrepareForDisplayTags(req, common.get_unique_tags_by_users(users))
+					}, 200, req.query["callback"])
+			})
 		})
 	});
 }

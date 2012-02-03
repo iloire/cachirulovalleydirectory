@@ -1,7 +1,7 @@
 <div class="row">
 	<div class="span3">
 		<h3>Categorías</h3>
-		<%-partial ('partial/listcategories', {categories : categories})%>
+		<ul id="categories" data-bind='template: {name:"catsTemplate", foreach: cats}'></ul>
 		<br style="clear:both">
 		<h3>Filtros</h3>
 		<div class="filterBox">
@@ -39,13 +39,13 @@
 					<option value="name">Alfabético A..Z</option>
 					<option value="name_">Alfabético Z..A</option>
 					<option value="votes_">Votos</option>
-					<!--
-					<option value="created_at">Antigüedad ASC</option>
-					<option value="created_at_">Antigüedad DESC</option>
-					-->
 				</select>
 			</div>
-			
+
+			<span class="professional_counter">
+			Profesionales:
+				<span data-bind="text: professionals_count">cdd</span>
+			</span>
 			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
 		</div>
 		<div class="profile" style="display:none" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
@@ -64,9 +64,13 @@
     <li><a tag="${name}" rel="address:/tags/${safe_name}" href="/tag/${safe_name}/users">${name}</a> <span>${counter}</span></li>
 </script>
 
+<script id='catsTemplate' type="text/x-jquery-tmpl">
+    <li><a idcat="${id}" rel="address:/categories/${id}/${name}" href="/categories/${id}/${name}">${name}</a><span>${users_count}</span></li>
+</script>
+
 <script id='filterTemplate' type="text/x-jquery-tmpl">
-<span class="filteritem">
-	<span class="name">${name}</span> 
+<span class="filteritem ${type}">
+	<span class="name">${name}</span>
 	{{if (value)}}
 		<span class="value">${value}</span>
 	{{/if}}
@@ -95,7 +99,7 @@
 			{{/if}}
 		<%}else {%>
 			<small>
-			 	<a href="/login" rel="popover" title="Regístrate o inicia sesión" 
+			 	<a href="/login" class="login" rel="popover" title="Regístrate o inicia sesión" 
 				data-content="Es necesario registrarse para poder votar. <br />Puedes votar a los profesionales que recomiendas. Los votos son anónimos. Simplemente se publica el número de los mismos">Inicia sesión para votar</a>
 			</small>
 		<%}%>
@@ -178,6 +182,7 @@
 					<span>${votes}</span> recomendaciones
 				</span>
 			{{/if}}
+			[${tags}]
 		</div>
     </li>
 </script>

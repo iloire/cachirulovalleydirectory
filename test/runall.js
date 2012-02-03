@@ -16,18 +16,28 @@ function run_tests (tests, callback){
 }
 
 var r = require('../scripts/lib/rebuild_database')
+
 var tests = [
 	function rebuild_db (callback){
 		r.rebuild_database(redis, function(err){
-			callback(err,'ok rebuild database');
+			callback(err,'database rebuilt!');
 		});
 	}
+	,
+	function do_module_test (callback){ 
+		var module = require('./modules/tests.js')
+		module.setup({redis:redis});
+		run_tests(module.tests, function(err){	
+			callback(err, 'modules test passed');
+		});
+	}
+
 	,
 	function do_http_test (callback){ 
 		var app = new appFactory.getApp(redis, config);
 		var module = require('./http/tests.js')
 
-		module.setup(app);
+		module.setup({app:app});
 		var port = 3434
 		app.listen(port);
 		
@@ -40,7 +50,7 @@ var tests = [
 	function do_zombie_test (callback){ 
 		var app = new appFactory.getApp(redis, config);
 		var module = require('./zombie/tests.js')
-		module.setup(app);
+		module.setup({app:app});
 		var port = 3434
 		app.listen(port);
 		
@@ -49,6 +59,7 @@ var tests = [
 			callback(err, 'zombie test passed');
 		});
 	}
+
 ];
 
 console.log('Running tests with database: ' + JSON.stringify(dbconfig))

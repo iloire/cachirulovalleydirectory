@@ -2,6 +2,7 @@ var viewModel = {
 	professionals: ko.observableArray(),
 	profile: ko.observable(),
 	tags: ko.observableArray(),
+	cats: ko.observableArray(),
 	filter: ko.observableArray(),
 	tag_title: ko.observable(),
 	tag_explanation: ko.observable()	
@@ -13,9 +14,13 @@ viewModel.tagslist = ko.dependentObservable(function() {
 	var tags=[];
 	var tags_list = this.tags();
 	for (var i=0, c=tags_list.length;i<c;i++){
-		tags.push ({name: tags_list[i].t, safe_name:encodeURIComponent(tags_list[i]), counter: tags_list[i].n});
+		tags.push ({name: tags_list[i].t || tags_list[i], safe_name:encodeURIComponent(tags_list[i].t || tags_list[i]), counter: tags_list[i].n || ''});
 	}
 	return tags;
+}, viewModel);
+
+viewModel.professionals_count = ko.dependentObservable(function() {
+	return this.professionals().length;
 }, viewModel);
 
 
@@ -25,16 +30,7 @@ var loading = '<img class=loading alt="loading..." src="/images/menu-loading.gif
 function setFilterDisplay (initial_filter){
 	var scope = getScope();
 
-	if (scope.region==2){
-		initial_filter.push({name: 'Región', value: 'Todos'});
-	}
-	else if (scope.region==1){
-		initial_filter.push({name: 'Región', value: 'Nacional'});
-	}
-	else if (scope.region==0){
-		initial_filter.push({name: 'Región', value: 'Aragonés'});
-	}	
-
+	initial_filter.push({name: 'Región', value: (scope.region==1000) ? 'Todos' : ((scope.region==100) ? 'Nacional' : 'Aragonés') });
 	if (scope.freelance)
 		initial_filter.push({name: 'Freelance', value: 'SI'});
 
@@ -51,22 +47,54 @@ function getScope(){
 	scope.entrepreneur = ($('#entrepreneur_scope').is(':checked')) ? true : false
 
 	if ($('#worldwide_scope').is(':checked')){
-		scope.region=2
+		scope.region=1000
 	}
 	else if ($('#national_scope').is(':checked')){
-		scope.region=1
+		scope.region=100
 	}
 	else if ($('#regional_scope').is(':checked')){
-		scope.region=0 //regional
+		scope.region=10 //regional
 	}
 	else
-		scope.region=2 //nothing selected
+		scope.region=1000 //nothing selected
 
 	return scope;
 }
 
+function set_content_by_hash (hash){
+	if (hash.indexOf('/categories')==0){
+		var id_cat = hash.split ('/')[2];
+		directory.load_data ({id_cat:id_cat});
+	}
+	//user?
+	else if (hash.indexOf('/user')==0){
+		var id_profile = hash.split ('/')[2];
+		directory.load_profile(id_profile, function (err, user){
+			$('.profile').fadeIn();
+			$(document).trigger("directory.onProfileLoaded", user);
+			directory.load_data ({id_cat:1});
+		});
+	}
+	//tags?
+	else if (hash.indexOf('/tags')==0) {
+		var tag = decodeURIComponent(hash.split ('/')[2]);
+		directory.load_data ({tag:tag});
+	}
+	//search
+	else if (hash.indexOf('/search')==0){
+		var search = decodeURIComponent(hash.split ('/')[2]);
+		$('#searchBox').val(term);
+		directory.search (search);
+	}
+	else{
+		directory.load_data ({id_cat:1});
+	}
+}
+
+
 var directory = (function () {
 	var dir = {}
+	var ui_status = {id_cat:1, tag: '', cat:{}};
 	
 	//PRIVATE
 	function replaceURLWithHTMLLinks(text) {
@@ -140,109 +168,116 @@ var directory = (function () {
 	}
 
 	//PUBLIC
-	dir.load_profile = function (id_profile, container){
-		$('ul#professionals li div.short').show();
-
+	dir.load_profile = function (id_profile, callback){
 		function render(data){
 			viewModel.profile (data.user);
 			viewModel.tags (data.user.tags);
 			viewModel.tag_title ('⇐ sus tags');
-			if (data.user.twitter){
+			viewModel.tag_explanation('Arriba se muestran los tags de este usuario. Puedes clicar en ellos para acceder a perfiles similares');
+			
+			if (data.user.twitter)
 				getTwTimeline(data.user.twitter, $('#tw_timeline'));
-			}
-			if (data.user.github){
+
+			if (data.user.github)
 				getGitHubProjects(data.user.github, $('#github_projects'));
-			}
-			$(document).trigger("directory.onProfileLoaded", data.user);
+			
+			callback(null, data.user);
+			//$(document).trigger("directory.onProfileLoaded", data.user);
 		}
 
-		if (!container){ //thinking whatever issuing a request for a profile, or having them loaded in profiles list json.
+		var users = viewModel.professionals();
+		var found = false;
+		for (i=0;i<users.length;i++){
+			if (users[i].id == id_profile){
+				render({user: users[i]});
+				break;
+			}
+		}
+
+		if (!found){ 
 			$.getJSON('api/users/byid', {id:id_profile}, function (data) {
-				$('.profile').fadeIn();
 				render(data);
 			});
 		}
-		else{
-			$('.profile').insertAfter($(container)).fadeIn();
-			$(container).hide();
+	}
 
-			var users = viewModel.professionals();
-			for (i=0;i<users.length;i++){
-				if (users[i].id == id_profile){
-					render({user: users[i]});
-					break;
-				}
+	dir.load_data = function (params, callback){
+		if (!params) params={}
+
+		if (params.id_cat || params.tag) params.search = null;
+
+		for (var prop in ui_status) {
+			if (params[prop]===undefined){
+				params[prop] = ui_status[prop] || '';
+			}
+			else if (params[prop]===null){
+				params[prop] = '';
 			}
 		}
-	}
-
-	dir.load_professionals_by_tag = function (tag, callback){
-		this.load_professionals({name:'Tag', url : '/api/users/bytag', id: tag}, function(err, data){
-			viewModel.tag_title ('"' + tag + '"');
-			viewModel.tag_explanation('tags relacionados con ' + tag)
-			$(document).trigger("directory.onSelectedTagChanged", tag);
-			if (callback)
-				callback(err, data);
-		});
-	}
-
-	dir.load_professionals_by_cat = function (idcat, callback){
-		this.load_professionals({name:'Categoría', url : '/api/users/bycat', id: idcat}, function(err, data){
-			$(document).trigger("directory.onSelectedCatChanged", data.cat);
-			if (callback)
-				callback(err, data);
-		});
-	}
-
-	dir.load_professionals = function (query, callback){
+		
+		params.scope = getScope();
+	
 		$(document).trigger("directory.onBeforeProfessionalListLoaded");
-		$.getJSON(query.url, {id:query.id, q:query.q, scope : getScope(), sort: $('#sortingSelect').val()}, function (data) 
-			{
-				last_query=query;
-				viewModel.professionals (data.users);
-				viewModel.tag_title ('Especialidades');
-				viewModel.tag_explanation('');
-				if (data.tags){
-					viewModel.tags (data.tags);
-				}
+		
+		$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
+		{
+			viewModel.professionals (data.users);
+			viewModel.tag_title ('Especialidades');
+			viewModel.tag_explanation('');
+			
+			if (!params.tag && data.tags)
+				viewModel.tags (data.tags);
 
-				if (callback)
-					callback(null, data);
-			}
-		);	
-	}
+			viewModel.cats (data.cats);
 
-	dir.search = function (term){
-		$.address.value('/search/'+ encodeURIComponent(term));
-		this.load_professionals({name:'Búsqueda', item : null, filterdisplay: term, url : '/api/search', q: term});
-		$(document).trigger("directory.onSearch", term);
+			ui_status = params;
+			
+			if (data.cat)
+				ui_status.cat = data.cat;
+			
+			if (params.search)
+				$(document).trigger("directory.onSearchCompleted", params.search);
+				
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+			
+			if (callback)
+				callback(null, data);
+		});	
 	}
 	
-	dir.set_content_by_hash = function (hash){
-		if (hash.indexOf('/categories')==0){
-			var idcat = hash.split ('/')[2];
-			this.load_professionals_by_cat (idcat);
-		}
-		//user?
-		else if (hash.indexOf('/user')==0){
-			var id_profile = hash.split ('/')[2];
-			this.load_profile(id_profile);
-		}
-		//tags?
-		else if (hash.indexOf('/tags')==0) {
-			var tag = decodeURIComponent(hash.split ('/')[2]);
-			this.load_professionals_by_tag (tag);
-		}
-		//search
-		else if (hash.indexOf('/search')==0){
-			var search = decodeURIComponent(hash.split ('/')[2]);
-			this.search (search, getScope());
-		}
-		else{
-			$('ul#categories li a').first().click();
-		}
+	dir.vote = function (params, callback){
+		 $.ajax({
+				type: "POST",
+				url: '/vote',
+				data: { user_voted_id: params.id, vote : params.vote},
+				success: function onSuccess(data, status){
+					viewModel.profile(data.user);
+					var users = viewModel.professionals();
+					for(var i=0;i<users.length;i++){
+						if (users[i].id==params.id){
+							users[i] = data.user;
+							callback(null, data_user);
+						}
+					}
+				},
+	        	error: function onError(data, status){
+					var error=''
+					if (data.status==403){
+						error = 'Error, session expired of permission denied';
+					}else {	
+						error = 'Error processing vote';
+					}
+					alert(error);
+					callback(error, null);
+				}
+	    });
 	}
-	    
+	
+	dir.search = function (term){
+		$.address.value('/search/'+ encodeURIComponent(term));
+		this.load_data({search: term});
+	}
+	
 	return dir;
 }());
 
@@ -250,81 +285,84 @@ $(document).ready(function () {
 		
 	tags_initial_offset = $('.tags').offset();
 
-	function set_display_professionals_list (){
-		$('ul#professionals li div.short').show();
-	}
+	//event binding
 
+	$(document).bind("directory.onChangeSorting",function(e, sort){
+		directory.load_data({sort:sort});
+	});
+	
+	$(document).bind("directory.onChangeFilter",function(e, tag){
+		directory.load_data();
+	});
+	
+	$(document).bind("directory.onProfessionalListChanged",function(e, ui_status){
+
+		$('ul#professionals li div.short').show();
+		
+		var selected = [];
+		
+		if (ui_status.search){
+			selected.push({name: 'Search', value: ui_status.search, type: 'primary tag'});
+		}
+		else{
+			if (ui_status.cat && ui_status.cat.id){
+				var text = "";
+				$('ul#categories li').removeClass('selected');
+				$('ul#categories li a').each(function() {
+					if ($(this).attr('idcat') == ui_status.cat.id) {
+						$(this).parent().addClass('selected');
+					}
+				});
+				selected.push({name: 'Categoría', value: ui_status.cat.name, type: 'primary cat'});
+			}
+
+			if (ui_status.tag){
+				$('ul#tags li').removeClass('selected'); //remove selected from tags
+				$('ul#tags li a').each(function() {
+					if ($(this).attr('tag') == ui_status.tag) {
+						$(this).parent().addClass('selected');
+					}
+				});
+				selected.push({name: 'Tag', value: ui_status.tag, type: 'primary tag'});
+			}
+
+			$('#searchBox').val('');
+		}
+		
+		setFilterDisplay(selected);
+	});
+	
 	$(document).bind("directory.onBeforeProfessionalListLoaded",function(e){
 		$('.profile').insertAfter($('body')).hide();
 		$('.tags').offset({top: tags_initial_offset.top});
 		scroll(0,0);
 	});
-		
-		
+	
+	$(document).bind("directory.onLoadProfile",function(e, id){
+		//directory.load_profile (id, $(this).closest('div.short'));
+	});
+	
 	$(document).bind("directory.onProfileLoaded",function(e, user){
 		var profile_offset = $('.profile').offset();
 		$('.tags').offset({top:profile_offset.top});
 		scroll(0,profile_offset.top-150);
 	});
 
-	$(document).bind("directory.onSearch",function(e, term){
-		$('#searchBox').val(term); //just in case we came from url	
+	$(document).bind("directory.onSearchCompleted",function(e, term){
 		$('ul#categories li, ul#tags li').removeClass('selected'); //deselect cat
 	});
-	
-	$(document).bind("directory.onSelectedCatChanged",function(e, cat){
-		set_display_professionals_list();
 
-		var text = "";
-		$('ul#categories li').removeClass('selected');
-		$('ul#categories li a').each(function() {
-			if ($(this).attr('idcat') == cat.id) {
-				$(this).parent().addClass('selected');
-			}
-		});
-		setFilterDisplay([{name: 'Categoría', value: cat.name}])
-	});
-
-	$(document).bind("directory.onFilterChanged",function(e){
-		setFilterDisplay([viewModel.filter()[0]]); //keep the first element. the others will change depending on filter values
-	});
 	
-	$(document).bind("directory.onSelectedTagChanged",function(e, tag){
-		set_display_professionals_list();
-		
-		$('ul#tags li').removeClass('selected'); //remove selected from tags
-		$('ul#categories li').removeClass('selected'); //remove selected from cats
-		$('ul#tags ul li a').each(function() {
-			if ($(this).attr('tag') == tag) {
-				$(this).parent().addClass('selected');
-			}
-		});
-		setFilterDisplay([{name: 'Tag', value: tag}])
-	});
-	
-	//bootstrap tooltips
-	$("[rel=popover]").popover({
-		live:true,
-		html:true,
-		offset: 10
-	})
-	.click(function(e) {
-		e.preventDefault()
-	});
+	//controls
+	$("[rel=popover]").popover({ live:true, html:true, offset: 10 }).click(function(e) { e.preventDefault() });
 	
 	$('#sortingSelect').change(function() {
-		if (last_query){
-			directory.load_professionals(last_query);
-			$(document).trigger("directory.onSortingChanged");
-		}		
+		$(document).trigger("directory.onChangeSorting", $('#sortingSelect').val());
 	});
 	
 	$('div.filterBox input').click (function ()
 	{
-		if (last_query){
-			directory.load_professionals(last_query);
-			$(document).trigger("directory.onFilterChanged");
-		}
+		$(document).trigger("directory.onChangeFilter");
 	});
 
 	$('a#what').live ('click', function(){
@@ -332,61 +370,43 @@ $(document).ready(function () {
 	});
 
 	$('a.viewprofile').live ('click', function(){
-		var id=$(this).attr('idProfile');
-		directory.load_profile (id, $(this).closest('div.short'));
+		$('ul#professionals li div.short').show();
+		var container = $(this).closest('div.short')
+		$(container).hide();
+		$('.profile').insertAfter($(container)).fadeIn();
+
+		directory.load_profile ($(this).attr('idProfile'), function(err, user){
+			$(document).trigger("directory.onProfileLoaded", user);
+		})
 		return false;
 	});
 
 	$('span.voteBox a.vote').live ('click', function(){
-		var id = $(this).attr('idProfile');
-		var vote = $(this).attr('vote');
-		 $.ajax({
-				type: "POST",
-				url: '/vote',
-				data: { user_voted_id: id, vote : vote},
-				success: function onSuccess(data, status){
-					viewModel.profile(data.user);
-					var users = viewModel.professionals();
-					for(var i=0;i<users.length;i++){
-						if (users[i].id==id){
-							users[i] = data.user;
-						}
-					}
-				},
-	        	error: function onError(data, status){
-					if (data.status==403){
-						alert('Error, session expired of permission denied');
-					}else {	
-						alert('Error processing vote');
-					}
-				}
-	    });
-		//alert(id);
+		var params = {vote:$(this).attr('vote'), id:$(this).attr('idProfile')};
+		directory.vote(params);
 		return false;
 	});
 
-	$('div.tags ul li a').live ('click', function(){
-		var tag=$(this).attr('tag');
-		directory.load_professionals_by_tag (tag);
+	$('span.voteBox a.login').live ('click', function(){
+		$(this).html('Redirigiendo a login...')
+	});
+
+	$('ul#tags li a').live ('click', function(){
+		directory.load_data({tag:$(this).attr('tag')});
 		return false;
 	});
 	
 	$('ul#categories li a').live ('click', function(){
-		var idcat=$(this).attr('idcat');
-		directory.load_professionals_by_cat (idcat);
+		directory.load_data({id_cat:$(this).attr('idcat'), tag: null});
 		return false;
 	});
 	
-	$('#searchBox').click (function(){
-		$(this).select();
-	});
+	$('#searchBox').click (function(){ $(this).select(); });
 	
 	$('#searchBox').keydown (function(e){
 		var content=$('#searchBox').val();
 		if ((e.keyCode=='13') || (e.keyCode=='32'))
-		{
 			directory.search(content);
-		}
 	});
 	
 	ko.applyBindings(viewModel);
@@ -394,7 +414,7 @@ $(document).ready(function () {
 	//deep linking	
 	$.address.init(function(event) {
 		var path=$.address.value();
-		directory.set_content_by_hash(path);
+		set_content_by_hash(path);
 	}).change(function(event) {
 		//console.log (event)
 		//directory.set_content_by_hash(window.location.hash);

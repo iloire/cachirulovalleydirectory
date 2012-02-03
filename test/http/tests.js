@@ -16,8 +16,8 @@ var mocked_user = {
 	portfolio : []
 };
 
-exports.setup = function (app){
-	app.get('/injectsession', function(req, res){
+exports.setup = function (params){
+	params.app.get('/injectsession', function(req, res){
 		req.session.user = mocked_user;
 		res.end('session mocked');
 	});
@@ -62,7 +62,7 @@ exports.tests = [
 			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('{"tags":')>-1);
-			assert.equal(JSON.parse(body).tags.length,25)
+			assert.equal(JSON.parse(body).tags.length, 35)
 			callback(null);
 		});
 	}	
@@ -73,7 +73,7 @@ exports.tests = [
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('{"tags":')>-1);
 			var tags = JSON.parse(body).tags;
-			assert.equal(tags.length,25)
+			assert.equal(tags.length, 35)
 			assert.equal(tags[1].t,'adsense');
 			assert.equal(tags[1].n, 2);
 			assert.equal(tags[2].t,'android');
@@ -101,7 +101,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat (callback){
-		request(base_address + '/api/users/bycat?id=1', function (err,res,body) {
+		request(base_address + '/api/users?id_cat=1', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
@@ -114,7 +114,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_sorted_by_name_asc (callback){
-		request(base_address + '/api/users/bycat?id=1&sort=name', function (err,res,body) {
+		request(base_address + '/api/users?id_cat=1&sort=name', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
@@ -131,7 +131,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_sorted_by_name_desc (callback){
-		request(base_address + '/api/users/bycat?id=1&sort=name_', function (err,res,body) {
+		request(base_address + '/api/users?id_cat=1&sort=name_', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
@@ -148,7 +148,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_sorted_by_votes (callback){
-		request(base_address + '/api/users/bycat?id=1&sort=votes_', function (err,res,body) {
+		request(base_address + '/api/users?id_cat=1&sort=votes_', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			var users=JSON.parse(body).users;
@@ -161,7 +161,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_jsonp (callback){
-		request(base_address + '/api/users/bycat?id=1&callback=test', function (err,res,body) {
+		request(base_address + '/api/users?id_cat=1&callback=test', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/javascript;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('test({"users":[')>-1);
@@ -172,7 +172,7 @@ exports.tests = [
 	}
 	,
 	function users_by_tag (callback){
-		request(base_address + '/api/users/bytag?id=node.js', function (err,res,body) {
+		request(base_address + '/api/users?tag=node.js', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
@@ -183,7 +183,7 @@ exports.tests = [
 	}	
 	,
 	function users_by_tag_jsonp (callback){
-		request(base_address + '/api/users/bytag?id=node.js&callback=tagcall', function (err,res,body) {
+		request(base_address + '/api/users?tag=node.js&callback=tagcall', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/javascript;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
@@ -216,7 +216,7 @@ exports.tests = [
 	}	
 	,
 	function api_search (callback){
-		request(base_address + '/api/search?q=Zufaria', function (err,res,body) {
+		request(base_address + '/api/search?search=Zufaria', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
