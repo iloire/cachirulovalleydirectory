@@ -1,6 +1,7 @@
 var assert = require('assert')
 var request = require('request')
 var module_users = require ('../../lib/modules/users')
+var module_tags = require ('../../lib/modules/tags')
 
 var redis 
 var extra_dummy_users_for_each_cat 
@@ -35,6 +36,45 @@ exports.tests = [
 			callback(null);
 		})
 	}
+	,
+	function getTags (callback){
+		module_tags.GetTags(redis, {}, function(err, tags){
+			assert.ok(tags.length, 35)
+			for (var i=0, l=tags.length;i<l;i++){
+				
+				assert.ok (tags[i].n > -1);
+				
+				if (tags[i].t=='.net')
+					assert.equal (tags[i].n, 3)
+					
+				if (tags[i].t=='adsense')
+					assert.equal (tags[i].n, 2)
+
+				if (tags[i].t=='html5')
+					assert.equal (tags[i].n, 4)
+
+				if (tags[i].t=='node.js')
+					assert.equal (tags[i].n, 3)
+				
+			}
+			callback(null);
+		})
+	}
+	,
+	function getTagsByCat (callback){
+		module_tags.GetTagsByCat(redis, {id:5}, function(err, tags){
+			assert.ok(tags.length, 18)
+			for (var i=0, l=tags.length;i<l;i++){
+				if (tags[i].t=='redis')
+					assert.equal (tags[i].n, 2)
+
+				if (tags[i].t=='node.js')
+					assert.equal (tags[i].n, 2)
+			}
+			callback(null);
+		})
+	}
+	
 	/*
 	,
 	function Search (callback){

@@ -9,15 +9,17 @@ exports.values={
 		}
 	}
 	,
+	default_page_size: 15,
+	admins: ['HWHfu0v9eX'],
 	number_portfolio_urls : 5,
 	base_url : 'http://localhost:3000',
-	project_key: 'CachiruloValleyDirectory',
+	project_key: 'cv', //redis prefix
 	LINKEDIN_API_KEY : "",
 	LINKEDIN_SECRET_KEY : "",
 	registration_enabled : true,
 	suggested_tags : [
-						'php','asp.net', 'node.js', 'asp.net mvc', 'c#', //programming
-						'photoshop','illustrator', 'web design', 'banners'  //design
+						'java', 'php','asp.net', 'node.js', 'asp.net mvc', 'c#', //programming
+						'photoshop','illustrator', 'UX', 'business intelligence', 'web design', 'banners'  //design
 					],
 	regions : [
 		{name: 'Zaragoza', value: '0'},

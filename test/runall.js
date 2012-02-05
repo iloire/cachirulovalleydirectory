@@ -31,7 +31,6 @@ var tests = [
 			callback(err, 'modules test passed');
 		});
 	}
-
 	,
 	function do_http_test (callback){ 
 		var app = new appFactory.getApp(redis, config);

@@ -1,6 +1,5 @@
 var viewModel = {
 	professionals: ko.observableArray(),
-	profile: ko.observable(),
 	tags: ko.observableArray(),
 	cats: ko.observableArray(),
 	filter: ko.observableArray(),
@@ -18,11 +17,6 @@ viewModel.tagslist = ko.dependentObservable(function() {
 	}
 	return tags;
 }, viewModel);
-
-viewModel.professionals_count = ko.dependentObservable(function() {
-	return this.professionals().length;
-}, viewModel);
-
 
 var last_query = null;
 var loading = '<img class=loading alt="loading..." src="/images/menu-loading.gif" />'
@@ -64,147 +58,170 @@ function getScope(){
 function set_content_by_hash (hash){
 	if (hash.indexOf('/categories')==0){
 		var id_cat = hash.split ('/')[2];
-		directory.load_data ({id_cat:id_cat});
+		directory.load_data ({id_cat:id_cat}, function(err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+		});
 	}
 	//user?
 	else if (hash.indexOf('/user')==0){
 		var id_profile = hash.split ('/')[2];
 		directory.load_profile(id_profile, function (err, user){
-			$('.profile').fadeIn();
-			$(document).trigger("directory.onProfileLoaded", user);
-			directory.load_data ({id_cat:1});
+			directory.load_data ({id_cat:1, bindusers: false, bindtags:false}, function(err, data){
+				renderProfile(user, function(err, data){
+					$(document).trigger("directory.onProfileLoaded", user);	
+				});
+			});
 		});
 	}
 	//tags?
 	else if (hash.indexOf('/tags')==0) {
 		var tag = decodeURIComponent(hash.split ('/')[2]);
-		directory.load_data ({tag:tag});
+		directory.load_data ({tag:tag}, function (err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+		});
 	}
 	//search
 	else if (hash.indexOf('/search')==0){
 		var search = decodeURIComponent(hash.split ('/')[2]);
-		$('#searchBox').val(term);
-		directory.search (search);
+		$('#searchBox').val(search);
+		directory.search(search, function (err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+			$(document).trigger("directory.onSearchCompleted", ui_status.search);
+		});
+		
 	}
 	else{
-		directory.load_data ({id_cat:1});
+		directory.load_data ({id_cat:1}, function(err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+		});
 	}
 }
 
+
+function getGitHubProjects(user, where){
+	var cachekey = 'github ' + user;
+	if ($('body').data(cachekey)) { //save in dom via data() jquery attribute
+		$(where).html($('body').data(cachekey));
+	}
+	else{
+		$(where).html(loading);
+		$.getJSON('https://api.github.com/users/' + user + '/repos?callback=?', function(data){
+			var own_projects=[]
+			for(var i=0;i<data.data.length;i++){
+				if (!data.data[i].fork)
+					own_projects.push (data.data[i]);
+			}
+			
+			//sort
+			function sorter(a,b) { return b.watchers - a.watchers; }
+			
+			own_projects.sort(sorter);
+			
+			if (own_projects.length){
+				var output="<ul>";
+				for (var i=0, c=0 ;(c<5 && i<own_projects.length);i++){
+						output = output + '<li>'+ own_projects[i].watchers + ' / ' +  own_projects[i].forks + ': <a target=_blank href="'+ own_projects[i].html_url + '">' + own_projects[i].name + '</a>: ' + own_projects[i].description + '</li>'; //todo
+						c++;
+				}
+				output = output + "</ul>";
+			}
+			else{
+				output = '<p>No se han encontrado proyectos propios públicos.</p>'
+			}
+			
+			$(where).html(output);
+			$('body').data(cachekey, output);
+		});
+	}
+}
+
+function replaceURLWithHTMLLinks(text) {
+    var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(exp,"<a target=_blank href='$1'>$1</a>"); 
+}
+
+function replaceTwText (text){
+	return replaceURLWithHTMLLinks(text);
+}
+
+function getTwTimeline(user, where, callback){
+	if ($('body').data(user)) { //save in dom via data() jquery attribute
+		var cached_data=$('body').data(user);
+		$(where).html(cached_data);
+		$("abbr.timeago").timeago();
+		if (callback)
+			callback(null, cached_data);
+	}
+	else{
+		$(where).html(loading);
+		$.getJSON('http://twitter.com/status/user_timeline/'+ user +'.json?count=50&callback=?&exclude_replies=true&trim_user=true&include_rts=false', {cache:true}, function(data, status){
+			//last tweets
+			var output="<ul>";
+			for (var i=0, c=0 ;(c<5 && i<data.length);i++){
+				if (!data[i].in_reply_to_user_id){
+					output = output + '<li><abbr class="timeago" title="' + data[i].created_at + '">' + data[i].created_at + '</abbr> ' + replaceTwText(data[i].text) + "</li>"; //todo
+					c++;
+				}
+			}
+			output = output + "</ul>";
+			$(where).html(output);
+			if (callback)
+ 				callback(null, output);
+			$("abbr.timeago").timeago();
+			$('body').data(user, output);
+		});
+	}
+}
+
+function renderProfile(user, callback){
+	var users = viewModel.professionals();
+	if (users.length){
+		for (var i=0; i < users.length; i++) {
+			if (users[i].id==user.id){
+				users[i]=user;
+				break
+			}
+		}
+	}
+	else{
+		user.expanded=true;
+		users = [user];
+	}
+	
+	viewModel.professionals ([]);	
+	viewModel.professionals (users);
+	viewModel.tags (user.tags);
+	viewModel.tag_title ('⇐ sus tags');
+	viewModel.tag_explanation('Arriba se muestran los tags de este usuario. Puedes clicar en ellos para acceder a perfiles similares');
+
+	if (user.twitter)
+		getTwTimeline(user.twitter, $('#profile'+ user.id + ' .tw_timeline'));
+
+	if (user.github)
+		getGitHubProjects(user.github, $('#profile'+ user.id + ' .github_projects'));
+		
+	if (callback)
+		callback (null, user);
+}
 
 var directory = (function () {
 	var dir = {}
 	var ui_status = {id_cat:1, tag: '', cat:{}};
 	
-	//PRIVATE
-	function replaceURLWithHTMLLinks(text) {
-	    var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-	    return text.replace(exp,"<a target=_blank href='$1'>$1</a>"); 
-	}
-
-	function replaceTwText (text){
-		return replaceURLWithHTMLLinks(text);
-	}
-
-	function getGitHubProjects(user, where){
-		var cachekey = 'github ' + user;
-		if ($('body').data(cachekey)) { //save in dom via data() jquery attribute
-			$(where).html($('body').data(cachekey));
-		}
-		else{
-			$(where).html(loading);
-			$.getJSON('https://api.github.com/users/' + user + '/repos?callback=?', function(data){
-				var own_projects=[]
-				for(var i=0;i<data.data.length;i++){
-					if (!data.data[i].fork)
-						own_projects.push (data.data[i]);
-				}
-				
-				//sort
-				function sorter(a,b) { return b.watchers - a.watchers; }
-				
-				own_projects.sort(sorter);
-				
-				if (own_projects.length){
-					var output="<ul>";
-					for (var i=0, c=0 ;(c<5 && i<own_projects.length);i++){
-							output = output + '<li>'+ own_projects[i].watchers + ' / ' +  own_projects[i].forks + ': <a target=_blank href="'+ own_projects[i].html_url + '">' + own_projects[i].name + '</a>: ' + own_projects[i].description + '</li>'; //todo
-							c++;
-					}
-					output = output + "</ul>";
-				}
-				else{
-					output = '<p>No se han encontrado proyectos propios públicos.</p>'
-				}
-				
-				$(where).html(output);
-				$('body').data(cachekey, output);
-			});
-		}
-	}
-	
-	function getTwTimeline(user, where){
-		if ($('body').data(user)) { //save in dom via data() jquery attribute
-			$(where).html($('body').data(user));
-			$("abbr.timeago").timeago();
-		}
-		else{
-			$(where).html(loading);
-			$.getJSON('http://twitter.com/status/user_timeline/'+ user +'.json?count=50&callback=?&exclude_replies=true&trim_user=true&include_rts=false', {cache:true}, function(data, status){
-				//last tweets
-				var output="<ul>";
-				for (var i=0, c=0 ;(c<5 && i<data.length);i++){
-					if (!data[i].in_reply_to_user_id){
-						output = output + '<li><abbr class="timeago" title="' + data[i].created_at + '">' + data[i].created_at + '</abbr> ' + replaceTwText(data[i].text) + "</li>"; //todo
-						c++;
-					}
-				}
-				output = output + "</ul>";
-				$(where).html(output);
-				$("abbr.timeago").timeago();
-				$('body').data(user, output);
-			});
-		}
-	}
 
 	//PUBLIC
 	dir.load_profile = function (id_profile, callback){
-		function render(data){
-			viewModel.profile (data.user);
-			viewModel.tags (data.user.tags);
-			viewModel.tag_title ('⇐ sus tags');
-			viewModel.tag_explanation('Arriba se muestran los tags de este usuario. Puedes clicar en ellos para acceder a perfiles similares');
-			
-			if (data.user.twitter)
-				getTwTimeline(data.user.twitter, $('#tw_timeline'));
-
-			if (data.user.github)
-				getGitHubProjects(data.user.github, $('#github_projects'));
-			
-			callback(null, data.user);
-			//$(document).trigger("directory.onProfileLoaded", data.user);
-		}
-
-		var users = viewModel.professionals();
-		var found = false;
-		for (i=0;i<users.length;i++){
-			if (users[i].id == id_profile){
-				render({user: users[i]});
-				break;
-			}
-		}
-
-		if (!found){ 
-			$.getJSON('api/users/byid', {id:id_profile}, function (data) {
-				render(data);
-			});
-		}
+		$.getJSON('api/users/byid', {id:id_profile}, function (data) {
+			callback(null, data.user)
+		});
 	}
 
 	dir.load_data = function (params, callback){
 		if (!params) params={}
 
-		if (params.id_cat || params.tag) params.search = null;
+		if (params.id_cat || params.tag) params.search = null; //clean search
+		if ((params.id_cat!=ui_status.id_cat || params.tag!=ui_status.tag) && !params.from)
+			params.from = 0; //reset pagination
 
 		for (var prop in ui_status) {
 			if (params[prop]===undefined){
@@ -216,32 +233,28 @@ var directory = (function () {
 		}
 		
 		params.scope = getScope();
-	
-		$(document).trigger("directory.onBeforeProfessionalListLoaded");
-		
+			
 		$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
 		{
-			viewModel.professionals (data.users);
-			viewModel.tag_title ('Especialidades');
-			viewModel.tag_explanation('');
+			if (params.bindusers!==false)
+				viewModel.professionals (data.users);
 			
-			if (!params.tag && data.tags)
+			if (!params.tag && data.tags && (params.bindusers!==false)){
 				viewModel.tags (data.tags);
+				viewModel.tag_title ('Especialidades');
+				viewModel.tag_explanation('');
+			}
 
 			viewModel.cats (data.cats);
 
 			ui_status = params;
+			ui_status.pagination = data.pagination;
 			
 			if (data.cat)
 				ui_status.cat = data.cat;
-			
-			if (params.search)
-				$(document).trigger("directory.onSearchCompleted", params.search);
-				
-			$(document).trigger("directory.onProfessionalListChanged", ui_status);
-			
+
 			if (callback)
-				callback(null, data);
+				callback(null, data, ui_status);
 		});	
 	}
 	
@@ -251,12 +264,11 @@ var directory = (function () {
 				url: '/vote',
 				data: { user_voted_id: params.id, vote : params.vote},
 				success: function onSuccess(data, status){
-					viewModel.profile(data.user);
 					var users = viewModel.professionals();
 					for(var i=0;i<users.length;i++){
 						if (users[i].id==params.id){
 							users[i] = data.user;
-							callback(null, data_user);
+							callback(null, data.user);
 						}
 					}
 				},
@@ -273,9 +285,9 @@ var directory = (function () {
 	    });
 	}
 	
-	dir.search = function (term){
+	dir.search = function (term, callback){
 		$.address.value('/search/'+ encodeURIComponent(term));
-		this.load_data({search: term});
+		this.load_data({search: term}, callback);
 	}
 	
 	return dir;
@@ -285,17 +297,23 @@ $(document).ready(function () {
 		
 	tags_initial_offset = $('.tags').offset();
 
-	//event binding
-
+	//event binding ---
 	$(document).bind("directory.onChangeSorting",function(e, sort){
-		directory.load_data({sort:sort});
+		directory.load_data({sort:sort}, function (err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+		});
 	});
 	
 	$(document).bind("directory.onChangeFilter",function(e, tag){
-		directory.load_data();
+		directory.load_data({}, function (err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+		});
 	});
 	
+	//when data is binded to list of professionals
 	$(document).bind("directory.onProfessionalListChanged",function(e, ui_status){
+		$('.tags').offset({top: tags_initial_offset.top}); //set tags back up
+		scroll(0,0);
 
 		$('ul#professionals li div.short').show();
 		
@@ -326,34 +344,40 @@ $(document).ready(function () {
 				selected.push({name: 'Tag', value: ui_status.tag, type: 'primary tag'});
 			}
 
+			//pagination
+			var str = "<span>Total registros: " + ui_status.pagination.total_records + '</span>';
+			if (ui_status.pagination.total>1){
+				for (var i=0;i<ui_status.pagination.total;i++){
+					if (ui_status.pagination.from == i)
+						str = str + " <a class=selected href=# page=" + i + ">" + (i+1) + "</a>";
+					else
+						str = str + " <a href=# page=" + i + ">" + (i+1) + "</a>";
+					
+				}
+			}
+			
+			$('#pagination').html(str);
+
 			$('#searchBox').val('');
 		}
-		
+
 		setFilterDisplay(selected);
 	});
-	
-	$(document).bind("directory.onBeforeProfessionalListLoaded",function(e){
-		$('.profile').insertAfter($('body')).hide();
-		$('.tags').offset({top: tags_initial_offset.top});
-		scroll(0,0);
-	});
-	
-	$(document).bind("directory.onLoadProfile",function(e, id){
-		//directory.load_profile (id, $(this).closest('div.short'));
-	});
-	
-	$(document).bind("directory.onProfileLoaded",function(e, user){
-		var profile_offset = $('.profile').offset();
+
+	//when profile loads	
+	$(document).bind("directory.onProfileLoaded", function(e, user){
+		var profile_offset = $('#profile' + user.id + ' .voteBox').offset();
 		$('.tags').offset({top:profile_offset.top});
 		scroll(0,profile_offset.top-150);
 	});
 
-	$(document).bind("directory.onSearchCompleted",function(e, term){
+	//when search is completed
+	$(document).bind("directory.onSearchCompleted", function(e, term){
 		$('ul#categories li, ul#tags li').removeClass('selected'); //deselect cat
 	});
 
 	
-	//controls
+	//assign events to controls ----
 	$("[rel=popover]").popover({ live:true, html:true, offset: 10 }).click(function(e) { e.preventDefault() });
 	
 	$('#sortingSelect').change(function() {
@@ -368,22 +392,43 @@ $(document).ready(function () {
 	$('a#what').live ('click', function(){
 		$('.what').toggle('fade');
 	});
-
+	
 	$('a.viewprofile').live ('click', function(){
-		$('ul#professionals li div.short').show();
-		var container = $(this).closest('div.short')
-		$(container).hide();
-		$('.profile').insertAfter($(container)).fadeIn();
-
-		directory.load_profile ($(this).attr('idProfile'), function(err, user){
-			$(document).trigger("directory.onProfileLoaded", user);
-		})
+		var id = $(this).attr('idProfile')
+		var users = viewModel.professionals();
+		var container = $('#profile' + id);
+		var user = null;
+		for (var i=0,l=users.length;i<l;i++){
+			if (users[i].id==id){
+				user = users[i]
+				user.expanded = true;
+				renderProfile(user, function (err, data){
+					$(document).trigger("directory.onProfileLoaded", user);	
+				});
+				break;
+			}
+		}
+		
 		return false;
 	});
 
 	$('span.voteBox a.vote').live ('click', function(){
 		var params = {vote:$(this).attr('vote'), id:$(this).attr('idProfile')};
-		directory.vote(params);
+		directory.vote(params, function(err, user){
+			var users = viewModel.professionals();
+			
+			for (var i=0,l=users.length;i<l;i++){
+				if (users[i].id==params.id){
+					user = users[i]
+					if ($('li#profile' + params.id + '.expanded').length>0) //expanded?
+						user.expanded = true;
+					break;
+				}
+			}
+			viewModel.professionals([]);
+			viewModel.professionals(users);
+			
+		});
 		return false;
 	});
 
@@ -392,12 +437,23 @@ $(document).ready(function () {
 	});
 
 	$('ul#tags li a').live ('click', function(){
-		directory.load_data({tag:$(this).attr('tag')});
+		directory.load_data({tag:$(this).attr('tag')}, function (err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+		});
+		return false;
+	});
+
+	$('#pagination a').live ('click', function(){
+		directory.load_data({from: $(this).attr('page')}, function (err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+		});
 		return false;
 	});
 	
 	$('ul#categories li a').live ('click', function(){
-		directory.load_data({id_cat:$(this).attr('idcat'), tag: null});
+		directory.load_data({id_cat:$(this).attr('idcat'), tag: null}, function (err, data, ui_status){
+			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+		});
 		return false;
 	});
 	
@@ -406,12 +462,14 @@ $(document).ready(function () {
 	$('#searchBox').keydown (function(e){
 		var content=$('#searchBox').val();
 		if ((e.keyCode=='13') || (e.keyCode=='32'))
-			directory.search(content);
+			directory.search(content, function (err, data, ui_status){
+				$(document).trigger("directory.onSearchCompleted", ui_status.search);
+				$(document).trigger("directory.onProfessionalListChanged", ui_status);
+			});
 	});
 	
 	ko.applyBindings(viewModel);
 	
-	//deep linking	
 	$.address.init(function(event) {
 		var path=$.address.value();
 		set_content_by_hash(path);

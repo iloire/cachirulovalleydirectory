@@ -22,7 +22,7 @@
 <%}%>
 
 
-<form action="/editprofile" method="post" class="editprofile">
+<form action="/editprofile?id=<%=user.id || ''%>" method="post" class="editprofile">
 	<div class="row">
 		<div class="span8">
 			<div class="general">

@@ -24,7 +24,7 @@
 				<label rel="popover" title="Emprendedores" data-content="Seleccionando esta opción se mostrarán los profesionales que hayan seleccionado en su perfil que tienen interés en crear una empresa en el corto o medio plazo" for="entrepreneur_scope">Emprendedores</label>
 			</div>
 		</div>
-		
+				
 		<h4>Iniciativa:</h4>
 		<a href="http://www.cachirulovalley.com">
 			<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley">
@@ -42,13 +42,10 @@
 				</select>
 			</div>
 
-			<span class="professional_counter">
-			Profesionales:
-				<span data-bind="text: professionals_count">cdd</span>
-			</span>
-			<ul id="professionals" data-bind='template: {name:"professionalTemplate", foreach: professionals}'></ul>
+			<div id="pagination"></div>
+
+			<ul id="professionals" data-bind='template: {name:"profileTemplate", foreach: professionals}'></ul>
 		</div>
-		<div class="profile" style="display:none" data-bind='template: {name:"profileTemplate", foreach: profile}'></div>	
 	</div>
 
 	<div class="tags span3">
@@ -78,6 +75,7 @@
 </script>
 
 <script id='profileTemplate' type="text/x-jquery-tmpl">
+ <li id="profile${id}" class="{{if (expanded)}}expanded{{/if}}">
 	<span class="voteBox">
 		{{if (votes)}}
 			<span class="beer" rel="popover" title="${votes} recomendaciones" 
@@ -105,8 +103,12 @@
 		<%}%>
 	</span>
 
-	<h2>${name}</h2>
-	<img src="${image}"/>
+	{{if expanded}}
+		<h2>${name}</h2>
+	{{else}}
+		<a rel="address:/user/${id}/${encodeURIComponent(name)}" class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>	
+	{{/if}}
+	<img class="avatar" src="${image}"/>
 	<span class="bio">${bio}</span>
 	<br />
 	<span class="location">
@@ -114,60 +116,63 @@
 	</span>
 	
 	<div class="clearfix"></div>
-	
-	<h3>Información de contacto</h3>
-	
-	<ul>
-	{{if (linkedin_profile_url)}}
-	<li>linkedin profile: <a target="_blank" href="${linkedin_profile_url}">${linkedin_profile_url}</a></li>
-	{{/if}}
-	{{if (web)}}
-	<li>web: <a target="_blank" href="${web}">${web}</a></li>
-	{{/if}}
-	
-	</ul>
+	<div class="more">
+		{{if (linkedin_profile_url || web )}}	
+			<h3>Información de contacto</h3>
+			<ul>
+			{{if (linkedin_profile_url)}}
+			<li>linkedin profile: <a  target="_blank" href="${linkedin_profile_url}">${linkedin_profile_url}</a></li>
+			{{/if}}
+			{{if (web)}}
+			<li>web: <a target="_blank" href="${web}">${web}</a></li>
+			{{/if}}	
+			</ul>
+		{{/if}}
 
-	{{if (other_data && (other_data.entrepreneur || other_data.freelance || other_data.looking_for_contracts))}}
-	<h3>Más cosas sobre mi</h3>
-	<div>
-	   <ul>
-	   {{if other_data.entrepreneur}}
-		 <li>Me considero emprendedor. Estoy interesado en crear empresas a corto plazo.</li>
-	   {{/if}}
 
-	   {{if other_data.freelance}}
-		 <li>Soy un profesional dado de alta como autónomo.</li>
-	   {{/if}}
+		{{if (other_data && (other_data.entrepreneur || other_data.freelance || other_data.looking_for_contracts))}}
+		<h3>Más cosas sobre mi</h3>
+		<div>
+		   <ul>
+		   {{if other_data.entrepreneur}}
+			 <li>Me considero emprendedor. Estoy interesado en crear empresas a corto plazo.</li>
+		   {{/if}}
 
-	   {{if other_data.looking_for_contracts}}
-		 <li>Busco proyectos como freelance</li>
-	   {{/if}}
-		</ul>
+		   {{if other_data.freelance}}
+			 <li>Soy un profesional dado de alta como autónomo.</li>
+		   {{/if}}
+
+		   {{if other_data.looking_for_contracts}}
+			 <li>Busco proyectos como freelance</li>
+		   {{/if}}
+			</ul>
+		</div>
+		{{/if}}
+
+		{{if portfolio.length}}
+			<h3>Portfolio</h3>
+			<div class="portfolio">
+			<ul>
+			 {{each portfolio}}
+				<li><a title="${$value.descr}" href="${$value.url}">${$value.url} </a></li>
+			 {{/each}}
+			</ul>
+			<span class="descr"></span>
+			</div>
+		{{/if}}
+
+
+		{{if twitter }}
+		<h3>Últimos tweets: <small><a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></small></h3>
+		<div class="tw_timeline"></div>
+		{{/if}}
+
+		{{if github}}
+		<h3>Github: <small><a target="_blank" href="https://github.com/${github}">${github}</a></small></h3>
+		<div class="github_projects"></div>
+		{{/if}}	
 	</div>
-	{{/if}}
-
-	{{if portfolio.length}}
-	<h3>Portfolio</h3>
-	<div class="portfolio">
-	<ul>
-	 {{each portfolio}}
-		<li><a title="${$value.descr}" href="${$value.url}">${$value.url} </a></li>
-	 {{/each}}
-	</ul>
-	<span class="descr"></span>
-	{{/if}}	
-	</div>
-
-	{{if twitter}}
-	<h3>Últimos tweets: <small><a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></small></h3>
-	<div class="twitter" id="tw_timeline"></div>
-	{{/if}}
-
-	{{if github}}
-	<h3>Github: <small><a target="_blank" href="https://github.com/${github}">${github}</a></small></h3>
-	<div class="twitter" id="github_projects"></div>
-	{{/if}}
-
+</li>
 </script>
 
 <script id='professionalTemplate' type="text/x-jquery-tmpl">

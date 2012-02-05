@@ -9,9 +9,7 @@ body.home{
 	padding-top:110px;
 }
 
-a{
-	font-family: 'Ubuntu Condensed', sans-serif;
-}
+a{ font-family: 'Ubuntu Condensed', sans-serif; }
 
 p, ul, ol, li{
 	color: #223345;
@@ -191,6 +189,23 @@ div.wrapper {
 	box-shadow: 0px 0px 15px #aaa;
 }
 
+#pagination span {
+	color:gray;
+	font-size:12px;
+}
+
+#pagination a.selected {
+	background-color:#EEDC94;
+	color:black;
+}
+
+#pagination a {
+	padding:1px 6px;
+	margin:4px;
+	border-radius: 5px;
+	box-shadow: 0px 0px 5px #aaa;
+}
+
 ul#categories li span, ul#tags li span{
 	font-size:0.8em;
 	padding:1px 3px;
@@ -215,11 +230,6 @@ div.professionals_list{
 	margin-top:20px;
 }
 
-span.professional_counter{
-	color:gray;
-	font-size:12px;
-}
-
 div.professionals_list .sortingOptions{
 	text-align:right;
 	clear:both;
@@ -233,14 +243,6 @@ ul#professionals {
 	padding:10px 0px 0px 0px;
 	margin:0px;
 	list-style-type:none;
-}
-
-ul#professionals li div.short img{
-	box-shadow: 0px 0px 10px #aaa;
-	max-width:40px;
-	max-height:40px;
-	float:left;
-	margin-right:10px;
 }
 
 ul#professionals > li{
@@ -279,17 +281,50 @@ a {
   color: #00B7FF;
 }
 
-div.profile {
+ul#professionals > li {
 	border:solid 1px #c2c2c2;
-	padding:10px 25px 25px 25px;
+	padding:10px 15px 15px 15px;
 	margin-bottom:10px;
 	box-shadow: 0px 0px 10px #aaa;
 }
 
-div.profile h2 {
+ul#professionals > li:hover {
+	border:solid 1px #999999;
+}
+	
+ul#professionals li.expanded {
+	padding:20px 25px 25px 25px;
+}
+
+ul#professionals li div.more {
+	display:none;
+}
+
+ul#professionals li.expanded div.more {
+	display:block;
+}
+
+ul#professionals > li img{
+	float:left;
+}
+
+ul#professionals > li img.avatar{
+	box-shadow: 0px 0px 10px #aaa;
+	max-width:40px;
+	max-height:40px;
+	margin-right:10px;
+}
+
+ul#professionals > li.expanded img.avatar{
+	margin:0px 10px 5px 0px;
+	max-width:80px;
+	max-height:80px;	
+}
+
+ul#professionals li h2 {
 	font-size:1.3em;
 }
-div.profile h3 {
+ul#professionals li h3 {
 	font-size:16px !important;
 	border-bottom:solid 1px #c2c2c2;
 	padding:3px;
@@ -297,29 +332,37 @@ div.profile h3 {
 	margin-top:15px;
 }
 
-div.profile .location{
+ul#professionals li .bio{
+	color:#333333;
+}
+
+ul#professionals li.expanded .bio{
+}
+
+ul#professionals li .location{
 	color:#c2c2c2;
 	margin-top:5px;
 	display:block;
+	margin-left:50px;
 }
 
-div.profile .twitter ul li {
+ul#professionals li.expanded .location{
+	margin-left:90px;
+}
+
+ul#professionals .tw_timeline li  {
 	color:#666666;
 	font-size:90%;
 	margin-bottom:3px;
 }
 
-div.profile .twitter ul li abbr{
+ul#professionals .tw_timeline li abbr{
 	font-style:italic;
 	color:#999999;
 }
 
-div.profile img{
-	float:left;
-	margin:0px 10px 5px 0px;
-	max-width:80px;
-}
 
+/*edit portfolio*/
 div.portfolio label{
 	width:30px; !important;
 }

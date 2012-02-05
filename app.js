@@ -50,6 +50,22 @@ var getApp = function (redis, config) {
 	//REST
 	api.configure(app, redis, module_users, module_cats, module_tags);
 
+	app.get('/user/:id', function(req, res){
+		res.redirect ('/directory#/user/' + req.param('id'))
+	});
+
+	app.get('/user/:id/:name', function(req, res){
+		res.redirect ('/directory#/user/' + req.param('id') + '/' + req.param('name'));
+	});
+
+	app.get('/directory/user/:id', function(req, res){
+		res.redirect ('/directory#/user/' + req.param('id'))
+	});
+
+	app.get('/directory/user/:id/:name', function(req, res){
+		res.redirect ('/directory#/user/' + req.param('id') + '/' + req.param('name'))
+	});
+	
 	app.get('/', function(req, res){
 		var params = {scope: {region:2, freelance: false}}
 		module_users.GetUsers (redis, params, function(err, users){
@@ -182,21 +198,47 @@ var getApp = function (redis, config) {
 				);	
 			})
 		}
-
+		
 		if (!req.session.user){
 			req.session.redirect = '/editprofile';
 			res.redirect ('/login');
 		}
 		else{
-			var params = {linkedin_id : req.session.user.linkedin_id}
-			module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
-				if(user_db){
-					render(user_db)
+			if (req.query['id'] && (req.session.user.id != req.query['id'])){
+				//editing other user.. admin?
+				if (!common.contains(config.admins, req.session.user.linkedin_id)){
+					//access denied
+ 					res.writeHeader(403, {'Content-Type':'text/plain'});
+					res.end ('access denied user ' + req.query['id'] + 'from user ' + JSON.stringify(req.session.user))
+					return;
 				}
 				else{
-					render(req.session.user); //user is not recorded yet
+					//can edit other user.
+					module_users.GetUser(redis, {id:req.query['id']}, function get_user (err, user){
+						if (user)
+							get_render_user (user.linkedin_id);
+						else{
+		 					res.writeHeader(403, {'Content-Type':'text/plain'});
+							res.end ('not found')
+						}
+					});
 				}
-			});
+			}
+			else{
+				get_render_user (req.session.user.linkedin_id)
+			}
+			
+			function get_render_user (linkedin_id){
+				var params = {linkedin_id : linkedin_id}
+				module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
+					if(user_db){
+						render(user_db)
+					}
+					else{
+						render(req.session.user); //user is not recorded yet
+					}
+				});
+			}
 		}
 	});
 
@@ -214,17 +256,12 @@ var getApp = function (redis, config) {
 		}
 
 		var user = {
-			id : req.session.user.id,
-			linkedin_id : req.session.user.linkedin_id,
-			linkedin_profile_url : req.session.user.linkedin_profile_url,
-			
 			name : req.param('name') || '', 
 			email : req.param('email') || '',
 			bio : req.param('bio') || '',
 			location : req.param('location') || '',
 			region : req.param('region') || '',
 			web : req.param('web') || '',
-			image : req.session.user.image,
 			twitter : (req.param('twitter') || '').replace('@',''),
 			github : req.param('github') || '',
 			cats : req.param ('categories_available') || [],
@@ -239,159 +276,194 @@ var getApp = function (redis, config) {
 			}
 		}
 		
-		user.portfolio = []
-		for (var i=0;i<config.number_portfolio_urls;i++){
-			user.portfolio[i] = {url: req.param('portfolio_url'+i), descr: req.param('portfolio_descr'+i)};
-		}
-
-		//validation
-		var validation_errors=[]
-		var valid=true;
-
-		//validation config
-		var max_name = 50
-		var max_bio=200	
-		var min_bio=10;
-		var cats_min = 1
-		var cats_max = 3
-		var tags_max = 15
-		var tags_min = 3
-		var tag_max_length = 25
-		var max_portfolio_descr = 200
-		var max_portfolio_url = 100
-		var min_portfolio_descr = 5
-
-
-		if (!user.name){
-			validation_errors['name'] = 'Por favor introduce tu nombre';
-			valid = false;
-		}
-		else if (user.name.length > max_name){
-			validation_errors['name'] = 'Máximo número de carácteres: ' + max_name;
-			valid = false;
-		}
-
-		//bio validation
-		if (!user.bio || user.bio.length<min_bio){
-			validation_errors['bio'] = 'Por favor introduce un texto descriptivo de más de ' + min_bio + ' caracteres';
-			valid = false;
-		}
-		else if (user.bio.length>max_bio){
-			validation_errors['bio'] = 'Máximo número de carácteres: '+ max_bio + '. Sobran ' + (user.bio.length-max_bio);
-			valid = false;
-		}
-
-		//email validation
-		if (!user.email){
-			validation_errors['email'] = 'Por favor introduce tu email';
-			valid = false;
-		}
-		else if (!common.validateEmail(user.email)){
-			validation_errors['email'] = 'Por favor introduce un email válido';
-			valid = false;
-		}
-
-		if (user.cats.length > cats_max){
-			validation_errors['cats'] = 'Elige un máximo de ' + cats_max + ' categorías';
-			valid = false
-		}
-		else if (user.cats.length < cats_min){
-			validation_errors['cats'] = 'Elige al menos una categoría';
-			valid = false
-		}
-
-		//tag validation
-		if (user.tags.length < tags_min){
-			validation_errors['tags'] = 'Por favor introduce al menos ' + tags_min + ' tags';
-			valid = false
-		}
-		else if (user.tags.length > tags_max){
-			validation_errors['tags'] = 'El número máximo de tags es ' + tags_max;
-			valid = false
-		}
-		else {
-			for (t=0;t<user.tags.length;t++){
-				if (user.tags[t].length>tag_max_length){
-					validation_errors['tags'] = 'Tag "' + user.tags[t] + '" inválido (' + user.tags[t].length + ' caracteres). El máximo número de caractéres para cada tag es ' + tag_max_length;
-					valid = false
-					break;
-				}
-			}
-		}
-
-		//region
-		if (!user.region){
-			validation_errors['region'] = 'Por favor seleccione su región';
-			valid = false;
-		}
-
-		//location
-		if (!user.location){
-			validation_errors['location'] = 'Por favor seleccione su ubicación';
-			valid = false;
-		}
-
-		//portfolio validation
-		for (var i=0;i<user.portfolio.length;i++){
-				//max_portfolio_descr
-			if (user.portfolio[i].url || user.portfolio[i].descr){
-				if (!user.portfolio[i].url){
-					validation_errors['portfolio_url' + i] = 'Por favor introduce una URL';
-					valid = false;
-				}
-				else{ //got url
-					if (user.portfolio[i].url.length > max_portfolio_url){
-						validation_errors['portfolio_url' + i] = 'URL demasiado larga';
-						valid = false;
-					}
-
-					//check descr
-					if (user.portfolio[i].descr.length>max_portfolio_descr){
-						validation_errors['portfolio_descr' + i] = 'Descripción demasiado larga';
-						valid = false;
-					}
-					else if (user.portfolio[i].descr.length<min_portfolio_descr){
-						validation_errors['portfolio_descr' + i] = 'Descripción demasiado corta';
-						valid = false;
-					}
-				}
+		if (req.query['id'] && (req.query['id']!=req.session.user.id)){
+			//check seg
+			if (!common.contains(config.admins, req.session.user.linkedin_id)){
+				res.writeHeader(403, {'Content-Type':'text/plain'});
+				res.end ('access denied to user ' + req.query['id'])
 			}
 			else{
-				//not filled, delete it
-				user.portfolio.splice(i,1);
-				i--
+				module_users.GetUser(redis, {id:req.query['id']}, function get_user (err, user_db){
+					if (user_db){
+						user.id = user_db.id
+						user.linkedin_id = user_db.linkedin_id;
+						user.image = user_db.image
+						get_render_user (user);	
+					}
+					else{
+	 					res.writeHeader(403, {'Content-Type':'text/plain'});
+						res.end ('not found')
+					}
+				});
 			}
 		}
-
-		function showErrors (user, validation_errors){
-			module_cats.GetCats (redis, null, function (err, categories){
-				res.render ('edit_profile', {
-					title: 'Crear / editar profile',
-					error: 'Ha ocurrido un error procesando el formulario. Por favor revisa los datos introducidos', 
-					regions : config.regions,
-					validation_errors : validation_errors,
-					categories_available : categories,
-					number_portfolio_urls: config. number_portfolio_urls,
-					user: user,
-					layout: 'layout_profile'
-				});	
-			});
-		}
-
-		if (!valid){
-			showErrors(user, validation_errors);
-		}
 		else{
-			module_users.AddOrEditUser(redis, {user:user}, function (err, users_db){
-				if (err)
-					showErrors(user, validation_errors);
-				else{
-					req.session.user = users_db[0];
-					req.flash ('success','¡Tus datos se han grabado correctamente!');
-					res.redirect('/editprofile')
-				}
-			});
+			user.id = req.session.user.id;
+			user.linkedin_id = req.session.user.linkedin_id;
+			user.linkedin_profile_url = req.session.user.linkedin_profile_url;
+			user.image = req.session.image;
+			
+			get_render_user(user);
 		}
+		
+		function get_render_user(user){
+			user.portfolio = []
+			for (var i=0;i<config.number_portfolio_urls;i++){
+				user.portfolio[i] = {url: req.param('portfolio_url'+i), descr: req.param('portfolio_descr'+i)};
+			}
+
+			//validation
+			var validation_errors=[]
+			var valid=true;
+
+			//validation config
+			var max_name = 50
+			var max_bio=200	
+			var min_bio=10;
+			var cats_min = 1
+			var cats_max = 3
+			var tags_max = 15
+			var tags_min = 3
+			var tag_max_length = 25
+			var max_portfolio_descr = 200
+			var max_portfolio_url = 100
+			var min_portfolio_descr = 5
+
+
+			if (!user.name){
+				validation_errors['name'] = 'Por favor introduce tu nombre';
+				valid = false;
+			}
+			else if (user.name.length > max_name){
+				validation_errors['name'] = 'Máximo número de carácteres: ' + max_name;
+				valid = false;
+			}
+
+			//bio validation
+			if (!user.bio || user.bio.length<min_bio){
+				validation_errors['bio'] = 'Por favor introduce un texto descriptivo de más de ' + min_bio + ' caracteres';
+				valid = false;
+			}
+			else if (user.bio.length>max_bio){
+				validation_errors['bio'] = 'Máximo número de carácteres: '+ max_bio + '. Sobran ' + (user.bio.length-max_bio);
+				valid = false;
+			}
+
+			//email validation
+			if (!user.email){
+				validation_errors['email'] = 'Por favor introduce tu email';
+				valid = false;
+			}
+			else if (!common.validateEmail(user.email)){
+				validation_errors['email'] = 'Por favor introduce un email válido';
+				valid = false;
+			}
+
+			if (user.cats.length > cats_max){
+				validation_errors['cats'] = 'Elige un máximo de ' + cats_max + ' categorías';
+				valid = false
+			}
+			else if (user.cats.length < cats_min){
+				validation_errors['cats'] = 'Elige al menos una categoría';
+				valid = false
+			}
+
+			//tag validation
+			if (user.tags.length < tags_min){
+				validation_errors['tags'] = 'Por favor introduce al menos ' + tags_min + ' tags';
+				valid = false
+			}
+			else if (user.tags.length > tags_max){
+				validation_errors['tags'] = 'El número máximo de tags es ' + tags_max;
+				valid = false
+			}
+			else {
+				for (t=0;t<user.tags.length;t++){
+					if (user.tags[t].length>tag_max_length){
+						validation_errors['tags'] = 'Tag "' + user.tags[t] + '" inválido (' + user.tags[t].length + ' caracteres). El máximo número de caractéres para cada tag es ' + tag_max_length;
+						valid = false
+						break;
+					}
+				}
+			}
+
+			//region
+			if (!user.region){
+				validation_errors['region'] = 'Por favor seleccione su región';
+				valid = false;
+			}
+
+			//location
+			if (!user.location){
+				validation_errors['location'] = 'Por favor seleccione su ubicación';
+				valid = false;
+			}
+
+			//portfolio validation
+			for (var i=0;i<user.portfolio.length;i++){
+					//max_portfolio_descr
+				if (user.portfolio[i].url || user.portfolio[i].descr){
+					if (!user.portfolio[i].url){
+						validation_errors['portfolio_url' + i] = 'Por favor introduce una URL';
+						valid = false;
+					}
+					else{ //got url
+						if (user.portfolio[i].url.length > max_portfolio_url){
+							validation_errors['portfolio_url' + i] = 'URL demasiado larga';
+							valid = false;
+						}
+
+						//check descr
+						if (user.portfolio[i].descr.length>max_portfolio_descr){
+							validation_errors['portfolio_descr' + i] = 'Descripción demasiado larga';
+							valid = false;
+						}
+						else if (user.portfolio[i].descr.length<min_portfolio_descr){
+							validation_errors['portfolio_descr' + i] = 'Descripción demasiado corta';
+							valid = false;
+						}
+					}
+				}
+				else{
+					//not filled, delete it
+					user.portfolio.splice(i,1);
+					i--
+				}
+			}
+
+			function showErrors (user, validation_errors){
+				module_cats.GetCats (redis, null, function (err, categories){
+					res.render ('edit_profile', {
+						title: 'Crear / editar profile',
+						error: 'Ha ocurrido un error procesando el formulario. Por favor revisa los datos introducidos', 
+						regions : config.regions,
+						validation_errors : validation_errors,
+						categories_available : categories,
+						number_portfolio_urls: config. number_portfolio_urls,
+						user: user,
+						layout: 'layout_profile'
+					});	
+				});
+			}
+
+			if (!valid){
+				showErrors(user, validation_errors);
+			}
+			else{
+				module_users.AddOrEditUser(redis, {user:user}, function (err, users_db){
+					if (err)
+						showErrors(user, validation_errors);
+					else{
+						if (!req.session.user.id || (users_db[0].id == req.session.user.id))
+							req.session.user = users_db[0]; //editing own profile
+
+						req.flash ('success','¡Tus datos se han grabado correctamente!');
+						res.redirect('/editprofile?id='+ users_db[0].id)
+					}
+				});
+			}	
+		}
+
 	});
 	return app;
 };

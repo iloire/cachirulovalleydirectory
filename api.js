@@ -1,4 +1,5 @@
-var common = require ('./lib/common.js');
+var common = require ('./lib/common');
+var config = require ('./config').values;
 
 exports.configure = function (app, redis, module_users, module_cats, module_tags){
 
@@ -45,7 +46,16 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	});
 
 	app.get('/api/users', function(req, res){
-		var params = {id_cat : req.query["id_cat"], tag : req.query["tag"] || '', scope: req.query["scope"], logged_user: req.session.user}
+		var params = {
+					id_cat : req.query["id_cat"] || '', 
+					tag : req.query["tag"] || '', 
+					scope: req.query["scope"], 
+					sort: req.query["sort"],
+					pagination : {from : req.query["from"] || 0, pagesize : req.query["page"] || config.default_page_size},
+					logged_user: req.session.user || null
+				}
+				console.log (params)
+
 		module_cats.GetCats (redis, params, function (err, cats){
 			module_users.GetUsersByScope(redis, params, function(err, users){
 				var cat=null;
@@ -56,12 +66,14 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 						break;
 					}
 				}
-			
+
+				//TODO: pagination in db, instead of after objects have been retrieved
 				common.renderJSON(req, res, {
-					users: PrepareForDisplayUsers(req,users),
+					users: PrepareForDisplayUsers(req, users.slice(params.pagination.from * params.pagination.pagesize, (params.pagination.from *  params.pagination.pagesize) +  params.pagination.pagesize)),
 					tags: PrepareForDisplayTags(req, common.get_unique_tags_by_users(users)),
 					cats: cats,
 					cat: cat,
+					pagination: {from: params.pagination.from, total: Math.ceil(users.length / params.pagination.pagesize), total_records: users.length},
 					tag: params.tag,
 					}, 200, req.query["callback"])
 			});	

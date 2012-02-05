@@ -161,7 +161,7 @@ exports.tests = [
 							assert.ok(!err)
 							assert.ok(browser.success);
 							assert.ok(!browser.errors.length);
-							//console.log (browser.html('div.general'));
+							
 							assert.ok(browser.html('div.general').indexOf('Por favor introduce tu nombre')>-1);
 							assert.ok(browser.html('div.general').indexOf('Por favor introduce tu email')>-1);
 							assert.ok(browser.html('div.general').indexOf('Por favor introduce un texto descriptivo')>-1);
@@ -229,9 +229,8 @@ exports.tests = [
 										assert.ok(!err)
 										browser.wait(function(err, browser){
 											assert.ok(!err)
-											//console.log (browser.errors)
 											assert.ok(browser.success);
-											//assert.ok(!browser.errors.length);
+											assert.ok(!browser.errors.length);
 											assert.ok (browser.html().indexOf('satisfactoriamente'))
 											assert.ok(browser.html().indexOf('Tu perfil ha sido modificado satisfactoriamente')>-1)
 											

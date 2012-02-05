@@ -106,7 +106,7 @@ exports.tests = [
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
-			assert.equal(JSON.parse(body).users.length, 20);
+			assert.equal(JSON.parse(body).users.length, 15);
 			assert.equal(JSON.parse(body).cat.id, 1);
 			assert.equal(JSON.parse(body).cat.name, 'Programadores');
 			callback(null);
@@ -120,7 +120,7 @@ exports.tests = [
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
 			var users=JSON.parse(body).users;
-			assert.equal(users.length, 20);
+			assert.equal(users.length, 15);
 			assert.ok (users[0].name <= users[1].name);
 			assert.ok (users[2].name <= users[3].name);
 			assert.ok (users[10].name <= users[11].name);
@@ -137,7 +137,7 @@ exports.tests = [
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
 			var users=JSON.parse(body).users;
-			assert.equal(users.length, 20);
+			assert.equal(users.length, 15);
 			assert.ok (users[0].name >= users[1].name);
 			assert.ok (users[2].name >= users[3].name);
 			assert.ok (users[10].name >= users[11].name);
@@ -152,7 +152,7 @@ exports.tests = [
 			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
 			assert.equal(res.statusCode, 200);
 			var users=JSON.parse(body).users;
-			assert.equal(users.length, 20);
+			assert.equal(users.length, 15);
 			assert.ok (users[0].name =="Fernando Val"); //TODO: rebuild database with votes
 			assert.equal(JSON.parse(body).cat.id, 1);
 			assert.equal(JSON.parse(body).cat.name, 'Programadores');
@@ -167,6 +167,49 @@ exports.tests = [
 			assert.ok(body.indexOf ('test({"users":[')>-1);
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf ('"cat":{"id":"1","name":"Programadores"')>-1);
+			callback(null);
+		});
+	}
+	,
+	function users_by_cat_paged_from (callback){
+		request(base_address + '/api/users?id_cat=1&from=1', function (err,res,body) {
+			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal(res.statusCode, 200);
+			var users=JSON.parse(body).users;
+			assert.equal(users.length, 5);
+			assert.equal(JSON.parse(body).cat.id, 1);
+			assert.equal(JSON.parse(body).pagination.from, 1);
+			assert.equal(JSON.parse(body).pagination.total, 2);
+			assert.equal(JSON.parse(body).cat.name, 'Programadores');
+			callback(null);
+		});
+	}
+	,
+	function users_by_cat_paged_from_page (callback){
+		request(base_address + '/api/users?id_cat=1&from=0&page=8', function (err,res,body) {
+			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal(res.statusCode, 200);
+			var users=JSON.parse(body).users;
+			assert.equal(users.length, 8);
+			assert.equal(JSON.parse(body).cat.id, 1);
+			assert.equal(JSON.parse(body).pagination.from, 0);
+			assert.equal(JSON.parse(body).pagination.total, 3);
+			assert.equal(JSON.parse(body).pagination.total_records, 20);
+			assert.equal(JSON.parse(body).cat.name, 'Programadores');
+			callback(null);
+		});
+	}
+	,
+	function users_by_cat_paged_from_page_bigger (callback){
+		request(base_address + '/api/users?id_cat=1&from=0&page=20', function (err,res,body) {
+			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal(res.statusCode, 200);
+			var users=JSON.parse(body).users;
+			assert.equal(users.length, 20);
+			assert.equal(JSON.parse(body).cat.id, 1);
+			assert.equal(JSON.parse(body).pagination.from, 0);
+			assert.equal(JSON.parse(body).pagination.total, 1);
+			assert.equal(JSON.parse(body).cat.name, 'Programadores');
 			callback(null);
 		});
 	}
@@ -260,6 +303,46 @@ exports.tests = [
 		});	
 	}	
 	,
+	function edit_other_profile_fails (callback){
+		request.get({url: base_address + '/editprofile?id=45'}, function (err,res,body) {
+			assert.equal (res.headers['content-type'],'text/plain');
+			assert.equal(res.statusCode, 403); 
+			callback(null);
+		});	
+	}
+	,	
+	function load_user_page_directly (callback){
+		request.get({url: base_address + '/user/45', followRedirect:false}, function (err,res,body) {
+			assert.equal(res.statusCode, 302); 
+			assert.equal(res.headers.location, base_address + '/directory#/user/45'); 
+			callback(null);
+		});	
+	}
+	,	
+	function load_user_page_directly_with_name (callback){
+		request.get({url: base_address + '/user/45/randomtext', followRedirect:false}, function (err,res,body) {
+			assert.equal(res.statusCode, 302); 
+			assert.equal(res.headers.location, base_address + '/directory#/user/45/randomtext'); 
+			callback(null);
+		});	
+	}
+	,	
+	function load_user_page_directly_directory (callback){
+		request.get({url: base_address + '/directory/user/45', followRedirect:false}, function (err,res,body) {
+			assert.equal(res.statusCode, 302); 
+			assert.equal(res.headers.location, base_address + '/directory#/user/45'); 
+			callback(null);
+		});	
+	}
+	,	
+	function load_user_page_directly_with_name_directory (callback){
+		request.get({url: base_address + '/directory/user/45/randomtext', followRedirect:false}, function (err,res,body) {
+			assert.equal(res.statusCode, 302); 
+			assert.equal(res.headers.location, base_address + '/directory#/user/45/randomtext'); 
+			callback(null);
+		});	
+	}
+	,	
 	function vote_with_session_ok (callback){
 		var user_to_vote = 2;
 		request.get({url: base_address + '/injectsession'}, function (err,res,body) {

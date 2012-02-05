@@ -1,9 +1,9 @@
-var common = require ('../../lib/common.js');
+var common = require ('../../lib/common');
 var Faker = require('Faker');
-
-var module_cats = require("../../lib/modules/cats.js")
-var module_users = require("../../lib/modules/users.js")
-var module_tags = require("../../lib/modules/tags.js")
+var module_cats = require("../../lib/modules/cats")
+var module_users = require("../../lib/modules/users")
+var module_tags = require("../../lib/modules/tags")
+var config = require ('../../config').values;
 
 var redis 
 
@@ -46,7 +46,7 @@ var users =
 				location: 'Zaragoza', region : '0',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1174085383/_J106410_reasonably_small.JPG', 
 				cats: [1,5],
-				linkedin_id: '',
+				linkedin_id: 'xxxxxxxx',
 				twitter : 'gimenete',
 				github : 'gimenete',
 				tags: ['redis','node.js', 'iOS'],
@@ -60,7 +60,7 @@ var users =
 				location: 'Zaragoza', region : '100',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1475799969/pablo-avatar_reasonably_small.png', 
 				cats: [1,2],
-				linkedin_id: '',
+				linkedin_id: 'wqerwqerweqr',
 				twitter : 'pablojimeno',
 				tags: ['ror','ruby','linux', 'html5'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
@@ -73,7 +73,7 @@ var users =
 				location: 'Zaragoza', region : '0',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1360363459/eldisparate_agustin_reasonably_small.jpg', 
 				cats: [3,4],
-				linkedin_id: '',
+				linkedin_id: '234234wer',
 				twitter : 'pordeciralgo',
 				tags: ['macosx','iOs','adsense','marketing online'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
@@ -86,8 +86,9 @@ var users =
 				location: 'Zaragoza', region : '0',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1432570237/la_foto__1__reasonably_small.JPG', 
 				cats: [1,4],
-				linkedin_id: '',
+				linkedin_id: 'qwerdffs',
 				twitter : 'dani_latorre',
+				github: 'danilat',
 				tags: ['groovy','java','mongo'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
 				portfolio : []
@@ -99,7 +100,7 @@ var users =
 				location: 'Zaragoza', region : '0',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1369467781/avatar-comic_reasonably_small.jpg', 
 				cats: [1,3,4],
-				linkedin_id: '',
+				linkedin_id: 'wrasdfsdf',
 				twitter : 'superwillyfoc',
 				tags: ['html','html5','wordpress'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
@@ -125,7 +126,7 @@ var users =
 				location: 'Zaragoza', region : '10',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1490167269/mamen-1sm2_reasonably_small.jpg', 
 				cats: [2],
-				linkedin_id: '',
+				linkedin_id: 'asdf23423',
 				twitter : 'pensieve',
 				tags: ['photoshop','art', 'html5'],
 				other_data : {freelance: false},
@@ -139,7 +140,7 @@ var users =
 				location: 'Zaragoza', region : '10',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1367128454/22b7cfa2-5033-447e-91d7-3f9410575ccf_reasonably_small.png',
 				cats: [1,2],
-				linkedin_id: '',
+				linkedin_id: 'asdfs234234',
 				twitter : 'SirMartinPiribi',
 				tags: ['grails','java', '.net', 'Android', 'adsense'],
 				other_data : {freelance: false},
@@ -153,7 +154,7 @@ var users =
 				location: 'Zaragoza', region : '10',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1318250314/santi_reasonably_small.jpg',
 				cats: [1,2],
-				linkedin_id: '',
+				linkedin_id: 'asdf234234',
 				twitter : 'Shantydroid',
 				tags: ['.NET','iOS', '.net'],
 				other_data : {freelance: false},
@@ -167,7 +168,7 @@ var users =
 				location: 'Zaragoza', region : '10',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1727230211/06D6365D-D90E-4AA1-B60A-AC19EB8B1A4A_reasonably_small', 
 				cats: [1,2],
-				linkedin_id: '',
+				linkedin_id: '234324wafsdf',
 				web: 'http://www.davidolmos.com',
 				twitter : 'olmeras',
 				tags: ['iOS'],
@@ -182,7 +183,7 @@ var users =
 				location: 'Zaragoza', region : '10',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1509955857/ACEA7CF2-8880-4848-B8BA-DAF8BEC0F702_reasonably_small',
 				cats: [1,2],
-				linkedin_id: '',
+				linkedin_id: '2344sfasdf',
 				web: 'http://bit.ly/rPFL8H',
 				twitter : 'torhector',
 				tags: ['iOS','Node.js'],
@@ -232,15 +233,15 @@ function AddExtraFakeUsers(callback){
 			for (var i=0;i<extra_users_for_each_cat;i++){
 				var user = {}
 				user.name = Faker.Name.findName();
-				user.linkedin_id ='';
+				user.linkedin_id = common.rnd (2000,100000);
 				user.bio = "This is a fake profile. Most of bla bla, bla bla bla bla of bla bla bla bla, right?" + user.name;
 				user.twitter = 'twitter';
 				user.web = 'blabla' + i + '.com';
-				user.image = 'http://lorempixel.com/output/people-q-c-80-80-7.jpg';
+				user.image = config.base_url + '/images/avatar' + common.rnd(0,5)  + '.jpg';
 				user.creation_date = time;
 				user.email = Faker.Internet.email();
 				user.location = 'spain'
-				user.region = 1000;
+				user.region = (Math.random() > 0.7) ? 1000 : ((Math.random()>0.2) ? 100 : 10);
 				user.cats = cats_db[c].id;
 				user.tags = ['js', 'javascript', 'customtag' + i];
 				user.other_data = {freelance: (Math.random() > 0.7), entrepreneur : (Math.random()>0.8)}
