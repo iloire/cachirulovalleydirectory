@@ -65,9 +65,13 @@ var getApp = function (redis, config) {
 	app.get('/directory/user/:id/:name', function(req, res){
 		res.redirect ('/directory#/user/' + req.param('id') + '/' + req.param('name'))
 	});
+
+	app.get('/about', function(req, res){
+		res.render('about', {title:'Sobre el directorio de Cachirulo Valley', user: req.session.user});
+	});
 	
 	app.get('/', function(req, res){
-		var params = {scope: {region:2, freelance: false}}
+		var params = {id_cat: 1, scope: {region:10, freelance: false}, sort: 'votes_'}
 		module_users.GetUsers (redis, params, function(err, users){
 			res.render('index', {layout:'layout_home', title: 'Directorio CachiruloValley', categories : [],  users:users.slice(0,12), user: req.session.user});
 		});
@@ -78,20 +82,23 @@ var getApp = function (redis, config) {
 			linkedin_client.getAccessToken(req, res, function (error, token) 
 			{
 			    if (error){
-					console.log (error);
+					console.error (error);
 					res.redirect ('/')
 					return;
 				}
 				req.session.token = token;
 
-				function get_user_or_new_from_linkedin_data(user_linkedin, callback){
+				function get_user_or_new_from_linkedin_data (user_linkedin, callback){
 					var params = {linkedin_id : user_linkedin.id}
 					module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
 						if (user_db){
 							//user from database. make sure fields from linkedin are filled
-							if (!user_db.linkedin_profile_url)
-								user_db.linkedin_profile_url=user_linkedin.linkedin_profile_url;
+							if (user_linkedin.publicProfileUrl) //update profile url
+								user_db.linkedin_profile_url=user_linkedin.publicProfileUrl;
 
+							if (user_linkedin.pictureUrl) //update pic
+								user_db.image=user_linkedin.pictureUrl;
+							
 							callback (user_db);
 						}
 						else{
@@ -123,7 +130,7 @@ var getApp = function (redis, config) {
 				}
 				, function (error, user_linkedin) {
 					if (error){
-						console.log (error)
+						console.error (error)
 						res.redirect ('/');
 					}else{
 						get_user_or_new_from_linkedin_data(user_linkedin, function (user){
@@ -198,47 +205,29 @@ var getApp = function (redis, config) {
 				);	
 			})
 		}
-		
 		if (!req.session.user){
 			req.session.redirect = '/editprofile';
 			res.redirect ('/login');
 		}
 		else{
-			if (req.query['id'] && (req.session.user.id != req.query['id'])){
+			var user_to_edit_id = req.query['id'] || req.session.user.id;
+			if (req.session.user.id != user_to_edit_id){
 				//editing other user.. admin?
 				if (!common.contains(config.admins, req.session.user.linkedin_id)){
-					//access denied
  					res.writeHeader(403, {'Content-Type':'text/plain'});
-					res.end ('access denied user ' + req.query['id'] + 'from user ' + JSON.stringify(req.session.user))
+					res.end ('access denied');
 					return;
 				}
-				else{
-					//can edit other user.
-					module_users.GetUser(redis, {id:req.query['id']}, function get_user (err, user){
-						if (user)
-							get_render_user (user.linkedin_id);
-						else{
-		 					res.writeHeader(403, {'Content-Type':'text/plain'});
-							res.end ('not found')
-						}
-					});
-				}
-			}
-			else{
-				get_render_user (req.session.user.linkedin_id)
 			}
 			
-			function get_render_user (linkedin_id){
-				var params = {linkedin_id : linkedin_id}
-				module_users.GetUserByLinkedinId(redis, params, function (err, user_db){
-					if(user_db){
-						render(user_db)
-					}
-					else{
-						render(req.session.user); //user is not recorded yet
-					}
-				});
-			}
+			module_users.GetUser(redis, {id:user_to_edit_id}, function get_user (err, user){
+				if (!user){
+					render(req.session.user) //new user
+				}
+				else{
+					render (user);
+				}
+			});
 		}
 	});
 
@@ -250,61 +239,66 @@ var getApp = function (redis, config) {
 		}
 
 		if (!req.session.user){
-			console.log ('user session not found')
+			console.error ('user session not found')
 			res.redirect ('/editprofile')
 			return;
 		}
-
-		var user = {
-			name : req.param('name') || '', 
-			email : req.param('email') || '',
-			bio : req.param('bio') || '',
-			location : req.param('location') || '',
-			region : req.param('region') || '',
-			web : req.param('web') || '',
-			twitter : (req.param('twitter') || '').replace('@',''),
-			github : req.param('github') || '',
-			cats : req.param ('categories_available') || [],
-			tags : req.param ('tags') ? req.param ('tags').split(',') : [], 
-			other_data :  {
-				vc_partner : req.param ('vc_partner') || false,
-				tech_partner : req.param ('tech_partner') || false,
-				business_partner : req.param ('business_partner') || false,
-				entrepreneur : req.param ('entrepreneur') || false,
-				freelance : req.param ('freelance') || false,
-				looking_for_contracts: req.param ('looking_for_contracts') || false
+		
+		var user_to_edit_id = req.query['id'] || req.session.user.id;
+		if (req.session.user.id != user_to_edit_id){
+			//editing other user.. admin?
+			if (!common.contains(config.admins, req.session.user.linkedin_id)){
+				res.writeHeader(403, {'Content-Type':'text/plain'});
+				res.end ('access denied');
+				return;
 			}
 		}
 		
-		if (req.query['id'] && (req.query['id']!=req.session.user.id)){
-			//check seg
-			if (!common.contains(config.admins, req.session.user.linkedin_id)){
-				res.writeHeader(403, {'Content-Type':'text/plain'});
-				res.end ('access denied to user ' + req.query['id'])
+		module_users.GetUser(redis, {id:user_to_edit_id}, function get_user (err, user){
+			if (!user){
+				//user doesn't exist in the database. Case of new user filling their profile.
+				if (req.session.user.id != user_to_edit_id){
+					res.writeHeader(404, {'Content-Type':'text/plain'});
+					res.end ('user not found in the database');
+					return;
+				}
+				else{
+					//new user creating profile.
+					user = req.session.user;
+				}
 			}
 			else{
-				module_users.GetUser(redis, {id:req.query['id']}, function get_user (err, user_db){
-					if (user_db){
-						user.id = user_db.id
-						user.linkedin_id = user_db.linkedin_id;
-						user.image = user_db.image
-						get_render_user (user);	
-					}
-					else{
-	 					res.writeHeader(403, {'Content-Type':'text/plain'});
-						res.end ('not found')
-					}
-				});
+				if (req.session.user.id != user_to_edit_id){ //we are editing other people's profile.
+					
+				}
+				else{ //editing my own profile.
+					//set up to date data from linkedin login.
+					user.image = req.session.user.image
+					user.linkedin_profile_url = req.session.user.linkedin_profile_url
+				}
 			}
-		}
-		else{
-			user.id = req.session.user.id;
-			user.linkedin_id = req.session.user.linkedin_id;
-			user.linkedin_profile_url = req.session.user.linkedin_profile_url;
-			user.image = req.session.image;
 			
-			get_render_user(user);
-		}
+			user.name = req.param('name') || '';
+			user.email = req.param('email') || '';
+			user.bio = req.param('bio') || '';
+			user.location = req.param('location') || '';
+			user.region = req.param('region') || '';
+			user.web = req.param('web') || '';
+			user.twitter = (req.param('twitter') || '').replace('@','');
+			user.github = req.param('github') || '';
+			user.cats = req.param ('categories_available') || [];
+			user.tags = req.param ('tags') ? req.param ('tags').split(',') : [];
+			user.other_data =  {
+					vc_partner : req.param ('vc_partner') || false,
+					tech_partner : req.param ('tech_partner') || false,
+					business_partner : req.param ('business_partner') || false,
+					entrepreneur : req.param ('entrepreneur') || false,
+					freelance : req.param ('freelance') || false,
+					looking_for_contracts: req.param ('looking_for_contracts') || false
+				}
+
+			get_render_user (user);
+		});
 		
 		function get_render_user(user){
 			user.portfolio = []
@@ -450,15 +444,28 @@ var getApp = function (redis, config) {
 				showErrors(user, validation_errors);
 			}
 			else{
+				
+				//format
+				if (user.web){
+					if ((user.web.indexOf('http:')==-1) && (user.web.indexOf('https:')==-1))
+						user.web = 'http://' + user.web;
+				}
+				
 				module_users.AddOrEditUser(redis, {user:user}, function (err, users_db){
 					if (err)
 						showErrors(user, validation_errors);
 					else{
-						if (!req.session.user.id || (users_db[0].id == req.session.user.id))
-							req.session.user = users_db[0]; //editing own profile
+						if (!users_db[0]){
+							console.error ('error saving user. user null')
+							showErrors(user, validation_errors);
+						}
+						else{
+							if (!req.session.user.id || (users_db[0].id == req.session.user.id))
+								req.session.user = users_db[0]; //editing own profile
 
-						req.flash ('success','¡Tus datos se han grabado correctamente!');
-						res.redirect('/editprofile?id='+ users_db[0].id)
+							req.flash ('success','¡Tus datos se han grabado correctamente!');
+							res.redirect('/editprofile?id='+ users_db[0].id)
+						}
 					}
 				});
 			}	

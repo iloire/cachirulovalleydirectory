@@ -11,9 +11,11 @@ var tags_initial_offset = 0;
 
 viewModel.tagslist = ko.dependentObservable(function() {
 	var tags=[];
-	var tags_list = this.tags();
-	for (var i=0, c=tags_list.length;i<c;i++){
-		tags.push ({name: tags_list[i].t || tags_list[i], safe_name:encodeURIComponent(tags_list[i].t || tags_list[i]), counter: tags_list[i].n || ''});
+	if (this.tags()){
+		var tags_list = this.tags();
+		for (var i=0, c=tags_list.length;i<c;i++){
+			tags.push ({name: tags_list[i].t || tags_list[i], safe_name:encodeURIComponent(tags_list[i].t || tags_list[i]), counter: tags_list[i].n || ''});
+		}
 	}
 	return tags;
 }, viewModel);
@@ -347,12 +349,22 @@ $(document).ready(function () {
 			//pagination
 			var str = "<span>Total registros: " + ui_status.pagination.total_records + '</span>';
 			if (ui_status.pagination.total>1){
+				var dot = false
+				var limit = 4;
+				var current = parseInt(ui_status.pagination.from,10);
 				for (var i=0;i<ui_status.pagination.total;i++){
-					if (ui_status.pagination.from == i)
-						str = str + " <a class=selected href=# page=" + i + ">" + (i+1) + "</a>";
-					else
-						str = str + " <a href=# page=" + i + ">" + (i+1) + "</a>";
-					
+					if ((i==(current+limit))) dot=false;
+						
+					if ((i>ui_status.pagination.total-3) || (i<2) || (i>(current-limit)) && (i<(current+limit))){
+							str = str + ((ui_status.pagination.from == i) ? " <a class=selected href=# page=" + i + ">" + (i+1) + "</a>"
+																		 : " <a href=# page=" + i + ">" + (i+1) + "</a>")
+					}
+					else{
+						if (!dot){
+							str = str + ' ... '
+							dot=true;
+						}
+					}
 				}
 			}
 			
@@ -433,6 +445,8 @@ $(document).ready(function () {
 	});
 
 	$('span.voteBox a.login').live ('click', function(){
+		$(this).css({ 'position': 'absolute'});
+		$(this).css({ 'left': '50%'});
 		$(this).html('Redirigiendo a login...')
 	});
 

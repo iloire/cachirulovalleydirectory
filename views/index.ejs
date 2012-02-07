@@ -5,7 +5,9 @@
 	<div class="span8">
 		<div class="random_professionals">
 		<% for (i=0;i<users.length;i++){%>
+			<a title="<%=users[i].name%>" href="/user/<%=users[i].id%>/<%=users[i].name%>">
 			<img src="<%=users[i].image%>" alt="">
+			</a>
 		<%}%>
 			<p>
 				Darte de alta sólo lleva 5 minutos, y únicamente necesitas una cuenta en linkedin.

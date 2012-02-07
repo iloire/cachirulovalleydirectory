@@ -3,6 +3,34 @@ var config = require ('./config').values;
 
 exports.configure = function (app, redis, module_users, module_cats, module_tags){
 
+	function format_tags (simple_arr_tags){
+		var tags = [];
+		for (var t=0, tl=simple_arr_tags.length;t<tl; t++){ 
+			tags.push ({t: simple_arr_tags[t], n: 0});
+		}
+		return tags;
+	}
+
+	function get_unique_tags_by_users(users){
+		var tags = []
+		for(var u=0,l=users.length; u<l; u++){
+			for (var t=0, tl=users[u].tags.length;t<tl; t++){ 
+				var found=false;
+				for (var i=0,il=tags.length;i<il; i++){
+					if (tags[i].t==users[u].tags[t]){
+						found=true;
+						tags[i].n++;
+					}
+				}
+
+				if (!found)
+					tags.push ({t: users[u].tags[t], n: 1});
+			}
+		}
+		return tags;
+	}
+
+
 	function PrepareForDisplayTags (req, tags){
 		function sorter (a,b){
 			return ((a.t < b.t) ? -1 : ((a.t > b.t) ? 1 : 0));
@@ -12,7 +40,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	
 	function PrepareForDisplayUsers (req, users){ //users or user
 		if (users.length==undefined) //single object, not array
-			return common.removeEmail(users);
+			return common.removeUnwantedFields(users);
 
 		var sortfield = req.query["sort"] || 'name';
 		var desc=false
@@ -20,7 +48,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 			desc=true;
 			sortfield = sortfield.substring(0, sortfield.length-1);
 		}
-		return common.sort(common.removeEmail(users), sortfield, desc);
+		return common.sort(common.removeUnwantedFields(users), sortfield, desc);
 	}
 	
 	app.get('/api/tags', function(req, res){
@@ -47,55 +75,63 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 
 	app.get('/api/users', function(req, res){
 		var params = {
-					id_cat : req.query["id_cat"] || '', 
-					tag : req.query["tag"] || '', 
-					scope: req.query["scope"], 
+					id_cat : req.query["id_cat"] || '',
+					tag : req.query["tag"] || '',
+					scope: req.query["scope"],
 					sort: req.query["sort"],
 					pagination : {from : req.query["from"] || 0, pagesize : req.query["page"] || config.default_page_size},
 					logged_user: req.session.user || null
 				}
-				console.log (params)
-
+		
 		module_cats.GetCats (redis, params, function (err, cats){
-			module_users.GetUsersByScope(redis, params, function(err, users){
-				var cat=null;
-				for (var i=0;i<cats.length;i++){
-					if (cats[i].id==params.id_cat)
-					{
-						cat=cats[i];
-						break;
+			module_tags.GetTags (redis, params, function (err, tags){
+				module_users.GetUsers(redis, params, function(err, users, total_records){
+					var cat=null;
+					for (var i=0;i<cats.length;i++){
+						if (cats[i].id==params.id_cat)
+						{
+							cat=cats[i];
+							break;
+						}
 					}
-				}
 
-				//TODO: pagination in db, instead of after objects have been retrieved
-				common.renderJSON(req, res, {
-					users: PrepareForDisplayUsers(req, users.slice(params.pagination.from * params.pagination.pagesize, (params.pagination.from *  params.pagination.pagesize) +  params.pagination.pagesize)),
-					tags: PrepareForDisplayTags(req, common.get_unique_tags_by_users(users)),
-					cats: cats,
-					cat: cat,
-					pagination: {from: params.pagination.from, total: Math.ceil(users.length / params.pagination.pagesize), total_records: users.length},
-					tag: params.tag,
-					}, 200, req.query["callback"])
-			});	
-		});	
+					common.renderJSON(req, res, {
+						users: common.removeUnwantedFields(users),
+						tags: tags,
+						cats: cats,
+						cat: cat,
+						pagination: {
+							pagesize: params.pagination.pagesize,
+							from: params.pagination.from, 
+							total: Math.ceil(total_records / params.pagination.pagesize),
+							total_records: total_records
+						},
+						tag: params.tag,
+						scope: params.scope,
+						}, 200, req.query["callback"])
+				});
+			});
+		});
 	});	
 
 	app.get('/api/users/byid', function(req, res){
 		var params = {id : req.query["id"], logged_user: req.session.user}
 		module_users.GetUser (redis, params, function (err, user){
-			user.tags = PrepareForDisplayTags(req, common.get_unique_tags_by_users([user]));
-			common.renderJSON(req, res, {user: PrepareForDisplayUsers(req, user)}, 200, req.query["callback"])
+			if (user)
+				user.tags = format_tags (user.tags);
+			common.renderJSON(req, res, {user: user ? common.removeUnwantedFields(user) : null}, 200, req.query["callback"])
 		})
 	});
 
 	app.get('/api/search', function(req, res){
 		var params = {q : req.query["search"] || req.query["q"] || '', scope: req.query["scope"], logged_user: req.session.user}
-		module_cats.GetCats (redis, params, function (err, cats){		
+		module_cats.GetCats (redis, params, function (err, cats){
+			params.max = 100; //max number of results in search
 			module_users.Search (redis, params, function (err, users){
 				common.renderJSON(req, res, {
 					cats: cats,
-					users:PrepareForDisplayUsers(req, users), 
-					tags: PrepareForDisplayTags(req, common.get_unique_tags_by_users(users))
+					users: PrepareForDisplayUsers(req, users), 
+					tags: get_unique_tags_by_users(users)
 					}, 200, req.query["callback"])
 			})
 		})

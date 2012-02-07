@@ -11,9 +11,10 @@ exports.setup = function (params){
 }
 
 exports.tests = [
-	function getUsers (callback){
-		module_users.GetUsers(redis, {}, function(err, users){
-			assert.equal (users.length,82)
+	function getUsersFromCat (callback){
+		var params = {id_cat: 1, pagination: {pagesize : 100}}
+		module_users.GetUsers(redis, params, function(err, users){
+			assert.equal (users.length, 20)
 			for (var i = 0;i<users.length;i++){
 				assert.ok (users[i].id) //all users with id
 			}
@@ -39,14 +40,13 @@ exports.tests = [
 	,
 	function getTags (callback){
 		module_tags.GetTags(redis, {}, function(err, tags){
-			assert.ok(tags.length, 35)
+			assert.equal(tags.length, 35)
 			for (var i=0, l=tags.length;i<l;i++){
-				
 				assert.ok (tags[i].n > -1);
 				
 				if (tags[i].t=='.net')
 					assert.equal (tags[i].n, 3)
-					
+
 				if (tags[i].t=='adsense')
 					assert.equal (tags[i].n, 2)
 
@@ -55,7 +55,7 @@ exports.tests = [
 
 				if (tags[i].t=='node.js')
 					assert.equal (tags[i].n, 3)
-				
+
 			}
 			callback(null);
 		})
@@ -70,11 +70,64 @@ exports.tests = [
 
 				if (tags[i].t=='node.js')
 					assert.equal (tags[i].n, 2)
+
+				if (tags[i].t=='adsense')
+					assert.equal (tags[i].n, 0)
+
 			}
 			callback(null);
 		})
 	}
-	
+	,
+	function update_user (callback){
+		module_users.GetUser(redis, {id:1}, function(err, user){
+			user.tags = ['ios', 'adsense'];
+			module_users.SetUser(redis, {user:user}, function(err, user){
+				callback(null);
+			});
+		})
+	}
+	,
+	function getTagsByCatAfterUpdateUser (callback){
+		module_tags.GetTagsByCat(redis, {id:5, fillempty: true}, function(err, tags){
+			assert.ok(tags.length, 18)
+			for (var i=0, l=tags.length;i<l;i++){
+				if (tags[i].t=='redis')
+					assert.equal (tags[i].n, 1)
+
+				if (tags[i].t=='node.js')
+					assert.equal (tags[i].n, 1)
+
+				if (tags[i].t=='adsense')
+					assert.equal (tags[i].n, 1)
+			}
+			callback(null);
+		})
+	}
+	,
+	function getTags (callback){
+		module_tags.GetTags(redis, {}, function(err, tags){
+			for (var i=0, l=tags.length;i<l;i++){
+				assert.equal(tags.length, 33)
+
+				if (tags[i].t=='adsense')
+					assert.equal (tags[i].n, 3)
+			}
+			callback(null);
+		})
+	}
+	,
+	function TrimTags (callback){
+		module_users.GetUser(redis, {id: 1}, function(err, user){
+			var length = user.tags[0].length;
+			user.tags[0] = " " + user.tags[0] + " ";
+			module_users.SetUser(redis, {user:user}, function (err, user){
+				assert.equal (user.tags[0].length, length);
+				callback(null);	
+			})
+		})
+
+	}	
 	/*
 	,
 	function Search (callback){

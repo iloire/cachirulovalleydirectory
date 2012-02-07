@@ -47,6 +47,7 @@ var users =
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1174085383/_J106410_reasonably_small.JPG', 
 				cats: [1,5],
 				linkedin_id: 'xxxxxxxx',
+				web: 'http://iosboilerplate.com',
 				twitter : 'gimenete',
 				github : 'gimenete',
 				tags: ['redis','node.js', 'iOS'],
@@ -61,6 +62,7 @@ var users =
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1475799969/pablo-avatar_reasonably_small.png', 
 				cats: [1,2],
 				linkedin_id: 'wqerwqerweqr',
+				web: 'http://sonicbyte.com',
 				twitter : 'pablojimeno',
 				tags: ['ror','ruby','linux', 'html5'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
@@ -88,6 +90,7 @@ var users =
 				cats: [1,4],
 				linkedin_id: 'qwerdffs',
 				twitter : 'dani_latorre',
+				web: 'http://danilat.com',
 				github: 'danilat',
 				tags: ['groovy','java','mongo'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
@@ -102,6 +105,7 @@ var users =
 				cats: [1,3,4],
 				linkedin_id: 'wrasdfsdf',
 				twitter : 'superwillyfoc',
+				web: 'http://hachemuda.com',
 				tags: ['html','html5','wordpress'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: true},
 				portfolio : []
@@ -115,6 +119,7 @@ var users =
 				cats: [1,2],
 				linkedin_id: 'M90XVN4Qk9',
 				twitter : 'aaromnido',
+				web: 'http://www.fernandoval.es/',
 				tags: ['ror','photoshop','art', 'html5', 'css3'],
 				other_data : {tech_partner : true, entrepreneur: true, freelance: false},
 				portfolio : []
@@ -123,7 +128,7 @@ var users =
 				name:'Mamen Pradel',
 				bio:'Diseño visual y de interacción', 
 				email: '', 
-				location: 'Zaragoza', region : '10',
+				location: 'Zaragoza', region : '100',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1490167269/mamen-1sm2_reasonably_small.jpg', 
 				cats: [2],
 				linkedin_id: 'asdf23423',
@@ -137,7 +142,7 @@ var users =
 				name:'Eduardo Izquiero',
 				bio:'Desarrollador web (Java, .Net) y móvil, creando mis primeras aplicaciones Android, y conociendo otras como Ruby, Grails. Algo hay que hacer.', 
 				email: '', 
-				location: 'Zaragoza', region : '10',
+				location: 'Zaragoza', region : '100',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1367128454/22b7cfa2-5033-447e-91d7-3f9410575ccf_reasonably_small.png',
 				cats: [1,2],
 				linkedin_id: 'asdfs234234',
@@ -151,7 +156,7 @@ var users =
 				name:'Santiago Magaña',
 				bio:'Quien volviendo a hacer el camino viejo aprende el nuevo, puede considerarse un maestro.', 
 				email: '', 
-				location: 'Zaragoza', region : '10',
+				location: 'Zaragoza', region : '100',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1318250314/santi_reasonably_small.jpg',
 				cats: [1,2],
 				linkedin_id: 'asdf234234',
@@ -165,7 +170,7 @@ var users =
 				name:'David Olmos',
 				bio:'Java & iOS developer (iPhone - iPad). Desarrollador de cosicas como @FarmaZGZ, infoZaragoza o @DivisasApp. Desarrollador en @cuentica', 
 				email: '', 
-				location: 'Zaragoza', region : '10',
+				location: 'Zaragoza', region : '100',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1727230211/06D6365D-D90E-4AA1-B60A-AC19EB8B1A4A_reasonably_small', 
 				cats: [1,2],
 				linkedin_id: '234324wafsdf',
@@ -180,7 +185,7 @@ var users =
 				name:'Héctor Rodríguez',
 				bio:'iOS and Java developer. Learning Node', 
 				email: '', 
-				location: 'Zaragoza', region : '10',
+				location: 'Zaragoza', region : '0',
 				image: 'https://twimg0-a.akamaihd.net/profile_images/1509955857/ACEA7CF2-8880-4848-B8BA-DAF8BEC0F702_reasonably_small',
 				cats: [1,2],
 				linkedin_id: '2344sfasdf',
@@ -234,16 +239,16 @@ function AddExtraFakeUsers(callback){
 				var user = {}
 				user.name = Faker.Name.findName();
 				user.linkedin_id = common.rnd (2000,100000);
-				user.bio = "This is a fake profile. Most of bla bla, bla bla bla bla of bla bla bla bla, right?" + user.name;
+				user.bio = 'My bio in latin: atque laborum voluptatem minima ut dicta dolore rerum rerum soluta voluptatem ea repellendus eos cumque excepturi qui occaecati molestiae quis earum dolor commodi atque vitae'; //Faker.Lorem.paragraphs(1)
 				user.twitter = 'twitter';
-				user.web = 'blabla' + i + '.com';
+				user.web = 'http://' + Faker.Internet.domainName();
 				user.image = config.base_url + '/images/avatar' + common.rnd(0,5)  + '.jpg';
 				user.creation_date = time;
 				user.email = Faker.Internet.email();
-				user.location = 'spain'
-				user.region = (Math.random() > 0.7) ? 1000 : ((Math.random()>0.2) ? 100 : 10);
+				user.location = Faker.Address.city();
+				user.region = (i>7) ? 1000 : ((i>8) ? 100 : 0);
 				user.cats = cats_db[c].id;
-				user.tags = ['js', 'javascript', 'customtag' + i];
+				user.tags = ['js', 'javascript', 'customtag' + (i + " ").substring(0,1)];
 				user.other_data = {freelance: (Math.random() > 0.7), entrepreneur : (Math.random()>0.8)}
 				users.push (user);
 				counter++;
@@ -265,7 +270,7 @@ function PopulateUsers(callback){
 function RandomVotes (callback){
 	var params = {uservoted: {id: 7}, vote: 1, user:{id:1}}
 	module_users.VoteUser(redis, params, function(err, data){
-		console.log('random votes created');
+		console.log('random votes ok');
 		callback(err, null);
 	})
 }

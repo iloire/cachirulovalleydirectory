@@ -1,6 +1,7 @@
 var Browser = require("zombie");
 var assert = require("assert");
 var async = require("async");
+var config = require ('../../config').values
 
 function printCurrentTest() {
 	console.log(arguments.callee.caller.name + " .............................. OK!");
@@ -27,6 +28,12 @@ exports.setup = function (params){
 	//inject session in testing mode
 	params.app.get('/injectsession', function(req, res){
 		req.session.user = mocked_user;
+		if (req.query['user'] == 'admin')
+			req.session.user.linkedin_id = config.admins[0];
+
+		if (req.query['id'])
+			req.session.user.id = req.query['id'];
+			
 		res.end();
 	});
 }
@@ -106,7 +113,7 @@ exports.tests = [
 				assert.ok(browser.success);
 				browser.wait (function(err, browser){
 					assert.ok(!err)
-					assert.ok(browser.success);
+					assert.ok(browser.success)
 					assert.ok(!browser.errors.length);
 					assert.ok(browser.html().indexOf('undefined'),-1);
 					assert.equal (browser.query('[name=name]').value, mocked_user.name);
@@ -197,9 +204,8 @@ exports.tests = [
 								assert.ok(!err)
 								browser.wait(function(err, browser){
 									assert.ok(!err)
-									//console.log (browser.errors)
 									assert.ok(browser.success);
-									//assert.ok(!browser.errors.length);
+									assert.ok(!browser.errors.length);
 									assert.ok(browser.html('div.general').indexOf('Máximo número de carácteres')>-1);
 									assert.ok(browser.html().indexOf('Ha ocurrido un error, por favor revisa los datos introducidos')>-1);									
 
@@ -248,7 +254,7 @@ exports.tests = [
 											
 											assert.equal (browser.query('[name=name]').value, 'new'+ mocked_user.name);
 											assert.equal (browser.query('[name=email]').value, 'new'+ mocked_user.email);
-											assert.equal (browser.query('[name=web]').value, 'new'+ mocked_user.web);
+											assert.equal (browser.query('[name=web]').value, 'http://new'+ mocked_user.web); //we automatically add the http:// if not found
 											assert.equal (browser.query('[name=twitter]').value, 'new'+ mocked_user.twitter);
 											assert.equal (browser.query('[name=github]').value, 'new'+ mocked_user.github);
 											assert.equal (browser.query('[name=region]').value, '0');
@@ -273,6 +279,91 @@ exports.tests = [
 							});
 						})
 					})
+				});
+			});	
+		});	
+	}
+	,
+	function testEditProfilePageByAdmin (callback){
+		printCurrentTest();
+		browser = new Browser()
+		browser.visit(base_address + '/injectsession?user=admin', function (err, browser) {
+			browser.visit(base_address + '/editprofile?id=4', function (err, browser) {
+				assert.ok(!err)
+				assert.ok(browser.success);
+				assert.ok(!browser.errors.length);
+
+				browser.wait (function(err, browser){
+					assert.ok(!err)
+					assert.ok(browser.success);
+					assert.ok(!browser.errors.length);
+
+					assert.equal (browser.query('[name=name]').value, 'Agustín Raluy');
+					assert.equal (browser.query('[name=email]').value, '');
+					assert.equal (browser.query('[name=web]').value, ''); //we automatically add the http:// if not found
+					assert.equal (browser.query('[name=twitter]').value, 'pordeciralgo');
+					assert.equal (browser.query('[name=github]').value, '');
+					assert.equal (browser.query('[name=region]').value, '0');
+					assert.equal (browser.query('[name=location]').value, 'Zaragoza');
+
+					//fill empty data and test validation.
+					browser.
+					fill("twitter", "pordeciralgomas").
+					fill("email", "agus@pordeciralgo.net").
+					
+					pressButton("Guardar datos y crear / modificar perfil", function(err, browser) {
+						assert.ok(!err)
+						browser.wait(function(err, browser){
+							assert.ok(!err)
+							assert.ok(browser.success);
+							assert.ok(!browser.errors.length);
+							assert.ok(browser.html('div.general').indexOf('Por favor introduce tu nombre')==-1);
+							assert.ok(browser.html('div.general').indexOf('Por favor introduce tu email')==-1);
+							assert.ok(browser.html('div.general').indexOf('Por favor introduce un texto descriptivo')==-1);
+							assert.ok(browser.html('div.general').indexOf('Por favor seleccione su región')==-1);
+							assert.ok(browser.html('div.general').indexOf('Por favor seleccione su ubicación')==-1);
+							assert.ok(browser.html('div.cats').indexOf('Elige al menos una categoría')==-1);
+							assert.ok(browser.html().indexOf('Por favor introduce al menos')==-1);
+
+							assert.equal (browser.query('[name=name]').value, 'Agustín Raluy');
+							assert.equal (browser.query('[name=email]').value, 'agus@pordeciralgo.net');
+							assert.equal (browser.query('[name=twitter]').value, 'pordeciralgomas');
+
+							assert.ok (browser.html().indexOf('satisfactoriamente'))
+							assert.ok(browser.html().indexOf('Tu perfil ha sido modificado satisfactoriamente')>-1)
+
+							callback(null);
+						})
+					})
+				});
+			});	
+		});	
+	}
+
+	,
+	function testMakeSureMyProfileDidntChange (callback){
+		printCurrentTest();
+		browser = new Browser()
+		browser.visit(base_address + '/injectsession?user=admin&id=83', function (err, browser) {
+			browser.visit(base_address + '/editprofile', function (err, browser) {
+				assert.ok(!err)
+				assert.ok(browser.success);
+				assert.ok(!browser.errors.length);
+
+				browser.wait (function(err, browser){
+					assert.ok(!err)
+					assert.ok(browser.success);
+					assert.ok(!browser.errors.length);
+
+					assert.equal (browser.query('[name=name]').value, 'new'+ mocked_user.name);
+					assert.equal (browser.query('[name=email]').value, 'new'+ mocked_user.email);
+					assert.equal (browser.query('[name=web]').value, 'http://new'+ mocked_user.web); //we automatically add the http:// if not found
+					assert.equal (browser.query('[name=twitter]').value, 'new'+ mocked_user.twitter);
+					assert.equal (browser.query('[name=github]').value, 'new'+ mocked_user.github);
+					assert.equal (browser.query('[name=region]').value, '0');
+					assert.equal (browser.query('[name=location]').value, 'new'+ mocked_user.location);
+
+					callback(null);
 				});
 			});	
 		});	
