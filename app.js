@@ -451,7 +451,7 @@ var getApp = function (redis, config) {
 						user.web = 'http://' + user.web;
 				}
 				
-				module_users.AddOrEditUser(redis, {user:user}, function (err, users_db){
+				module_users.SetUsers(redis, {users:[user]}, function (err, users_db){
 					if (err)
 						showErrors(user, validation_errors);
 					else{

@@ -242,7 +242,6 @@ exports.tests = [
 											assert.ok(!err)
 											assert.ok(browser.success);
 											assert.ok(!browser.errors.length);
-											//console.log (browser.html())
 											assert.ok (browser.html().indexOf('satisfactoriamente'))
 											assert.ok(browser.html().indexOf('Tu perfil ha sido modificado satisfactoriamente')>-1)
 											

@@ -83,7 +83,7 @@ exports.tests = [
 	function update_user (callback){
 		module_users.GetUser(redis, {id:1}, function(err, user){
 			user.tags = ['ios', 'adsense'];
-			module_users.SetUser(redis, {user:user}, function(err, user){
+			module_users.SetUsers(redis, {users:[user]}, function(err, users){
 				callback(null);
 			});
 		})
@@ -152,8 +152,8 @@ exports.tests = [
 		module_users.GetUser(redis, {id: 1}, function(err, user){
 			var length = user.tags[0].length;
 			user.tags[0] = " " + user.tags[0] + " ";
-			module_users.SetUser(redis, {user:user}, function (err, user){
-				assert.equal (user.tags[0].length, length);
+			module_users.SetUsers(redis, {users:[user]}, function (err, users){
+				assert.equal (users[0].tags[0].length, length);
 				callback(null);	
 			})
 		})

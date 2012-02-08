@@ -261,7 +261,7 @@ function AddExtraFakeUsers(callback){
 
 function PopulateUsers(callback){
 	var params = {users: users}
-	module_users.AddUsers(redis, params, function (err, users_db){
+	module_users.SetUsers(redis, params, function (err, users_db){
 		console.log (users_db.length + ' users populated');
 		callback (null, null);
 	});
