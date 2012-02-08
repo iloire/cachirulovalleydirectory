@@ -51,4 +51,4 @@ This is professional directory created in express.js and redis. Once you login (
 
  * Keyboard navigation
  * i18n
- * Improve recomendation icons and style.
+ * Improve recommendation icons and style.
