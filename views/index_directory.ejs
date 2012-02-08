@@ -154,7 +154,9 @@
 			<div class="portfolio">
 			<ul>
 			 {{each portfolio}}
+				{{if $value.url}}
 				<li><a title="${$value.descr}" href="${$value.url}">${$value.url} </a></li>
+			 	{{/if}}
 			 {{/each}}
 			</ul>
 			<span class="descr"></span>
