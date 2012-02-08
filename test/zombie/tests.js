@@ -199,6 +199,7 @@ exports.tests = [
 							check('looking_for_contracts').
 							fill('portfolio_url0','myurl.com').
 							fill('portfolio_descr0','myurl.com descr').
+							fill("portfolio_descr2","bla bla bla").
 
 							pressButton("Guardar datos y crear / modificar perfil", function(err, browser) {
 								assert.ok(!err)
@@ -207,6 +208,8 @@ exports.tests = [
 									assert.ok(browser.success);
 									assert.ok(!browser.errors.length);
 									assert.ok(browser.html('div.general').indexOf('Máximo número de carácteres')>-1);
+									assert.ok(browser.html('div.portfolio').indexOf('Por favor introduce una URL')>-1);
+									
 									assert.ok(browser.html().indexOf('Ha ocurrido un error, por favor revisa los datos introducidos')>-1);									
 
 									//check data is back ok
@@ -228,8 +231,10 @@ exports.tests = [
 
 									assert.equal (browser.query('[name=portfolio_url0]').value, 'myurl.com');
 									assert.equal (browser.query('[name=portfolio_descr0]').value, 'myurl.com descr');
+									assert.equal (browser.query('[name=portfolio_descr2]').value, 'bla bla bla');
 									
-									browser.fill("bio", 'new' + mocked_user.bio). //too big
+									browser.fill("portfolio_url2", "portfoliourl.com"). 
+									fill("bio", 'new' + mocked_user.bio). //too big
 									
 									pressButton("Guardar datos y crear / modificar perfil", function(err, browser) {
 										assert.ok(!err)
@@ -237,6 +242,7 @@ exports.tests = [
 											assert.ok(!err)
 											assert.ok(browser.success);
 											assert.ok(!browser.errors.length);
+											//console.log (browser.html())
 											assert.ok (browser.html().indexOf('satisfactoriamente'))
 											assert.ok(browser.html().indexOf('Tu perfil ha sido modificado satisfactoriamente')>-1)
 											
