@@ -22,11 +22,14 @@ exports.values={
 						'photoshop','illustrator', 'UX', 'business intelligence', 'web design', 'banners'  //design
 					],
 	regions : [
-		{name: 'Zaragoza', value: '0'},
-		{name: 'Huesca', value: '1'},
-		{name: 'Teruel', value: '2'},
-		{name: '--', value: ''},
-		{name: 'Resto de España', value: '10'},
+		//0-10: local
+		//11-100: national
+		//101-1000: worlwide
+		{name: 'Zaragoza', value: 0},
+		{name: 'Huesca', value: 1},
+		{name: 'Teruel', value: 2},
+		{name: '--', value: null},
+		{name: 'Resto de España', value: 100},
 		/*
 		{name: 'Álaba', value: '10'},
 		{name: 'Albacete', value: '11'},
@@ -39,8 +42,8 @@ exports.values={
 		{name: 'Burgos', value: '18'},
 		...
 		*/		
-		{name: '--', value: ''},
-		{name: 'Fuera de España', value: '100'},
+		{name: '--', value: null},
+		{name: 'Fuera de España', value: 1000},
 		
 	]
 }
