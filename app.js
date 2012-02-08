@@ -239,7 +239,6 @@ var getApp = function (redis, config) {
 		}
 
 		if (!req.session.user){
-			console.error ('user session not found')
 			res.redirect ('/editprofile')
 			return;
 		}
@@ -394,37 +393,38 @@ var getApp = function (redis, config) {
 			}
 
 			//portfolio validation
-			for (var i=0;i<user.portfolio.length;i++){
-					//max_portfolio_descr
-				if (user.portfolio[i].url || user.portfolio[i].descr){
+			for (var i=0,c=0;i<user.portfolio.length;i++){
+				if (user.portfolio[i].url || user.portfolio[i].descr){
 					if (!user.portfolio[i].url){
 						validation_errors['portfolio_url' + i] = 'Por favor introduce una URL';
 						valid = false;
 					}
 					else{ //got url
-						if (user.portfolio[i].url.length > max_portfolio_url){
-							validation_errors['portfolio_url' + i] = 'URL demasiado larga';
+						if (!user.portfolio[i].descr){
+							validation_errors['portfolio_descr' + i] = 'Por favor introduce una descripción';
 							valid = false;
 						}
+						else{
+							//got descr and url
+							if (user.portfolio[i].url.length > max_portfolio_url){
+								validation_errors['portfolio_url' + i] = 'URL demasiado larga';
+								valid = false;
+							}
 
-						//check descr
-						if (user.portfolio[i].descr.length>max_portfolio_descr){
-							validation_errors['portfolio_descr' + i] = 'Descripción demasiado larga';
-							valid = false;
-						}
-						else if (user.portfolio[i].descr.length<min_portfolio_descr){
-							validation_errors['portfolio_descr' + i] = 'Descripción demasiado corta';
-							valid = false;
+							//check descr
+							if (user.portfolio[i].descr.length > max_portfolio_descr){
+								validation_errors['portfolio_descr' + i] = 'Descripción demasiado larga';
+								valid = false;
+							}
+							else if (user.portfolio[i].descr.length < min_portfolio_descr){
+								validation_errors['portfolio_descr' + i] = 'Descripción demasiado corta';
+								valid = false;
+							}
 						}
 					}
 				}
-				else{
-					//not filled, delete it
-					user.portfolio.splice(i,1);
-					i--
-				}
 			}
-
+			
 			function showErrors (user, validation_errors){
 				module_cats.GetCats (redis, null, function (err, categories){
 					res.render ('edit_profile', {
