@@ -131,7 +131,13 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 				common.renderJSON(req, res, {
 					cats: cats,
 					users: PrepareForDisplayUsers(req, users), 
-					tags: get_unique_tags_by_users(users)
+					tags: get_unique_tags_by_users(users),
+					pagination: {
+						pagesize: config.default_page_size,
+						from: 0,
+						total: Math.ceil(users.length / config.default_page_size),
+						total_records: users.length
+					}
 					}, 200, req.query["callback"])
 			})
 		})
