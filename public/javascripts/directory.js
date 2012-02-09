@@ -221,6 +221,7 @@ var directory = (function () {
 	dir.load_data = function (params, callback){
 		if (!params) params={}
 
+
 		if (params.id_cat || params.tag) params.search = null; //clean search
 		if ((params.id_cat!=ui_status.id_cat || params.tag!=ui_status.tag) && !params.from)
 			params.from = 0; //reset pagination
@@ -235,7 +236,7 @@ var directory = (function () {
 		}
 		
 		params.scope = getScope();
-			
+
 		$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
 		{
 			if (params.bindusers!==false)
@@ -345,16 +346,21 @@ $(document).ready(function () {
 				});
 				selected.push({name: 'Tag', value: ui_status.tag, type: 'primary tag'});
 			}
+			
+			$('#searchBox').val('');
+		}
 
-			//pagination
-			var str = "<span>Total registros: " + ui_status.pagination.total_records + '</span>';
+		//pagination
+		var str = '';
+		if (ui_status.pagination.total_records){
+			str = '<span>Total registros: ' + ui_status.pagination.total_records + '</span>';
 			if (ui_status.pagination.total>1){
 				var dot = false
 				var limit = 4;
 				var current = parseInt(ui_status.pagination.from,10);
 				for (var i=0;i<ui_status.pagination.total;i++){
 					if ((i==(current+limit))) dot=false;
-						
+					
 					if ((i>ui_status.pagination.total-3) || (i<2) || (i>(current-limit)) && (i<(current+limit))){
 							str = str + ((ui_status.pagination.from == i) ? " <a class=selected href=# page=" + i + ">" + (i+1) + "</a>"
 																		 : " <a href=# page=" + i + ">" + (i+1) + "</a>")
@@ -367,11 +373,13 @@ $(document).ready(function () {
 					}
 				}
 			}
-			
-			$('#pagination').html(str);
-
-			$('#searchBox').val('');
 		}
+		else{
+			str = '<span>No hay registros cumpliendo el criterio seleccionado.</span>';
+		}
+		
+		$('#pagination').html(str);
+
 
 		setFilterDisplay(selected);
 	});
