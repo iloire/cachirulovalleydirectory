@@ -173,6 +173,14 @@ exports.tests = [
 		})
 	}
 	,
+	function SearchBeforeDeleting (callback){
+		module_users.Search(redis, {search:'redis'}, function(err, users){
+			assert.equal (users[0].id, 1);
+			assert.equal (users[1].id, 2);
+			callback(null);
+		})
+	}	
+	,
 	function DeleteUser(callback){
 		printCurrentTest();
 		module_users.GetUser(redis, {id: 2}, function(err, user){
@@ -214,14 +222,19 @@ exports.tests = [
 			})
 		})
 	}
-	/*
 	,
 	function Search (callback){
-		module_users.Search(redis, {q:'redis'}, function(err, users){
-			assert.equal (users.length, 3, JSON.stringify(users));
+		module_users.Search(redis, {search:'redis'}, function(err, users){
+			assert.equal (users[0].id, 1);
+			var found_new_user=false
+			for (var i=0;i<users.length;i++){
+				assert.ok(users[i].id!=2); //user 2 has been deleted
+				
+				if (users[i].id==83)
+					found_new_user=true;
+			}
+			assert.ok(found_new_user);
 			callback(null);
 		})
-	}	
-	,
-	*/
+	}
 ]
