@@ -41,7 +41,7 @@ exports.tests = [
 	,
 	function cats (callback){
 		request(base_address + '/api/cats', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200)
 			var cats = JSON.parse(body).cats
 			assert.equal (cats.length, 7);
@@ -53,7 +53,7 @@ exports.tests = [
 	,
 	function cats_jsop (callback){
 		request(base_address + '/api/cats?callback=test', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/javascript;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200)
 			assert.ok(body.indexOf ('test({"cats":')>-1);
 			callback(null);
@@ -62,7 +62,7 @@ exports.tests = [
 	,
 	function tags (callback){
 		request(base_address + '/api/tags', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			var tags = JSON.parse (body).tags;
 			assert.ok(body.indexOf ('{"tags":')>-1);
@@ -73,7 +73,7 @@ exports.tests = [
 	,
 	function tags_sorted (callback){
 		request(base_address + '/api/tags?sort=name', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('{"tags":')>-1);
 			var tags = JSON.parse(body).tags;
@@ -88,7 +88,7 @@ exports.tests = [
 	,
 	function tags_jsonp (callback){
 		request(base_address + '/api/tags?callback=test', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/javascript;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('test({"tags":')>-1);
 			callback(null);
@@ -106,7 +106,7 @@ exports.tests = [
 	,
 	function users_by_cat_from (callback){
 		request(base_address + '/api/users?id_cat=1&from=0&page=20', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			var users = JSON.parse(body).users;
@@ -117,7 +117,7 @@ exports.tests = [
 	,
 	function email_is_not_public (callback){
 		request(base_address + '/api/users?id_cat=1&from=0&page=100', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
 			callback(null);
@@ -126,7 +126,7 @@ exports.tests = [
 	,
 	function users_by_cat (callback){
 		request(base_address + '/api/users?id_cat=1&page=11', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 
 			var users = JSON.parse(body).users;
@@ -162,7 +162,7 @@ exports.tests = [
 	,
 	function users_by_cat_sorted_by_name_asc (callback){
 		request(base_address + '/api/users?id_cat=1&sort=name', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
@@ -179,7 +179,7 @@ exports.tests = [
 	,
 	function users_by_cat_sorted_by_name_desc (callback){
 		request(base_address + '/api/users?id_cat=1&sort=name_', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
@@ -196,11 +196,11 @@ exports.tests = [
 	,
 	function users_by_cat_sorted_by_votes (callback){
 		request(base_address + '/api/users?id_cat=1&sort=votes_', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			var users=JSON.parse(body).users;
 			assert.equal(users.length, 15);
-			assert.equal (users[0].name, "Fernando Val"); //TODO: rebuild database with votes
+			assert.equal (users[0].name, "Fernando Val", JSON.stringify(users[0])); //TODO: rebuild database with votes
 			assert.equal(JSON.parse(body).cat.id, 1);
 			assert.equal(JSON.parse(body).cat.name, 'Programadores');
 			callback(null);
@@ -209,7 +209,7 @@ exports.tests = [
 	,
 	function users_by_cat_jsonp (callback){
 		request(base_address + '/api/users?id_cat=1&callback=test', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/javascript;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('test({"users":[')>-1);
 			assert.ok(body.indexOf ('Loire')>-1);
@@ -220,7 +220,7 @@ exports.tests = [
 	,
 	function users_by_cat_paged_from (callback){
 		request(base_address + '/api/users?id_cat=1&from=1', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			var users=JSON.parse(body).users;
 			assert.equal(users.length, 5);
@@ -234,7 +234,7 @@ exports.tests = [
 	,
 	function users_by_cat_paged_from_page (callback){
 		request(base_address + '/api/users?id_cat=1&from=0&page=8', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			var users=JSON.parse(body).users;
 			assert.equal(users.length, 8);
@@ -249,7 +249,7 @@ exports.tests = [
 	,
 	function users_by_cat_paged_from_page_bigger (callback){
 		request(base_address + '/api/users?id_cat=1&from=0&page=20', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			var users=JSON.parse(body).users;
 			assert.equal(users.length, 20);
@@ -263,7 +263,7 @@ exports.tests = [
 	,
 	function users_by_tag (callback){
 		request(base_address + '/api/users?id_cat=1&tag=ios', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
@@ -274,7 +274,7 @@ exports.tests = [
 	,
 	function users_by_region_and_cat (callback){
 		request(base_address + '/api/users?id_cat=1&' + encodeURIComponent('scope[region]') + '=10', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			var users=JSON.parse(body).users;
 			assert.equal (users.length,14)
@@ -284,7 +284,7 @@ exports.tests = [
 	,
 	function users_by_tag_jsonp (callback){
 		request(base_address + '/api/users?id_cat=1&tag=ios&callback=tagcall', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/javascript;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.equal(body.indexOf('email'),-1); //make sure email is not returned for public calls
@@ -295,7 +295,7 @@ exports.tests = [
 	,
 	function users_by_id (callback){
 		request(base_address + '/api/users/byid?id=1', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
 			var user = JSON.parse(body).user;
@@ -309,7 +309,7 @@ exports.tests = [
 	,
 	function users_by_wrong_id (callback){
 		request(base_address + '/api/users/byid?id=12323233sd', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			var user = JSON.parse(body).user;
 			assert.ok (!user)
@@ -319,7 +319,7 @@ exports.tests = [
 	,
 	function users_by_id_jsonp (callback){
 		request(base_address + '/api/users/byid?id=1&callback=test', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/javascript;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('test({"user":{')>-1);
 			assert.ok(body.indexOf ('Loire')>-1);
@@ -330,7 +330,7 @@ exports.tests = [
 	,
 	function api_search (callback){
 		request(base_address + '/api/search?search=Zufaria', function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			callback(null);
@@ -357,7 +357,7 @@ exports.tests = [
 	,
 	function vote_denied_if_not_logged (callback){
 		request.post({url: base_address + '/vote', data:{}}, function (err,res,body) {
-			assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 403);
 			callback(null);
 		});
@@ -366,7 +366,7 @@ exports.tests = [
 	function vote_with_session_missing_parameters (callback){
 		request.get({url: base_address + '/injectsession'}, function (err,res,body) {
 			request.post({url: base_address + '/vote', json:true, body: {}}, function (err,res,body) {
-				assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+				assert.equal (res.headers['content-type'],'application/json');
 				assert.equal(res.statusCode, 503, JSON.stringify(body)); //missing parameter
 				callback(null);
 			});
@@ -414,19 +414,19 @@ exports.tests = [
 	}
 	,	
 	function vote_with_session_ok (callback){
-		var user_to_vote = 2;
+		var user_to_vote = 3;
 		request.get({url: base_address + '/injectsession'}, function (err,res,body) {
 			request(base_address + '/api/users/byid?id=' + user_to_vote, function (err,res,body) {
-				assert.equal (res.headers['content-type'],'application/json;charset=utf8');				
+				assert.equal (res.headers['content-type'],'application/json');
 				assert.ok (res.statusCode, 200);
 				var user = JSON.parse(body).user;
 				request.post({url: base_address + '/vote', json:true, body: {vote:-1, user_voted_id:user_to_vote}}, function (err,res,body) {
-					assert.equal (res.headers['content-type'],'application/json;charset=utf8');
+					assert.equal (res.headers['content-type'],'application/json');
 					assert.equal(res.statusCode, 200, JSON.stringify(body)); 
 					assert.ok (body.user);
 					var votes = body.user.votes;
 					request.post({url: base_address + '/vote', json:true, body: {vote:1, user_voted_id:user_to_vote}}, function (err,res,body) {
-						assert.equal (res.headers['content-type'],'application/json;charset=utf8');						
+						assert.equal (res.headers['content-type'],'application/json');
 						assert.equal (body.user.votes,(votes+1), JSON.stringify(body));
 						//if voted again, votes counter should remain the same
 						request.post({url: base_address + '/vote', json:true, body: {vote:1, user_voted_id:user_to_vote}}, function (err,res,body) {						

@@ -269,7 +269,7 @@ function PopulateUsers(callback){
 
 function RandomVotes (callback){
 	var params = {uservoted: {id: 7}, vote: 1, user:{id:1}}
-	module_users.VoteUser(redis, params, function(err, data){
+	module_users.VoteUser(redis, params, function(err, user){
 		console.log('random votes ok');
 		callback(err, null);
 	})

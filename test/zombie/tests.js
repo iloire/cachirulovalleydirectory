@@ -4,7 +4,7 @@ var async = require("async");
 var config = require ('../../config').values
 
 function printCurrentTest() {
-	console.log(arguments.callee.caller.name + " .............................. OK!");
+	console.log(arguments.callee.caller.name + " ..............................");
 }
 
 browser = new Browser({debug:false})
@@ -349,7 +349,7 @@ exports.tests = [
 	function testMakeSureMyProfileDidntChange (callback){
 		printCurrentTest();
 		browser = new Browser()
-		browser.visit(base_address + '/injectsession?user=admin&id=83', function (err, browser) {
+		browser.visit(base_address + '/injectsession?user=admin&id=84', function (err, browser) {
 			browser.visit(base_address + '/editprofile', function (err, browser) {
 				assert.ok(!err)
 				assert.ok(browser.success);
