@@ -78,6 +78,7 @@
 					<label>Github:</label> 
 					<div class="input">
 						<input type="text" name="github" value="<%=user.github || ""%>">
+						<%-partial ('partial/display_error', {error: validation_errors['github'] })%>
 					</div>
 				</div>
 

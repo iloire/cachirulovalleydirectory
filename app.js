@@ -385,6 +385,15 @@ var getApp = function (redis, config) {
 				validation_errors['region'] = 'Por favor seleccione su región';
 				valid = false;
 			}
+			
+			//github
+			if (user.github){
+				if (user.github.indexOf('github.com')>-1){
+					validation_errors['github'] = 'Por favor introduce solamente tu usuario de github';
+					valid = false;
+				}
+			}
+			
 
 			//location
 			if (!user.location){

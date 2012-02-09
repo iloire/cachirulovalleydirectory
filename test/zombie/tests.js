@@ -186,7 +186,7 @@ exports.tests = [
 							fill("bio", 'new' + mocked_user.bio + Array(200).join('.')). //too big
 							fill("web", 'new' + mocked_user.web).
 							fill("twitter", 'new' + mocked_user.twitter).
-							fill("github", 'new' + mocked_user.github).
+							fill("github", 'github.com/new' + mocked_user.github).
 							select("region", '0').
 							fill("location", 'new' + mocked_user.location).
 							check('categories_available').
@@ -208,6 +208,7 @@ exports.tests = [
 									assert.ok(browser.success);
 									assert.ok(!browser.errors.length);
 									assert.ok(browser.html('div.general').indexOf('Máximo número de carácteres')>-1);
+									assert.ok(browser.html('div.general').indexOf('Por favor introduce solamente tu usuario de github')>-1);
 									assert.ok(browser.html('div.portfolio').indexOf('Por favor introduce una URL')>-1);
 									
 									assert.ok(browser.html().indexOf('Ha ocurrido un error, por favor revisa los datos introducidos')>-1);									
@@ -217,7 +218,7 @@ exports.tests = [
 									assert.equal (browser.query('[name=email]').value, 'new'+ mocked_user.email);
 									assert.equal (browser.query('[name=web]').value, 'new'+ mocked_user.web);
 									assert.equal (browser.query('[name=twitter]').value, 'new'+ mocked_user.twitter);
-									assert.equal (browser.query('[name=github]').value, 'new'+ mocked_user.github);
+									assert.equal (browser.query('[name=github]').value, 'github.com/new'+ mocked_user.github);
 									assert.equal (browser.query('[name=region]').value, '0');
 									assert.equal (browser.query('[name=location]').value, 'new'+ mocked_user.location);
 									assert.equal (browser.query('[name=tags]').value, mocked_tags);
@@ -234,7 +235,8 @@ exports.tests = [
 									assert.equal (browser.query('[name=portfolio_descr2]').value, 'bla bla bla');
 									
 									browser.fill("portfolio_url2", "portfoliourl.com"). 
-									fill("bio", 'new' + mocked_user.bio). //too big
+									fill("bio", 'new' + mocked_user.bio). 
+									fill("github", 'new' + mocked_user.github).
 									
 									pressButton("Guardar datos y crear / modificar perfil", function(err, browser) {
 										assert.ok(!err)
