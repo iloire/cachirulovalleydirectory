@@ -122,7 +122,7 @@ function getGitHubProjects(user, where){
 			if (own_projects.length){
 				var output="<ul>";
 				for (var i=0, c=0 ;(c<5 && i<own_projects.length);i++){
-						output = output + '<li>'+ own_projects[i].watchers + ' / ' +  own_projects[i].forks + ': <a target=_blank href="'+ own_projects[i].html_url + '">' + own_projects[i].name + '</a>: ' + own_projects[i].description + '</li>'; //todo
+						output = output + '<li><a title="watchers" target=_blank href="'+ own_projects[i].html_url + '/watchers">' + own_projects[i].watchers + '</a>' + ' / <a title="forks" target=_blank href="'+ own_projects[i].html_url + '/network">' + own_projects[i].forks + '</a>' + ' - <a target=_blank href="'+ own_projects[i].html_url + '">' + own_projects[i].name + '</a>: ' + own_projects[i].description + '</li>'; //todo
 						c++;
 				}
 				output = output + "</ul>";
