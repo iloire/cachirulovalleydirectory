@@ -3,6 +3,10 @@ var request = require('request')
 
 var base_address = 'http://localhost:3434';
 
+function printCurrentTest() {
+	console.log(arguments.callee.caller.name + " ..............................");
+}
+
 var mocked_user = {
 	linkedin_id: '555554',  //let's make up a user that doesn't exist
 	name : 'mocked profile ' + new Date().getTime(), 
@@ -19,12 +23,16 @@ var mocked_user = {
 exports.setup = function (params){
 	params.app.get('/injectsession', function(req, res){
 		req.session.user = mocked_user;
+		if (req.query['id'])
+			req.session.user.id = req.query['id'];
+		
 		res.end('session mocked');
 	});
 }
 
 exports.tests = [
 	function go_root (callback){
+		printCurrentTest();
 		request.get({url: base_address + '/'}, function (err, res, body) {
 			assert.ok(!err)
 			assert.equal(res.statusCode, 200)
@@ -33,6 +41,7 @@ exports.tests = [
 	}
 	,
 	function directory (callback){
+		printCurrentTest();
 		request(base_address + '/directory', function (err,res,body) {
 			assert.equal(res.statusCode, 200)
 			callback(null);
@@ -40,6 +49,7 @@ exports.tests = [
 	}
 	,
 	function cats (callback){
+		printCurrentTest();
 		request(base_address + '/api/cats', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200)
@@ -52,6 +62,7 @@ exports.tests = [
 	}
 	,
 	function cats_jsop (callback){
+		printCurrentTest();
 		request(base_address + '/api/cats?callback=test', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200)
@@ -61,6 +72,7 @@ exports.tests = [
 	}
 	,
 	function tags (callback){
+		printCurrentTest();
 		request(base_address + '/api/tags', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -72,6 +84,7 @@ exports.tests = [
 	}	
 	,
 	function tags_sorted (callback){
+		printCurrentTest();
 		request(base_address + '/api/tags?sort=name', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -87,6 +100,7 @@ exports.tests = [
 	}	
 	,
 	function tags_jsonp (callback){
+		printCurrentTest();
 		request(base_address + '/api/tags?callback=test', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
@@ -96,6 +110,7 @@ exports.tests = [
 	}
 	,
 	function tags_autocomplete (callback){
+		printCurrentTest();
 		request(base_address + '/api/tagsautocomplete', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'text/html; charset=utf-8');
 			assert.equal(res.statusCode, 200);
@@ -105,6 +120,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_from (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&from=0&page=20', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -116,6 +132,7 @@ exports.tests = [
 	}
 	,
 	function email_is_not_public (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&from=0&page=100', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -125,6 +142,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&page=11', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -161,13 +179,14 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_sorted_by_name_asc (callback){
-		request(base_address + '/api/users?id_cat=1&sort=name', function (err,res,body) {
+		printCurrentTest();
+		request(base_address + '/api/users?id_cat=1&sort=name&page=20', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('Loire')>-1);
 			assert.ok(body.indexOf('email')==-1); //make sure email is not returned for public calls
 			var users=JSON.parse(body).users;
-			assert.equal(users.length, 15);
+			assert.equal(users.length, 20);
 			assert.ok (users[0].name <= users[1].name);
 			assert.ok (users[2].name <= users[3].name);
 			assert.ok (users[10].name <= users[11].name);
@@ -178,6 +197,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_sorted_by_name_desc (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&sort=name_', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -195,6 +215,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_sorted_by_votes (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&sort=votes_', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -208,7 +229,8 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_jsonp (callback){
-		request(base_address + '/api/users?id_cat=1&callback=test', function (err,res,body) {
+		printCurrentTest();
+		request(base_address + '/api/users?id_cat=1&page=20&callback=test', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('test({"users":[')>-1);
@@ -219,6 +241,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_paged_from (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&from=1', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -233,6 +256,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_paged_from_page (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&from=0&page=8', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -248,6 +272,7 @@ exports.tests = [
 	}
 	,
 	function users_by_cat_paged_from_page_bigger (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&from=0&page=20', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -262,6 +287,7 @@ exports.tests = [
 	}
 	,
 	function users_by_tag (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&tag=ios', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -273,6 +299,7 @@ exports.tests = [
 	}	
 	,
 	function users_by_region_and_cat (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&' + encodeURIComponent('scope[region]') + '=10', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -283,6 +310,7 @@ exports.tests = [
 	}
 	,
 	function users_by_tag_jsonp (callback){
+		printCurrentTest();
 		request(base_address + '/api/users?id_cat=1&tag=ios&callback=tagcall', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
@@ -294,6 +322,7 @@ exports.tests = [
 	}
 	,
 	function users_by_id (callback){
+		printCurrentTest();
 		request(base_address + '/api/users/byid?id=1', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -308,6 +337,7 @@ exports.tests = [
 	}
 	,
 	function users_by_wrong_id (callback){
+		printCurrentTest();
 		request(base_address + '/api/users/byid?id=12323233sd', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -318,6 +348,7 @@ exports.tests = [
 	}
 	,
 	function users_by_id_jsonp (callback){
+		printCurrentTest();
 		request(base_address + '/api/users/byid?id=1&callback=test', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
@@ -329,6 +360,7 @@ exports.tests = [
 	}	
 	,
 	function api_search (callback){
+		printCurrentTest();
 		request(base_address + '/api/search?search=Zufaria', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 200);
@@ -338,6 +370,7 @@ exports.tests = [
 	}
 	,
 	function web_search (callback){
+		printCurrentTest();
 		request({url: base_address + '/search?q=gogogo', followRedirect:false}, function (err,res,body) {
 			assert.equal (res.headers['content-type'],'text/html');
 			assert.equal(res.statusCode, 302);
@@ -347,6 +380,7 @@ exports.tests = [
 	}
 	,
 	function web_search_with_spaces (callback){
+		printCurrentTest();
 		request({url: base_address + '/search?q=rails%20ruby', followRedirect:false}, function (err,res,body) {
 			assert.equal (res.headers['content-type'],'text/html');
 			assert.equal(res.statusCode, 302);
@@ -356,6 +390,7 @@ exports.tests = [
 	}
 	,
 	function vote_denied_if_not_logged (callback){
+		printCurrentTest();
 		request.post({url: base_address + '/vote', data:{}}, function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/json');
 			assert.equal(res.statusCode, 403);
@@ -364,6 +399,7 @@ exports.tests = [
 	}
 	,
 	function vote_with_session_missing_parameters (callback){
+		printCurrentTest();
 		request.get({url: base_address + '/injectsession'}, function (err,res,body) {
 			request.post({url: base_address + '/vote', json:true, body: {}}, function (err,res,body) {
 				assert.equal (res.headers['content-type'],'application/json');
@@ -374,6 +410,7 @@ exports.tests = [
 	}	
 	,
 	function edit_other_profile_fails (callback){
+		printCurrentTest();
 		request.get({url: base_address + '/editprofile?id=45'}, function (err,res,body) {
 			assert.equal (res.headers['content-type'],'text/plain');
 			assert.equal(res.statusCode, 403); 
@@ -382,6 +419,7 @@ exports.tests = [
 	}
 	,	
 	function load_user_page_directly (callback){
+		printCurrentTest();
 		request.get({url: base_address + '/user/45', followRedirect:false}, function (err,res,body) {
 			assert.equal(res.statusCode, 302); 
 			assert.equal(res.headers.location, base_address + '/directory#/user/45'); 
@@ -390,6 +428,7 @@ exports.tests = [
 	}
 	,	
 	function load_user_page_directly_with_name (callback){
+		printCurrentTest();
 		request.get({url: base_address + '/user/45/randomtext', followRedirect:false}, function (err,res,body) {
 			assert.equal(res.statusCode, 302); 
 			assert.equal(res.headers.location, base_address + '/directory#/user/45/randomtext'); 
@@ -398,6 +437,7 @@ exports.tests = [
 	}
 	,	
 	function load_user_page_directly_directory (callback){
+		printCurrentTest();
 		request.get({url: base_address + '/directory/user/45', followRedirect:false}, function (err,res,body) {
 			assert.equal(res.statusCode, 302); 
 			assert.equal(res.headers.location, base_address + '/directory#/user/45'); 
@@ -406,6 +446,7 @@ exports.tests = [
 	}
 	,	
 	function load_user_page_directly_with_name_directory (callback){
+		printCurrentTest();
 		request.get({url: base_address + '/directory/user/45/randomtext', followRedirect:false}, function (err,res,body) {
 			assert.equal(res.statusCode, 302); 
 			assert.equal(res.headers.location, base_address + '/directory#/user/45/randomtext'); 
@@ -414,8 +455,9 @@ exports.tests = [
 	}
 	,	
 	function vote_with_session_ok (callback){
+		printCurrentTest();
 		var user_to_vote = 3;
-		request.get({url: base_address + '/injectsession'}, function (err,res,body) {
+		request.get({url: base_address + '/injectsession?id=1'}, function (err,res,body) {
 			request(base_address + '/api/users/byid?id=' + user_to_vote, function (err,res,body) {
 				assert.equal (res.headers['content-type'],'application/json');
 				assert.ok (res.statusCode, 200);
@@ -423,15 +465,26 @@ exports.tests = [
 				request.post({url: base_address + '/vote', json:true, body: {vote:-1, user_voted_id:user_to_vote}}, function (err,res,body) {
 					assert.equal (res.headers['content-type'],'application/json');
 					assert.equal(res.statusCode, 200, JSON.stringify(body)); 
-					assert.ok (body.user);
+					assert.ok(body.user);
+					assert.equal(body.user.votes, 0)
+					assert.ok(!body.user.voted)
+					assert.equal (body.voted, -1);
 					var votes = body.user.votes;
 					request.post({url: base_address + '/vote', json:true, body: {vote:1, user_voted_id:user_to_vote}}, function (err,res,body) {
 						assert.equal (res.headers['content-type'],'application/json');
 						assert.equal (body.user.votes,(votes+1), JSON.stringify(body));
+						assert.equal(body.user.votes, 1)
+						assert.equal (body.voted, 1);
+						assert.ok (body.user.voted)
 						//if voted again, votes counter should remain the same
 						request.post({url: base_address + '/vote', json:true, body: {vote:1, user_voted_id:user_to_vote}}, function (err,res,body) {						
-							assert.equal (body.user.votes,(votes+1), JSON.stringify(body));
-							callback(null);
+							assert.ok(body.user.voted)
+							assert.equal (body.user.votes, 1, JSON.stringify(body));
+							request.post({url: base_address + '/vote', json:true, body: {vote:-1, user_voted_id:user_to_vote}}, function (err,res,body) {						
+								assert.ok(!body.user.voted)
+								assert.equal (body.user.votes, 0, JSON.stringify(body));
+								callback(null);
+							});
 						});
 					});
 				});

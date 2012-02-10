@@ -19,12 +19,14 @@ var r = require('../scripts/lib/rebuild_database')
 
 var tests = [
 	function rebuild_db (callback){
+		console.log('-- Rebulding database:');
 		r.rebuild_database(redis, function(err){
 			callback(err,'database rebuilt!');
 		});
 	}
 	,
 	function do_module_test (callback){ 
+		console.log('-- Running module tests:');
 		var module = require('./modules/tests.js')
 		module.setup({redis:redis});
 		run_tests(module.tests, function(err){	
@@ -33,6 +35,7 @@ var tests = [
 	}
 	,
 	function do_http_test (callback){ 
+		console.log(' -- Running http tests:');
 		var app = new appFactory.getApp(redis, config);
 		var module = require('./http/tests.js')
 
@@ -47,6 +50,7 @@ var tests = [
 	}
 	,
 	function do_zombie_test (callback){ 
+		console.log(' -- Running zombie tests:');
 		var app = new appFactory.getApp(redis, config);
 		var module = require('./zombie/tests.js')
 		module.setup({app:app});

@@ -169,7 +169,7 @@ var getApp = function (redis, config) {
 			common.renderJSON(req, res, {error: 'no session'}, 403)
 			return;
 		}
-		var params = {uservoted: {id: req.param('user_voted_id')}, user: req.session.user, vote: req.param('vote'), logged_user: req.session.user};
+		var params = {uservoted: {id: req.param('user_voted_id')}, user: req.session.user, vote: req.param('vote')};
 		module_users.VoteUser (redis, params , function (err, status){
 			common.renderJSON(req, res, err || status, err ? 503 : 200, req.query["callback"])
 		});
