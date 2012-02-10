@@ -375,7 +375,7 @@ $(document).ready(function () {
 			}
 		}
 		else{
-			str = '<span>No hay registros cumpliendo el criterio seleccionado.</span>';
+			str = '<span>Vaya, no hemos encontrado lo que intentabas buscar... :/ </span>';
 		}
 		
 		$('#pagination').html(str);
