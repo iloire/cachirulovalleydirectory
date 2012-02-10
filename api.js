@@ -8,7 +8,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 		for (var t=0, tl=simple_arr_tags.length;t<tl; t++){ 
 			tags.push ({t: simple_arr_tags[t], n: 0});
 		}
-		return tags;
+		return sort_tags(tags);
 	}
 
 	function get_unique_tags_by_users(users){
@@ -27,11 +27,11 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 					tags.push ({t: users[u].tags[t], n: 1});
 			}
 		}
-		return tags;
+		return sort_tags(tags);
 	}
 
 
-	function PrepareForDisplayTags (req, tags){
+	function sort_tags (tags){
 		function sorter (a,b){
 			return ((a.t < b.t) ? -1 : ((a.t > b.t) ? 1 : 0));
 		}
@@ -53,7 +53,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	
 	app.get('/api/tags', function(req, res){
 		module_tags.GetTags (redis, {}, function (err, tags){
-			common.renderJSON(req, res, {tags:PrepareForDisplayTags(req, tags)} , 200, req.query["callback"])
+			common.renderJSON(req, res, {tags:sort_tags(tags)} , 200, req.query["callback"])
 		});
 	});
 
@@ -97,7 +97,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 
 					common.renderJSON(req, res, {
 						users: common.removeUnwantedFields(users),
-						tags: tags,
+						tags: sort_tags(tags),
 						cats: cats,
 						cat: cat,
 						pagination: {
