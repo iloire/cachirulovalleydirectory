@@ -342,11 +342,11 @@ ul#professionals li.expanded .bio{
 }
 
 ul#professionals li .location{
-	color:#c2c2c2;
-	margin-top:5px;
+	color:#666666;
+	margin-top:2px;
 	display:block;
 	margin-left:50px;
-	font-size:90%;
+	font-size:80%;
 }
 
 ul#professionals li.expanded .location{
