@@ -385,7 +385,7 @@ var getApp = function (redis, config) {
 				validation_errors['region'] = 'Por favor seleccione su región';
 				valid = false;
 			}
-			
+
 			//github
 			if (user.github){
 				if (user.github.indexOf('github.com')>-1){
@@ -393,7 +393,14 @@ var getApp = function (redis, config) {
 					valid = false;
 				}
 			}
-			
+
+			//twitter
+			if (user.twitter){
+				if (user.twitter.indexOf('twitter.com')>-1){
+					validation_errors['twitter'] = 'Por favor introduce solamente tu usuario de twitter sin @';
+					valid = false;
+				}
+			}
 
 			//location
 			if (!user.location){

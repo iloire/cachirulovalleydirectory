@@ -71,6 +71,7 @@
 					<label>Twitter:</label> 
 					<div class="input">
 						<input type="text" name="twitter" value="<%=user.twitter || ""%>">
+						<%-partial ('partial/display_error', {error: validation_errors['twitter'] })%>
 					</div>
 				</div>
 
