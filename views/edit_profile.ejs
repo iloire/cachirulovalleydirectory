@@ -44,7 +44,7 @@
 				</div>
 
 				<div class="clearfix">
-					<label>Bio (*):</label> 
+					<label>Bio (*): <br/> max: 200 c.</label> 
 					<div class="input">
 						<textarea placeholder="something about you" name="bio"><%=user.bio || ""%></textarea>
 						<%-partial ('partial/display_error', {error: validation_errors['bio'] })%>
