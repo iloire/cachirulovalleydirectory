@@ -117,8 +117,6 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	app.get('/api/users/byid', function(req, res){
 		var params = {id : req.query["id"], logged_user: req.session.user}
 		module_users.GetUser (redis, params, function (err, user){
-			if (user)
-				user.tags = format_tags (user.tags);
 			common.renderJSON(req, res, {user: user ? common.removeUnwantedFields(user) : null}, 200, req.query["callback"])
 		})
 	});

@@ -341,7 +341,7 @@ ul#professionals li.expanded .bio{
 	font-size:100%;
 }
 
-ul#professionals li .location{
+ul#professionals li .location, ul#professionals li .user_tags{
 	color:#666666;
 	margin-top:2px;
 	display:block;
@@ -351,6 +351,10 @@ ul#professionals li .location{
 
 ul#professionals li.expanded .location{
 	margin-left:90px;
+}
+
+ul#professionals li .user_tags span{
+	color:black;
 }
 
 ul#professionals .tw_timeline li  {

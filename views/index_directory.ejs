@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="span3">
+	<div class="span3" id="left_column">
 		<h3>Categorías</h3>
 		<ul id="categories" data-bind='template: {name:"catsTemplate", foreach: cats}'></ul>
 		<br style="clear:both">
@@ -48,7 +48,7 @@
 		</div>
 	</div>
 
-	<div class="tags span3">
+	<div class="tags span3" id="right_column">
 		<h3 data-bind='text: tag_title'>Especialidades</h3>
 		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tagslist}'>
 		</ul>
@@ -58,11 +58,11 @@
 
 <!--templates-->
 <script id='tagsTemplate' type="text/x-jquery-tmpl">
-    <li><a tag="${name}" rel="address:/tags/${safe_name}" href="/tag/${safe_name}/users">${name}</a> <span>${counter}</span></li>
+    <li><a tag="${name}" rel="address:/tags/${safe_name}" href="#/tag/${safe_name}/users">${name}</a> <span>${counter}</span></li>
 </script>
 
 <script id='catsTemplate' type="text/x-jquery-tmpl">
-    <li><a idcat="${id}" rel="address:/categories/${id}/${name}" href="/categories/${id}/${name}">${name}</a><span>${users_count}</span></li>
+    <li><a idcat="${id}" rel="address:/categories/${id}/${name}" href="#/categories/${id}/${name}">${name}</a><span>${users_count}</span></li>
 </script>
 
 <script id='filterTemplate' type="text/x-jquery-tmpl">
@@ -106,7 +106,7 @@
 	{{if expanded}}
 		<h2>${name}</h2>
 	{{else}}
-		<a rel="address:/user/${id}/${encodeURIComponent(name)}" class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>	
+		<a rel="address:/user/${id}/${encodeURIComponent(name)}" class="viewprofile" idProfile="${id}" href="#/user/${id}/${name}">${name}</a>	
 	{{/if}}
 	<img class="avatar" src="${image}"/>
 	<span class="bio">${bio}</span>
@@ -114,6 +114,17 @@
 	<span class="location">
 	${location}  (${region_display})
 	</span>
+	
+	<div class="user_tags">
+	<span>tags:</span>
+	{{if tags.length}}
+		 {{each tags}}
+			{{if $value}}
+			<a tag="${$value}" rel="address:/tags/${encodeURIComponent($value)}" href="#/tag/${encodeURIComponent($value)}">${$value}</a>
+		 	{{/if}}
+		 {{/each}}
+	{{/if}}
+	</div>
 
 	<div class="clearfix"></div>
 	<div class="more">

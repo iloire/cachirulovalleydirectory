@@ -58,47 +58,69 @@ function getScope(){
 }
 
 function set_content_by_hash (hash){
-	if (hash.indexOf('/categories')==0){
-		var id_cat = hash.split ('/')[2];
-		directory.load_data ({id_cat:id_cat}, function(err, data, ui_status){
-			$(document).trigger("directory.onProfessionalListChanged", ui_status);
-		});
-	}
-	//user?
-	else if (hash.indexOf('/user')==0){
-		var id_profile = hash.split ('/')[2];
-		directory.load_profile(id_profile, function (err, user){
-			directory.load_data ({id_cat:1, bindusers: false, bindtags:false}, function(err, data){
-				renderProfile(user, function(err, data){
-					$(document).trigger("directory.onProfileLoaded", user);	
-				});
-			});
-		});
-	}
-	//tags?
-	else if (hash.indexOf('/tags')==0) {
-		var tag = decodeURIComponent(hash.split ('/')[2]);
-		directory.load_data ({tag:tag}, function (err, data, ui_status){
-			$(document).trigger("directory.onProfessionalListChanged", ui_status);
-		});
-	}
-	//search
-	else if (hash.indexOf('/search')==0){
+
+	if (hash.indexOf('/search')==0){
 		var search = decodeURIComponent(hash.split ('/')[2]);
 		$('#searchBox').val(search);
 		directory.search(search, function (err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 			$(document).trigger("directory.onSearchCompleted", ui_status.search);
 		});
-		
+	}
+	else if (hash.indexOf('/user')==0){
+		var id_profile = hash.split ('/')[2];
+		var container = $('#profile' + id_profile);
+		if (container.length){
+			var users = viewModel.professionals();
+			var user = null;
+			for (var i=0,l=users.length;i<l;i++){
+				if (users[i].id==id_profile){
+					user = users[i]
+					user.expanded = true;
+					renderProfile(user, function (err, data){
+						$(document).trigger("directory.onProfileLoaded", user);	
+					});
+					break;
+				}
+			}
+		}
+		else{
+			directory.load_profile(id_profile, function (err, user){
+				directory.load_data ({id_cat:1, bindusers: false, bindtags:false}, function(err, data){
+					renderProfile(user, function(err, data){
+						$(document).trigger("directory.onProfileLoaded", user);	
+					});
+				});
+			});
+		}
 	}
 	else{
-		directory.load_data ({id_cat:1}, function(err, data, ui_status){
+		var params = {}
+		var match_cat_tag = /\/categories\/(.*)\/(.*)\/tag\/(.*)/ 
+		var match_cat = /\/categories\/(.*)\/(.*)/
+		var match_tag = /\/tags\/(.*)/
+		if (hash.match(match_cat_tag)){ //have both cat and tag
+			var match = hash.match(match_cat_tag);
+			params.id_cat = match[1];
+			params.tag = decodeURIComponent(match[3]);
+		}
+		else if (hash.match(match_cat)){
+			var match = hash.match(match_cat);
+			params.id_cat = match[1];
+			params.tag = null;
+		}
+		else if (hash.match(match_tag)){
+			var match = hash.match(match_tag);
+			params.tag = decodeURIComponent(match[1]);
+		}
+		else
+			params.id_cat = 1;
+
+		directory.load_data (params, function(err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 		});
 	}
 }
-
 
 function getGitHubProjects(user, where){
 	var cachekey = 'github ' + user;
@@ -192,9 +214,9 @@ function renderProfile(user, callback){
 
 	viewModel.professionals ([]);	
 	viewModel.professionals (users);
-	viewModel.tags (user.tags);
-	viewModel.tag_title ('⇐ sus tags');
-	viewModel.tag_explanation('Arriba se muestran los tags de este usuario. Puedes clicar en ellos para acceder a perfiles similares');
+//	viewModel.tags (user.tags);
+//	viewModel.tag_title ('⇐ sus tags');
+//	viewModel.tag_explanation('Arriba se muestran los tags de este usuario. Puedes clicar en ellos para acceder a perfiles similares');
 
 	if (user.twitter)
 		getTwTimeline(user.twitter, $('#profile'+ user.id + ' .tw_timeline'));
@@ -209,8 +231,7 @@ function renderProfile(user, callback){
 var directory = (function () {
 	var dir = {}
 	var ui_status = {id_cat:1, tag: '', cat:{}};
-	
-
+ 
 	//PUBLIC
 	dir.load_profile = function (id_profile, callback){
 		$.getJSON('api/users/byid', {id:id_profile}, function (data) {
@@ -241,8 +262,8 @@ var directory = (function () {
 		{
 			if (params.bindusers!==false)
 				viewModel.professionals (data.users);
-			
-			if (!params.tag && data.tags && (params.bindusers!==false)){
+
+			if (data.tags && (params.bindusers!==false)){
 				viewModel.tags (data.tags);
 				viewModel.tag_title ('Especialidades');
 				viewModel.tag_explanation('');
@@ -326,6 +347,7 @@ $(document).ready(function () {
 			selected.push({name: 'Search', value: ui_status.search, type: 'primary tag'});
 		}
 		else{
+			var link = '';
 			if (ui_status.cat && ui_status.cat.id){
 				var text = "";
 				$('ul#categories li').removeClass('selected');
@@ -334,19 +356,20 @@ $(document).ready(function () {
 						$(this).parent().addClass('selected');
 					}
 				});
+				link = "/categories/" + ui_status.cat.id + '/' + ui_status.cat.name;
 				selected.push({name: 'Categoría', value: ui_status.cat.name, type: 'primary cat'});
 			}
 
 			if (ui_status.tag){
 				$('ul#tags li').removeClass('selected'); //remove selected from tags
 				$('ul#tags li a').each(function() {
+					$(this).attr('rel', "address:" + link + '/tag/' +$(this).text());
 					if ($(this).attr('tag') == ui_status.tag) {
 						$(this).parent().addClass('selected');
 					}
 				});
 				selected.push({name: 'Tag', value: ui_status.tag, type: 'primary tag'});
 			}
-			
 			$('#searchBox').val('');
 		}
 
@@ -386,9 +409,12 @@ $(document).ready(function () {
 
 	//when profile loads	
 	$(document).bind("directory.onProfileLoaded", function(e, user){
-		var profile_offset = $('#profile' + user.id + ' .voteBox').offset();
-		$('.tags').offset({top:profile_offset.top});
-		scroll(0,profile_offset.top-150);
+		//var profile_offset = $('#profile' + user.id + ' .voteBox').offset();
+		/*
+		var user_tags = $('ul#tags').clone().appendTo('#right_column');
+		$(user_tags).offset({top:profile_offset.top});
+		*/
+		//scroll(0,profile_offset.top-150);
 	});
 
 	//when search is completed
@@ -396,8 +422,6 @@ $(document).ready(function () {
 		$('ul#categories li, ul#tags li').removeClass('selected'); //deselect cat
 	});
 
-	
-	//assign events to controls ----
 	$("[rel=popover]").popover({ live:true, html:true, offset: 10 }).click(function(e) { e.preventDefault() });
 	
 	$('#sortingSelect').change(function() {
@@ -407,29 +431,6 @@ $(document).ready(function () {
 	$('div.filterBox input').click (function ()
 	{
 		$(document).trigger("directory.onChangeFilter");
-	});
-
-	$('a#what').live ('click', function(){
-		$('.what').toggle('fade');
-	});
-	
-	$('a.viewprofile').live ('click', function(){
-		var id = $(this).attr('idProfile')
-		var users = viewModel.professionals();
-		var container = $('#profile' + id);
-		var user = null;
-		for (var i=0,l=users.length;i<l;i++){
-			if (users[i].id==id){
-				user = users[i]
-				user.expanded = true;
-				renderProfile(user, function (err, data){
-					$(document).trigger("directory.onProfileLoaded", user);	
-				});
-				break;
-			}
-		}
-		
-		return false;
 	});
 
 	$('span.voteBox a.vote').live ('click', function(){
@@ -457,46 +458,26 @@ $(document).ready(function () {
 		$(this).html('Redirigiendo a login...')
 	});
 
-	$('ul#tags li a').live ('click', function(){
-		directory.load_data({tag:$(this).attr('tag')}, function (err, data, ui_status){
-			$(document).trigger("directory.onProfessionalListChanged", ui_status);
-		});
-		return false;
-	});
-
 	$('#pagination a').live ('click', function(){
 		directory.load_data({from: $(this).attr('page')}, function (err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 		});
 		return false;
 	});
-	
-	$('ul#categories li a').live ('click', function(){
-		directory.load_data({id_cat:$(this).attr('idcat'), tag: null}, function (err, data, ui_status){
-			$(document).trigger("directory.onProfessionalListChanged", ui_status);
-		});
-		return false;
-	});
-	
+
 	$('#searchBox').click (function(){ $(this).select(); });
 	
 	$('#searchBox').keydown (function(e){
 		var content=$('#searchBox').val();
-		if ((e.keyCode=='13') || (e.keyCode=='32'))
-			directory.search(content, function (err, data, ui_status){
-				$(document).trigger("directory.onSearchCompleted", ui_status.search);
-				$(document).trigger("directory.onProfessionalListChanged", ui_status);
-			});
+		$.address.value('search/' + content);
 	});
 	
 	ko.applyBindings(viewModel);
 	
 	$.address.init(function(event) {
-		var path=$.address.value();
-		set_content_by_hash(path);
+	
 	}).change(function(event) {
-		//console.log (event)
-		//directory.set_content_by_hash(window.location.hash);
+		set_content_by_hash(event.path);
 	});
    
 });
