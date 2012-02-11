@@ -189,7 +189,7 @@ function renderProfile(user, callback){
 		user.expanded=true;
 		users = [user];
 	}
-	
+
 	viewModel.professionals ([]);	
 	viewModel.professionals (users);
 	viewModel.tags (user.tags);
@@ -436,7 +436,7 @@ $(document).ready(function () {
 		var params = {vote:$(this).attr('vote'), id:$(this).attr('idProfile')};
 		directory.vote(params, function(err, user){
 			var users = viewModel.professionals();
-			
+
 			for (var i=0,l=users.length;i<l;i++){
 				if (users[i].id==params.id){
 					user = users[i]
@@ -447,7 +447,6 @@ $(document).ready(function () {
 			}
 			viewModel.professionals([]);
 			viewModel.professionals(users);
-			
 		});
 		return false;
 	});

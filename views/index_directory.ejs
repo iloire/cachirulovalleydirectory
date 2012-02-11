@@ -114,7 +114,7 @@
 	<span class="location">
 	${location}  (${region_display})
 	</span>
-	
+
 	<div class="clearfix"></div>
 	<div class="more">
 		{{if (linkedin_profile_url || web )}}	
@@ -128,7 +128,6 @@
 			{{/if}}	
 			</ul>
 		{{/if}}
-
 
 		{{if (other_data && (other_data.entrepreneur || other_data.freelance || other_data.looking_for_contracts))}}
 		<h3>Más cosas sobre mi</h3>
@@ -176,21 +175,4 @@
 		{{/if}}	
 	</div>
 </li>
-</script>
-
-<script id='professionalTemplate' type="text/x-jquery-tmpl">
-    <li>
-		<div class="short">
-			<a rel="address:/user/${id}/${encodeURIComponent(name)}" class="viewprofile" idProfile="${id}" href="/user/${id}/${name}">${name}</a>
-			<img src="${image}"/>
-			<span class="bio">${bio}</span>
-			(<span class="location">${location}</span>)
-			{{if (votes)}}
-				<span class="votes">
-					<span>${votes}</span> recomendaciones
-				</span>
-			{{/if}}
-			[${tags}]
-		</div>
-    </li>
 </script>
