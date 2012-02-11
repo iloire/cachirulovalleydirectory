@@ -120,7 +120,7 @@
 	{{if tags.length}}
 		 {{each tags}}
 			{{if $value}}
-			<a tag="${$value}" rel="address:/tags/${encodeURIComponent($value)}" href="#/tag/${encodeURIComponent($value)}">${$value}</a>
+			<a tag="${$value}" rel="address:/tags/${encodeURIComponent($value)}" href="#/tags/${encodeURIComponent($value)}">${$value}</a>
 		 	{{/if}}
 		 {{/each}}
 	{{/if}}
