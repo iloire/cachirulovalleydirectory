@@ -237,4 +237,20 @@ exports.tests = [
 			callback(null);
 		})
 	}
+	,
+	function SearchWithAccent (callback){
+		module_users.Search(redis, {search:'rèdís'}, function(err, users){
+			assert.equal (users[0].id, 1);
+			var found_new_user=false
+			for (var i=0;i<users.length;i++){
+				assert.ok(users[i].id!=2);
+				
+				if (users[i].id==83)
+					found_new_user=true;
+			}
+			assert.ok(found_new_user);
+			callback(null);
+		})
+	}
+	
 ]
