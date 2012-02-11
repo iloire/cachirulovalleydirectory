@@ -460,7 +460,15 @@ var getApp = function (redis, config) {
 				showErrors(user, validation_errors);
 			}
 			else{
-				
+				//let's save!!
+				//clean portfolio empty records:
+				for (var i=0,c=0;i<user.portfolio.length;i++){
+					if (!user.portfolio[i].url && !user.portfolio[i].descr){
+						user.portfolio.splice(i,1);
+						i--;
+					}
+				}
+
 				//format
 				if (user.web){
 					if ((user.web.indexOf('http:')==-1) && (user.web.indexOf('https:')==-1))
