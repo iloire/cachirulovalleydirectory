@@ -78,6 +78,11 @@ var getApp = function (redis, config) {
 	});
 
 	app.get('/login', function(req, res){
+		if (req.query['redirect']){
+			req.session.redirect = req.query['redirect'];
+			console.log (req.query['redirect'])
+		}
+
 		if (!req.session.user){
 			linkedin_client.getAccessToken(req, res, function (error, token) 
 			{
