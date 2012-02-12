@@ -281,6 +281,71 @@ a {
   color: #00B7FF;
 }
 
+/*professionals list*/
+ul#professionals li{
+	position:relative;
+}
+
+ul#professionals li span.beerBox{
+	text-align:right !important;
+	float:right;
+	width:40px;
+	margin-left:2px;
+	position:absolute;	
+	top:40px;
+	left:10px;`;
+}
+ul#professionals li span.beerBox img{
+	width:30px;
+}
+ul#professionals li.expanded span.beerBox{
+	width:40px;
+	top:120px;
+	left:10px;`;
+}
+
+ul#professionals li.expanded span.beerBox img{
+	width:40px;
+}
+
+span.beerBox span.beer{
+	display:block;
+	position:relative;
+}
+
+span.beerBox span.beer span{ /*beer counter*/
+	top: 11px;
+	left: 18px;
+	background-color:#C64633;
+	position:absolute;
+	border-radius: 100px;
+	color: #fff;
+	text-transform: uppercase;
+	text-align: center;
+	font-size: 11px;
+	border-radius: 100px;
+	padding: 0px 6px;
+	border: 1px solid #fff;
+	text-shadow: 0px 1px 0px #000;
+	box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.8) !important;
+	box-shadow: 0px -2px 0px rgba(141, 196, 223, 0.8);	
+}
+
+span.voteBox a.vote,span.voteBox a.login {
+	text-decoration:underline;
+	float:right;
+	color: #c2c2c2;
+	text-align: center;
+	padding: 0px 6px;
+	font-size:90%;
+}
+
+.beer_popup{
+	float:left;
+	margin:0px 10px 5px 0px;
+}
+
+
 ul#professionals > li {
 	border:solid 1px #c2c2c2;
 	padding:10px 15px 15px 15px;
@@ -290,6 +355,13 @@ ul#professionals > li {
 
 ul#professionals > li:hover {
 	border:solid 1px #999999;
+}
+
+ul#professionals li.expanded .expanded {
+	display:inline;
+}
+ul#professionals li .expanded {
+	display:none;
 }
 	
 ul#professionals li.expanded {
@@ -338,7 +410,7 @@ ul#professionals li .bio{
 }
 
 ul#professionals li.expanded .bio{
-	font-size:100%;
+	font-size:90%;
 }
 
 ul#professionals li .location, ul#professionals li .user_tags{
@@ -346,7 +418,7 @@ ul#professionals li .location, ul#professionals li .user_tags{
 	margin-top:2px;
 	display:block;
 	margin-left:50px;
-	font-size:80%;
+	font-size:90%;
 }
 
 ul#professionals li.expanded .location{
@@ -390,67 +462,7 @@ div.portfolio .item {
 	margin:5px 0px 15px 0px;
 }
 
-span.voteBox{
-	text-align:right !important;
-	width:60px;
-	float:right;
-}
 
-span.voteBox img{
-	width:30px;
-}
-
-span.voteBox span.beer{
-	display:block;
-	position:relative;
-}
-span.voteBox span.beer span{
-	top: 11px;
-	left: 18px;
-	background-color:#C64633;
-	position:absolute;
-	border-radius: 100px;
-	color: #fff;
-	text-transform: uppercase;
-	text-align: center;
-	font-size: 11px;
-	border-radius: 100px;
-	padding: 0px 6px;
-	border: 1px solid #fff;
-	text-shadow: 0px 1px 0px #000;
-	box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.8) !important;
-	box-shadow: 0px -2px 0px rgba(141, 196, 223, 0.8);	
-}
-
-span.voteBox a.vote , span.voteBox a.login{
-	text-decoration:none;
-	border-radius: 100px;
-	color: #fff;
-	text-transform: uppercase;
-	text-align: center;
-	border-radius: 100px;
-	padding: 0px 6px;
-	border: 2px solid #fff;
-	text-shadow: 0px 1px 0px #000;
-	box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.8) !important;
-	box-shadow: 0px -2px 0px rgba(141, 196, 223, 0.8);
-}
-span.voteBox a.vote.up{
-	background-color:green;
-}
-span.voteBox a.vote.down{
-	background-color:gray;
-}
-
-span.voteBox a.login{
-	background-color:#c2c2c2;
-}
-
-.beer_popup{
-	float:left;
-	margin:0px 10px 5px 0px;
-}
-	
 form.editprofile textarea{
 	min-height:80px;
 }

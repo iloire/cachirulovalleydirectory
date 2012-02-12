@@ -76,31 +76,17 @@
 
 <script id='profileTemplate' type="text/x-jquery-tmpl">
  <li id="profile${id}" class="{{if (expanded)}}expanded{{/if}}">
-	<span class="voteBox">
+	<span class="beerBox">
 		{{if (votes)}}
 			<span class="beer" rel="popover" title="${votes} recomendaciones" 
-			data-placement="left" 
-			data-content="&lt;img class=beer_popup src=/images/beer-badget.png /&gt;${name} tiene &lt;strong&gt;${votes} recomendaciones.&lt;/strong&gt; &lt;br/&gt;&lt;br/&gt;Puedes votar a los profesionales que recomiendas. &lt;br/&gt;&lt;br/&gt;Los votos son anónimos, simplemente se publica el número de los mismos">
+			data-placement="right" 
+			data-content="&lt;img class=beer_popup src=/images/beer-badget.png /&gt;${name} tiene &lt;strong&gt;${votes} recomendaciones.&lt;/strong&gt; &lt;br/&gt;&lt;br/&gt;Si entras con tu usuario, puedes recomendar perfiles, de manera anónima">
 				<span>
 				${votes}
 				</span>
 				<img src="/images/beer-badget.png" />
 			</span>
 		{{/if}}
-		<%if (user) {%>
-			{{if (id != '<%=user.id%>')}}
-				{{if (voted)}}
-					<a class="vote down" href="/vote" vote="-1" idProfile="${id}">-</a>
-				{{else}}
-					<a class="vote up" href="/vote" vote="1" idProfile="${id}">+</a>
-				{{/if}}
-			{{/if}}
-		<%}else {%>
-			<small>
-			 	<a href="/login" class="login" rel="popover" title="Regístrate o inicia sesión" 
-				data-content="Es necesario registrarse para poder votar. <br />Puedes votar a los profesionales que recomiendas. Los votos son anónimos. Simplemente se publica el número de los mismos">+</a>
-			</small>
-		<%}%>
 	</span>
 
 	{{if expanded}}
@@ -113,6 +99,24 @@
 	<br />
 	<span class="location">
 	${location}  (${region_display})
+	</span>
+
+	<span class="voteBox">
+	<%if (user) {%>
+		{{if (id != '<%=user.id%>')}}
+			{{if (voted)}}
+				<a class="vote down" href="/vote" vote="-1" idProfile="${id}">+ dejar de recomendar</a>
+			{{else}}
+				<a class="vote up" href="/vote" vote="1" idProfile="${id}">- recomendar</a>
+			{{/if}}
+		{{/if}}
+	<%}else {%>
+		<small class="expanded">
+		 	<a href="/login" class="login" rel="popover" title="Regístrate o inicia sesión" 
+			data-placement="left" 
+			data-content="Es necesario registrarse para poder votar. <br />Puedes votar a los profesionales que recomiendas. Los votos son anónimos. Simplemente se publica el número de los mismos">regístrate para votar</a>
+		</small>
+	<%}%>
 	</span>
 	
 	<div class="user_tags">

@@ -452,13 +452,12 @@ $(document).ready(function () {
 		return false;
 	});
 
-	$('span.voteBox a.login').live ('click', function(){
-		$(this).css({ 'position': 'absolute'});
-		$(this).css({ 'left': '50%'});
+	$('a.login').live ('click', function(){
 		$(this).html('Redirigiendo a login...')
+		$(this).attr('href', $(this).attr('href') + '?redirect=/directory#' + $.address.value());
 	});
 
-	$('#pagination a').live ('click', function(){
+	$('#pagination a').live ('click', function() {
 		directory.load_data({from: $(this).attr('page')}, function (err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 		});
@@ -468,8 +467,9 @@ $(document).ready(function () {
 	$('#searchBox').click (function(){ $(this).select(); });
 	
 	$('#searchBox').keydown (function(e){
-		var content=$('#searchBox').val();
-		$.address.value('search/' + content);
+		if ((e.keyCode=='13') || (e.keyCode=='32')){
+			$.address.value('search/' + $('#searchBox').val());
+		}
 	});
 	
 	ko.applyBindings(viewModel);
