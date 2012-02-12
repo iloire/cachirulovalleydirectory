@@ -15,6 +15,12 @@ function run_tests (tests, callback){
 	});
 }
 
+function run_tests_parallel (tests, callback){
+	async.parallel(tests, function(err, results){
+		callback(err, 'ok');
+	});
+}
+
 var r = require('../scripts/lib/rebuild_database')
 
 var tests = [

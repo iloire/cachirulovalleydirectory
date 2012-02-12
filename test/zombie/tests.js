@@ -48,8 +48,12 @@ exports.tests = [
 				assert.ok (browser.success);
 				assert.ok(!browser.errors.length);
 				//directory page looks good if I came from link in home
-				//assert.equal(browser.queryAll("ul#categories li").length, 7); //now we load categories on page init, still to get cought by zombie
-				callback (null);
+				browser.evaluate("$.address.value('#/')");
+				assert.ok(!browser.errors.length)
+				browser.wait (function (err, browser){
+					assert.equal(browser.queryAll("ul#categories li").length, 7); //now we load categories on page init, still to get cought by zombie
+					callback (null);
+				});
 			});
 		});
 	}
@@ -63,27 +67,24 @@ exports.tests = [
 				assert.ok(browser.success);
 				assert.ok(!browser.errors.length)
 				//categories in place?
-				//assert.equal(browser.queryAll("ul#categories li").length, 7); //now we load categories on page init, still to get cought by zombie
-				callback (null);
-				//click in category
-				/*
-				browser.clickLink ('ul#categories li a:first', function(e, browser, status){
-					assert.ok(!browser.errors.length)
-					browser.wait (function (err, browser){
-						assert.ok(browser.queryAll("ul#professionals li").length>5);
-						assert.ok(browser.queryAll("ul#tags li").length>5);
-
-						//click in tag
-						browser.clickLink ('ul#tags li a:first', function(e, browser, status){
-							assert.ok(!browser.errors.length)
-							browser.wait (function (err, browser){
-								assert.equal(browser.queryAll("ul#professionals li").length,3);
+				browser.evaluate("$.address.value('#/')");
+				browser.wait (function(err, browser){
+					assert.equal(browser.queryAll("ul#categories li").length, 7); //now we load categories on page init, still to get cought by zombie
+					browser.clickLink ('ul#categories li a:first', function(e, browser, status){
+						assert.ok(!browser.errors.length)
+						browser.wait (function (err, browser){
+							assert.equal(browser.queryAll("ul#professionals > li").length, 15);
+							assert.equal(browser.queryAll("ul#tags li").length, 31);
+							//click in tag
+							browser.clickLink ('.net', function(e, browser, status){
+								assert.ok(!browser.errors.length)
+								assert.ok(!err)
+								assert.ok(browser.success);
 								callback (null);
-							});
-						})
-					});
-				})
-				*/
+							})
+						});
+					})
+				});
 			})
 		});	
 	}
@@ -92,14 +93,19 @@ exports.tests = [
 	function testTestLandingFromTag (callback){
 		printCurrentTest();
 		browser = new Browser()
-		browser.location = base_address + '/directory#/tags/node.js';
+		browser.visit(base_address + '/directory', function (err, browser) {
 			browser.wait (function(err, browser){
-				assert.ok(!err)
-				assert.ok(browser.success);
-				assert.ok(!browser.errors.length)
-				assert.equal(browser.queryAll("ul#professionals li").length,3);
-				callback (null);
-			})
+				browser.evaluate("$.address.value('#/categories/1/tag/redis')");
+				console.log (browser.evaluate("$.address.value()"));
+				browser.wait (function(err, browser){
+					assert.ok(!err)
+					assert.ok(browser.success);
+					assert.ok(!browser.errors.length);
+					assert.equal(browser.queryAll("ul#professionals > li").length, 3);
+					callback (null);
+				});
+			});	
+		});
 	}
 	,
 	*/
@@ -300,6 +306,7 @@ exports.tests = [
 		browser.visit(base_address + '/injectsession?user=admin', function (err, browser) {
 			browser.visit(base_address + '/editprofile?id=4', function (err, browser) {
 				assert.ok(!err)
+				console.log (browser.html())
 				assert.ok(browser.success);
 				assert.ok(!browser.errors.length);
 
