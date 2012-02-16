@@ -7,23 +7,23 @@ This is professional directory created in express.js and redis. Once you login (
 
 ## REDIS DATABASE STRUCTURE
 
-	<Project>:user:<id>  (object) => user object in json notation
-	<Project>:user:<id>:tags (set) => set of tags for particular user
-	<Project>:user:<id>:cats (set) => set of cat id's for particular user
-	<Project>:user:linked_id:<id> (int) => PK associated to linkedin id (for faster access)		
+    <Project>:user:<id>  (object) => user object in json notation
+    <Project>:user:<id>:tags (set) => set of tags for particular user
+    <Project>:user:<id>:cats (set) => set of cat id's for particular user
+    <Project>:user:linked_id:<id> (int) => PK associated to linkedin id (for faster access)		
 
-	<Project>:cat:<id> (object) => category (id, name, descr)
-	<Project>:cats (set) => id's of categories in the database
-	<Project>:cat:<id_cat>:users (set) => id's of users associated to a certain category (for faster access)
-	<Project>:cats:count (int) => categories count (for assigning autoincremental PK)
+    <Project>:cat:<id> (object) => category (id, name, descr)
+    <Project>:cats (set) => id's of categories in the database
+    <Project>:cat:<id_cat>:users (set) => id's of users associated to a certain category (for faster access)
+    <Project>:cats:count (int) => categories count (for assigning autoincremental PK)
 
-	<Project>:tags (set) => tag collection
-	<Project>:tags:cat<id_cat> (set) => tags for a certain category
-	<Project>:tag:<tag>:users (set) => id's of users associated to a certain tag
+    <Project>:tags (set) => tag collection
+    <Project>:tags:cat<id_cat> (set) => tags for a certain category
+    <Project>:tag:<tag>:users (set) => id's of users associated to a certain tag
 	
-	<Project>:votes:<id> (set) => set of votes for particular user (each item is the id of the user who voted)
+    <Project>:votes:<id> (set) => set of votes for particular user (each item is the id of the user who voted)
 
-	<Project>:cat:<id_cat>:tag:<tag>:f:<0/1>:e:<0/1>, region (ordered set) => fast access to filter by region, cat, tag, freelance and entrepreneur settings.
+    <Project>:cat:<id_cat>:tag:<tag>:f:<0/1>:e:<0/1>, region (ordered set) => fast access to filter by region, cat, tag, freelance and entrepreneur settings.
 
 ## TAGS (change log):
 
