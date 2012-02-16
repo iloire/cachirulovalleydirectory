@@ -249,6 +249,7 @@ ul#professionals > li{
 	clear:both;
 	min-height:40px;
 	margin-bottom:15px;
+	font-size:90%;
 }
 
 ul#professionals li span.votes{
@@ -337,7 +338,6 @@ span.voteBox a.vote,span.voteBox a.login {
 	color: #c2c2c2;
 	text-align: center;
 	padding: 0px 6px;
-	font-size:90%;
 }
 
 .beer_popup{
@@ -406,11 +406,10 @@ ul#professionals li h3 {
 
 ul#professionals li .bio{
 	color:#333333;
-	font-size:90%;
 }
 
 ul#professionals li.expanded .bio{
-	font-size:90%;
+
 }
 
 ul#professionals li .location, ul#professionals li .user_tags{
@@ -418,7 +417,6 @@ ul#professionals li .location, ul#professionals li .user_tags{
 	margin-top:2px;
 	display:block;
 	margin-left:50px;
-	font-size:90%;
 }
 
 ul#professionals li.expanded .location{
@@ -431,7 +429,6 @@ ul#professionals li .user_tags span{
 
 ul#professionals .tw_timeline li  {
 	color:#666666;
-	font-size:90%;
 	margin-bottom:3px;
 }
 
