@@ -4,8 +4,28 @@ var viewModel = {
 	cats: ko.observableArray(),
 	filter: ko.observableArray(),
 	tag_title: ko.observable(),
-	tag_explanation: ko.observable()	
+	tag_explanation: ko.observable(),
+
+	bindprofessionals  : function (professionals){
+		for (var p=0;p<professionals.length;p++){
+			professionals[p].expanded = false;
+		}
+		this.professionals = ko.mapping.fromJS(professionals)
+		ko.applyBindings(this);
+	}
+	,
+	get_user_from_ViewModel : function (id){
+		var users = this.professionals();
+		for (var i=0,l=users.length;i<l;i++){
+			if (users[i].id() == id){
+				return users[i];
+			}
+		}
+		return null;
+	}
 };
+
+function log(str) {console.log (str)}
 
 var tags_initial_offset = 0;
 
@@ -57,7 +77,7 @@ function getScope(){
 	return scope;
 }
 
-function set_content_by_hash (hash){
+function set_content_by_hash (hash, callback){
 
 	if (hash.indexOf('/search')==0){
 		var search = decodeURIComponent(hash.split ('/')[2]);
@@ -65,30 +85,29 @@ function set_content_by_hash (hash){
 		directory.search(search, function (err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 			$(document).trigger("directory.onSearchCompleted", ui_status.search);
+			
+			if (callback) callback();
 		});
 	}
 	else if (hash.indexOf('/user')==0){
 		var id_profile = hash.split ('/')[2];
 		var container = $('#profile' + id_profile);
 		if (container.length){
-			var users = viewModel.professionals();
-			var user = null;
-			for (var i=0,l=users.length;i<l;i++){
-				if (users[i].id==id_profile){
-					user = users[i]
-					user.expanded = true;
-					renderProfile(user, function (err, data){
-						$(document).trigger("directory.onProfileLoaded", user);	
-					});
-					break;
-				}
+			var user = viewModel.get_user_from_ViewModel(id_profile)
+			if (user){
+				renderProfile(user, function (err, data){
+					$(document).trigger("directory.onProfileLoaded", user);
+					if (callback) callback();
+				});
 			}
 		}
-		else{
+		else{ //load directly
 			directory.load_profile(id_profile, function (err, user){
-				directory.load_data ({id_cat:1, bindusers: false, bindtags:false}, function(err, data){
-					renderProfile(user, function(err, data){
+				directory.load_data ({id_cat: user.cats[0], bindusers: false, bindtags:false}, function(err, data){
+					viewModel.bindprofessionals([user]);
+					renderProfile(viewModel.professionals()[0], function(err, data){
 						$(document).trigger("directory.onProfileLoaded", user);	
+						if (callback) callback();
 					});
 				});
 			});
@@ -118,6 +137,7 @@ function set_content_by_hash (hash){
 
 		directory.load_data (params, function(err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
+			if (callback) callback();
 		});
 	}
 }
@@ -198,31 +218,13 @@ function getTwTimeline(user, where, callback){
 }
 
 function renderProfile(user, callback){
-	var users = viewModel.professionals();
-	if (users.length){
-		for (var i=0; i < users.length; i++) {
-			if (users[i].id==user.id){
-				users[i]=user;
-				break
-			}
-		}
-	}
-	else{
-		user.expanded=true;
-		users = [user];
-	}
-
-	viewModel.professionals ([]);	
-	viewModel.professionals (users);
-//	viewModel.tags (user.tags);
-//	viewModel.tag_title ('⇐ sus tags');
-//	viewModel.tag_explanation('Arriba se muestran los tags de este usuario. Puedes clicar en ellos para acceder a perfiles similares');
+	user.expanded(true);
 
 	if (user.twitter)
-		getTwTimeline(user.twitter, $('#profile'+ user.id + ' .tw_timeline'));
+		getTwTimeline(user.twitter(), $('#profile'+ user.id() + ' .tw_timeline'));
 
 	if (user.github)
-		getGitHubProjects(user.github, $('#profile'+ user.id + ' .github_projects'));
+		getGitHubProjects(user.github(), $('#profile'+ user.id() + ' .github_projects'));
 		
 	if (callback)
 		callback (null, user);
@@ -231,7 +233,28 @@ function renderProfile(user, callback){
 var directory = (function () {
 	var dir = {}
 	var ui_status = {id_cat:1, tag: '', cat:{}};
- 
+ 	
+	function post (url, params, callback){
+		 $.ajax({
+				type: "POST",
+				url: url,
+				data: params,
+				success: function onSuccess(data, status){
+					callback(null, data.user);
+				},
+	        	error: function onError(data, status){
+					var error=''
+					if (data.status==403){
+						error = 'Error, session expired of permission denied';
+					}else {	
+						error = 'Error processing request';
+					}
+					alert(error);
+					callback(error, null);
+				}
+	    });
+	}
+	
 	//PUBLIC
 	dir.load_profile = function (id_profile, callback){
 		$.getJSON('api/users/byid', {id:id_profile}, function (data) {
@@ -240,8 +263,8 @@ var directory = (function () {
 	}
 
 	dir.load_data = function (params, callback){
+		log (params)
 		if (!params) params={}
-
 
 		if (params.id_cat || params.tag) params.search = null; //clean search
 		if ((params.id_cat!=ui_status.id_cat || params.tag!=ui_status.tag) && !params.from)
@@ -260,8 +283,9 @@ var directory = (function () {
 
 		$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
 		{
-			if (params.bindusers!==false)
-				viewModel.professionals (data.users);
+			if (params.bindusers!==false){
+				viewModel.bindprofessionals (data.users);
+			}
 
 			if (data.tags && (params.bindusers!==false)){
 				viewModel.tags (data.tags);
@@ -283,32 +307,16 @@ var directory = (function () {
 	}
 	
 	dir.vote = function (params, callback){
-		 $.ajax({
-				type: "POST",
-				url: '/vote',
-				data: { user_voted_id: params.id, vote : params.vote},
-				success: function onSuccess(data, status){
-					var users = viewModel.professionals();
-					for(var i=0;i<users.length;i++){
-						if (users[i].id==params.id){
-							users[i] = data.user;
-							callback(null, data.user);
-						}
-					}
-				},
-	        	error: function onError(data, status){
-					var error=''
-					if (data.status==403){
-						error = 'Error, session expired of permission denied';
-					}else {	
-						error = 'Error processing vote';
-					}
-					alert(error);
-					callback(error, null);
-				}
-	    });
+		params.user_voted_id = params.id;
+		post('/vote', params, callback);
 	}
 	
+	dir.favorite = function (params, callback){
+		params.user_fav_id = params.id;
+		params.favstatus = params.favstatus;
+		post('/favorite', params, callback);
+	}
+
 	dir.search = function (term, callback){
 		$.address.value('/search/'+ encodeURIComponent(term));
 		this.load_data({search: term}, callback);
@@ -409,12 +417,7 @@ $(document).ready(function () {
 
 	//when profile loads	
 	$(document).bind("directory.onProfileLoaded", function(e, user){
-		//var profile_offset = $('#profile' + user.id + ' .voteBox').offset();
-		/*
-		var user_tags = $('ul#tags').clone().appendTo('#right_column');
-		$(user_tags).offset({top:profile_offset.top});
-		*/
-		//scroll(0,profile_offset.top-150);
+
 	});
 
 	//when search is completed
@@ -434,20 +437,30 @@ $(document).ready(function () {
 	});
 
 	$('span.voteBox a.vote').live ('click', function(){
-		var params = {vote:$(this).attr('vote'), id:$(this).attr('idProfile')};
-		directory.vote(params, function(err, user){
-			var users = viewModel.professionals();
-
-			for (var i=0,l=users.length;i<l;i++){
-				if (users[i].id==params.id){
-					user = users[i]
-					if ($('li#profile' + params.id + '.expanded').length>0) //expanded?
-						user.expanded = true;
-					break;
+		var id = $(this).attr('idProfile');
+		var params = {vote:$(this).attr('vote'), id: id};
+		directory.vote(params, function(err, user_voted){
+			if (!err){
+				var user = viewModel.get_user_from_ViewModel(id);
+				if (user){
+					user.votes(user_voted.votes);
+					user.voted(user_voted.voted);
 				}
 			}
-			viewModel.professionals([]);
-			viewModel.professionals(users);
+		});
+		return false;
+	});
+
+	$('span.voteBox a.fav').live ('click', function(){
+		var id = $(this).attr('idProfile');		
+		var params = {favstatus:$(this).attr('fav'), id:id};
+		directory.favorite (params, function(err, user_fav){
+			if (!err){
+				var user = viewModel.get_user_from_ViewModel(id);
+				if (user){
+					user.favorite(user_fav.favorite);
+				}
+			}
 		});
 		return false;
 	});
@@ -471,13 +484,13 @@ $(document).ready(function () {
 			$.address.value('search/' + $('#searchBox').val());
 		}
 	});
-	
-	ko.applyBindings(viewModel);
-	
+
 	$.address.init(function(event) {
 	
 	}).change(function(event) {
-		set_content_by_hash(event.path);
+		set_content_by_hash(event.path, function(){
+			ko.applyBindings(viewModel);
+		});
 	});
    
 });

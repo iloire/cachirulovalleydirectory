@@ -92,7 +92,7 @@
 	{{if expanded}}
 		<h2>${name}</h2>
 	{{else}}
-		<a rel="address:/user/${id}/${encodeURIComponent(name)}" class="viewprofile" idProfile="${id}" href="#/user/${id}/${name}">${name}</a>	
+		<a rel="address:/user/${id}/${encodeURIComponent(name())}" class="viewprofile" idProfile="${id}" href="#/user/${id}/${name}">${name}</a>	
 	{{/if}}
 	<img class="avatar" src="${image}"/>
 	<span class="bio">${bio}</span>
@@ -109,6 +109,17 @@
 			{{else}}
 				<a class="vote up" href="/vote" vote="1" idProfile="${id}">- recomendar</a>
 			{{/if}}
+
+			{{if (favorite)}}
+				<a class="fav down" href="/favorite" fav="-1" idProfile="${id}">
+				<img alt="Eliminar de mis favoritos" src="/images/favorite_star.gif" />
+				</a>
+			{{else}}
+				<a class="fav up" href="/favorite" fav="1" idProfile="${id}">
+					<img alt="Añadir a mis favoritos" src="/images/favorite_star_empty.png" />
+				</a>
+			{{/if}}
+
 		{{/if}}
 	<%}else {%>
 		<small class="expanded">
@@ -121,8 +132,8 @@
 	
 	<div class="user_tags">
 	<span>tags:</span>
-	{{if tags.length}}
-		 {{each tags}}
+	{{if tags().length}}
+		 {{each tags()}}
 			{{if $value}}
 			<a tag="${$value}" rel="address:/tags/${encodeURIComponent($value)}" href="#/tags/${encodeURIComponent($value)}">${$value}</a>
 		 	{{/if}}

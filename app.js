@@ -15,13 +15,21 @@ var getApp = function (redis, config) {
 
 	var app = module.exports = express.createServer();
 
+
+	function local_env (req, res, next){
+		res.local('config', config);
+		next();
+	}
+
+
 	app.configure(function(){
 		app.set('views', __dirname + '/views');
 		app.set('view engine', 'ejs');
 		app.use(express.bodyParser());
 		app.use(express.methodOverride());
 		app.use(express.cookieParser());
-
+		app.use(local_env);
+		
 		var sessionManagementType = 1
 		if (sessionManagementType==0){
 			app.use(express.session({ secret: 'your secret here.. shhaahh' }));
@@ -36,7 +44,10 @@ var getApp = function (redis, config) {
 		}
 
 		app.use(app.router);
-		app.use(express.static(__dirname + '/public'));
+		
+		var oneYear = 31557600000;
+		app.use(express.static(__dirname + '/public', { maxAge: oneYear }));
+		//app.use(express.static(__dirname + '/public'));
 	});
 
 	app.configure('development', function(){
@@ -166,6 +177,17 @@ var getApp = function (redis, config) {
 			module_tags.GetTags (redis, {}, function (err, tags){
 				res.render('index_directory', {title: 'Directorio CachiruloValley', categories : categories, tags:tags,  users:[], user: req.session.user});
 			});	
+		});
+	});
+
+	app.post('/favorite', function(req, res){
+		if (!req.session.user){
+			common.renderJSON(req, res, {error: 'no session'}, 403)
+			return;
+		}
+		var params = {userfav: {id: req.param('user_fav_id')}, user: req.session.user, favstatus: req.param('favstatus')};
+		module_users.FavUser (redis, params , function (err, data){
+			common.renderJSON(req, res, err || data, err ? 503 : 200, req.query["callback"])
 		});
 	});
 

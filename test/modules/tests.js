@@ -252,5 +252,30 @@ exports.tests = [
 			callback(null);
 		})
 	}
+	,
+	function FavUser(callback){
+		printCurrentTest();
+		module_users.GetUser(redis, {id: 83}, function(err, user){
+			var user_original = user;
+			assert.ok(user);
+			assert.ok (!user.favorite);
+			var params = {user: {id:1 }, userfav :{id:83}}
+			module_users.FavUser(redis, params, function (err, user){
+				assert.ok (!user)
+				assert.ok (err);  //bad params (missing favstatus)
+				var params = {user: {id:1 }, userfav :{id:83}, favstatus:1}
+				module_users.FavUser(redis, params, function (err, user){
+					assert.ok (user.favorite)
+					assert.ok (!err);
+					params.logged_user = params.user
+					params.id = 83
+					module_users.GetUser(redis, params, function(err, user){
+						assert.equal (user.favorite, 1);
+						callback(null);
+					});
+				});
+			})
+		})
+	}
 	
 ]

@@ -306,7 +306,6 @@ exports.tests = [
 		browser.visit(base_address + '/injectsession?user=admin', function (err, browser) {
 			browser.visit(base_address + '/editprofile?id=4', function (err, browser) {
 				assert.ok(!err)
-				console.log (browser.html())
 				assert.ok(browser.success);
 				assert.ok(!browser.errors.length);
 
