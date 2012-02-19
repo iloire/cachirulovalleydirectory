@@ -15,12 +15,10 @@ var getApp = function (redis, config) {
 
 	var app = module.exports = express.createServer();
 
-
 	function local_env (req, res, next){
 		res.local('config', config);
 		next();
 	}
-
 
 	app.configure(function(){
 		app.set('views', __dirname + '/views');
@@ -75,6 +73,18 @@ var getApp = function (redis, config) {
 
 	app.get('/directory/user/:id/:name', function(req, res){
 		res.redirect ('/directory#/user/' + req.param('id') + '/' + req.param('name'))
+	});
+
+	app.get('/directory/categories/:id/:name', function(req, res){
+		res.redirect ('/directory#/categories/' + req.param('id') + '/' + req.param('name'))
+	});
+
+	app.get('/directory/categories/:id/:name', function(req, res){
+		res.redirect ('/directory#/categories/' + req.param('id') + '/' + req.param('name'))
+	});
+
+	app.get('/directory/categories/:id/:name/tag/:tag', function(req, res){
+		res.redirect ('/directory#/categories/' + req.param('id') + '/' + req.param('name') + '/tag/' + req.param('tag'))
 	});
 
 	app.get('/about', function(req, res){
