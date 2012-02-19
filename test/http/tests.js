@@ -454,6 +454,24 @@ exports.tests = [
 		});	
 	}
 	,	
+	function load_categories_page_directly (callback){
+		printCurrentTest();
+		request.get({url: base_address + '/directory/categories/1/randomname', followRedirect:false}, function (err,res,body) {
+			assert.equal(res.statusCode, 302); 
+			assert.equal(res.headers.location, base_address + '/directory#/categories/1/randomname'); 
+			callback(null);
+		});	
+	}
+	,	
+	function load_categories_page_with_tag_directly (callback){
+		printCurrentTest();
+		request.get({url: base_address + '/directory/categories/1/randomname/tag/atag', followRedirect:false}, function (err,res,body) {
+			assert.equal(res.statusCode, 302); 
+			assert.equal(res.headers.location, base_address + '/directory#/categories/1/randomname/tag/atag'); 
+			callback(null);
+		});	
+	}
+	,	
 	function vote_with_session_ok (callback){
 		printCurrentTest();
 		var user_to_vote = 3;
