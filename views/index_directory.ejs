@@ -38,7 +38,7 @@
 				<select id="sortingSelect">
 					<option value="name">Alfabético A..Z</option>
 					<option value="name_">Alfabético Z..A</option>
-					<option value="votes_">Votos</option>
+					<option value="votes_">Recomendaciones</option>
 				</select>
 			</div>
 
@@ -49,10 +49,9 @@
 	</div>
 
 	<div class="tags span3" id="right_column">
-		<h3 data-bind='text: tag_title'>Especialidades</h3>
+		<h3>Especialidades</h3>
 		<ul id="tags" data-bind='template: {name:"tagsTemplate", foreach: tagslist}'>
 		</ul>
-		<div class="tag_explanation" data-bind='text: tag_explanation'></div>
 	</div>
 </div>
 
@@ -101,9 +100,8 @@
 	${location}  (${region_display})
 	</span>
 
-	<span class="voteBox">
-	<%if (user) {%>
-		{{if (id != '<%=user.id%>')}}
+	<span class="voteBox" data-bind='visible: $parent.logged_user()!=null'>
+		{{if (id != $parent.logged_user.id)}}
 			{{if (voted)}}
 				<a class="vote down" href="/vote" vote="-1" idProfile="${id}">+ dejar de recomendar</a>
 			{{else}}
@@ -119,16 +117,16 @@
 					<img alt="Añadir a mis favoritos" src="/images/favorite_star_empty.png" />
 				</a>
 			{{/if}}
-
 		{{/if}}
-	<%}else {%>
+	</span>
+	<span class="voteBox" data-bind='visible: $parent.logged_user()==null'>	
 		<small class="expanded">
 		 	<a href="/login" class="login" rel="popover" title="Regístrate o inicia sesión" 
 			data-placement="left" 
 			data-content="Es necesario registrarse para poder votar. <br />Puedes votar a los profesionales que recomiendas. Los votos son anónimos. Simplemente se publica el número de los mismos">regístrate para votar</a>
 		</small>
-	<%}%>
 	</span>
+
 	
 	<div class="user_tags">
 	<span>tags:</span>

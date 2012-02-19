@@ -1,13 +1,15 @@
 <div class="loginBox">
-<% if (!user) { %>
-	<a class="login" href="/login">
-		Entrar
-	</a>
-	/
-	<a id="what" href="/about">¿Qué es esto?</a>
-<% } else { %>
-	<span class="salutation">
-		Hola <%= user.name %>! ( <a href="/logout">salir</a> )
-	</span>
-<% } %>
+	<div data-bind='visible: logged_user'>
+		<div data-bind='template: {name:"logged_userTemplate", data: logged_user}'></div>	
+	</div>
+	<script id='logged_userTemplate' type="text/x-jquery-tmpl">
+		<span class="salutation">
+			Hola ${name} ! ( <a href="/logout">salir</a> )
+		</span>
+	</script>
+	<div data-bind='visible: logged_user()==null'>
+		<a class="login" href="/login">
+			Entrar
+		</a>
+	</div>
 </div>
