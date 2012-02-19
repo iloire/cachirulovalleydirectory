@@ -45,7 +45,7 @@ var loading = '<img class=loading alt="loading..." src="/images/menu-loading.gif
 function setFilterDisplay (initial_filter){
 	var scope = getScope();
 
-	initial_filter.push({name: 'Región', value: (scope.region==1000) ? 'Todos' : ((scope.region==100) ? 'Nacional' : 'Aragón') });
+	initial_filter.push({name: 'Región', value: (scope.region==1000) ? 'Todas' : ((scope.region==100) ? 'España' : 'Aragón') });
 	if (scope.freelance)
 		initial_filter.push({name: 'Freelance', value: 'SI'});
 
@@ -78,10 +78,16 @@ function getScope(){
 
 function set_content_by_hash (hash, callback){
 
+	var params = {};
+	//pagination
+	if ($.address.parameter('p')){
+		params.from = $.address.parameter('p');
+	}
+	
 	if (hash.indexOf('/search')==0){
-		var search = decodeURIComponent(hash.split ('/')[2]);
-		$('#searchBox').val(search);
-		directory.search(search, function (err, data, ui_status){
+		params.search = decodeURIComponent(hash.split ('/')[2]);
+		$('#searchBox').val(params.search);
+		directory.search(params, function (err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 			$(document).trigger("directory.onSearchCompleted", ui_status.search);
 			
@@ -113,7 +119,6 @@ function set_content_by_hash (hash, callback){
 		}
 	}
 	else{
-		var params = {}
 		var match_cat_tag = /\/categories\/(.*)\/(.*)\/tag\/(.*)/ 
 		var match_cat = /\/categories\/(.*)\/(.*)/
 		var match_tag = /\/tags\/(.*)/
@@ -134,10 +139,6 @@ function set_content_by_hash (hash, callback){
 		else
 			params.id_cat = 1;
 
-		//pagination
-		if ($.address.parameter('p')){
-			params.from = $.address.parameter('p');
-		}
 		directory.load_data (params, function(err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 			if (callback) callback();
@@ -282,11 +283,13 @@ var directory = (function () {
 		}
 		
 		params.scope = getScope();
+
 		$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
 		{
 			if (params.bindusers!==false){
 				viewModel.bindprofessionals (data.users);
 			}
+
 			
 			viewModel.logged_user (data.logged_user);
 			
@@ -318,9 +321,8 @@ var directory = (function () {
 		post('/favorite', params, callback);
 	}
 
-	dir.search = function (term, callback){
-		$.address.value('/search/'+ encodeURIComponent(term));
-		this.load_data({search: term}, callback);
+	dir.search = function (params, callback){
+		this.load_data(params, callback);
 	}
 	
 	return dir;
@@ -350,10 +352,11 @@ $(document).ready(function () {
 
 		$('ul#professionals li div.short').show();
 		
+		var full_link = ''
 		var selected = [];
-		
 		if (ui_status.search){
 			selected.push({name: 'Search', value: ui_status.search, type: 'primary tag'});
+			full_link = '/search/' + encodeURIComponent(ui_status.search);
 		}
 		else{
 			var link = '';
@@ -369,10 +372,12 @@ $(document).ready(function () {
 				selected.push({name: 'Categoría', value: ui_status.cat.name, type: 'primary cat'});
 			}
 
-			var full_link = link;
+			full_link = link;
 
 			$('ul#tags li').removeClass('selected'); //remove selected from tags
 			$('ul#tags li a').each(function() {
+				$(this).click (function () { return false; });
+
 				$(this).attr('rel', "address:" + link + '/tag/' + encodeURIComponent($(this).text()));
 				$(this).attr('href', '/directory' + link + '/tag/' + encodeURIComponent($(this).text()));
 				if ($(this).attr('tag') == ui_status.tag) {
@@ -392,7 +397,7 @@ $(document).ready(function () {
 		var str = '';
 		if (ui_status.pagination.total_records){
 			str = '<span>Total registros: ' + ui_status.pagination.total_records + '</span>';
-			if (ui_status.pagination.total>1){
+			if (ui_status.pagination.total > 1){
 				var dot = false
 				var limit = 4;
 				var current = parseInt(ui_status.pagination.from,10);
@@ -400,8 +405,8 @@ $(document).ready(function () {
 					if ((i==(current+limit))) dot=false;
 					if ((i>ui_status.pagination.total-3) || (i<2) || (i>(current-limit)) && (i<(current+limit))){
 							var link = full_link + "?p=" + i;
-							str = str + ((ui_status.pagination.from == i) ? " <a class=selected rel=\"address:" + link +  "\" href=\"" + full_link + "\">" + (i+1) + "</a>"
-																		 : " <a href=\"" + link + "\" rel=\"address:" + link + "\">" + (i+1) + "</a>")
+							link = " <a href=\"/directory" +  link + "\"" + ((ui_status.pagination.from == i) ? " class=selected " : '') + " rel=\"address:" + link + "\">" + (i+1) + "</a>"
+							str = str + link
 					}
 					else{
 						if (!dot){
@@ -417,7 +422,6 @@ $(document).ready(function () {
 		}
 		
 		$('#pagination').html(str);
-
 
 		setFilterDisplay(selected);
 	});
@@ -458,7 +462,7 @@ $(document).ready(function () {
 		return false;
 	});
 
-	$('span.voteBox a.fav').live ('click', function(){
+	$('a.fav').live ('click', function(){
 		var id = $(this).attr('idProfile');		
 		var params = {favstatus:$(this).attr('fav'), id:id};
 		directory.favorite (params, function(err, user_fav){
