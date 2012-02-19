@@ -374,7 +374,7 @@ $(document).ready(function () {
 			$('ul#tags li').removeClass('selected'); //remove selected from tags
 			$('ul#tags li a').each(function() {
 				$(this).attr('rel', "address:" + link + '/tag/' + encodeURIComponent($(this).text()));
-				$(this).attr('href', link + '/tag/' + encodeURIComponent($(this).text()));
+				$(this).attr('href', '/directory' + link + '/tag/' + encodeURIComponent($(this).text()));
 				if ($(this).attr('tag') == ui_status.tag) {
 					$(this).parent().addClass('selected');
 				}
