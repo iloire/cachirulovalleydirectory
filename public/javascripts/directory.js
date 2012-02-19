@@ -45,7 +45,7 @@ var loading = '<img class=loading alt="loading..." src="/images/menu-loading.gif
 function setFilterDisplay (initial_filter){
 	var scope = getScope();
 
-	initial_filter.push({name: 'Región', value: (scope.region==1000) ? 'Todos' : ((scope.region==100) ? 'Nacional' : 'Aragonés') });
+	initial_filter.push({name: 'Región', value: (scope.region==1000) ? 'Todos' : ((scope.region==100) ? 'Nacional' : 'Aragón') });
 	if (scope.freelance)
 		initial_filter.push({name: 'Freelance', value: 'SI'});
 
@@ -133,6 +133,11 @@ function set_content_by_hash (hash, callback){
 		}
 		else
 			params.id_cat = 1;
+
+		//pagination
+		if ($.address.parameter('p')){
+			params.from = $.address.parameter('p');
+		}
 		directory.load_data (params, function(err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 			if (callback) callback();
@@ -364,16 +369,22 @@ $(document).ready(function () {
 				selected.push({name: 'Categoría', value: ui_status.cat.name, type: 'primary cat'});
 			}
 
+			var full_link = link;
+
+			$('ul#tags li').removeClass('selected'); //remove selected from tags
+			$('ul#tags li a').each(function() {
+				$(this).attr('rel', "address:" + link + '/tag/' + encodeURIComponent($(this).text()));
+				$(this).attr('href', link + '/tag/' + encodeURIComponent($(this).text()));
+				if ($(this).attr('tag') == ui_status.tag) {
+					$(this).parent().addClass('selected');
+				}
+			});
+
 			if (ui_status.tag){
-				$('ul#tags li').removeClass('selected'); //remove selected from tags
-				$('ul#tags li a').each(function() {
-					$(this).attr('rel', "address:" + link + '/tag/' + encodeURIComponent($(this).text()));
-					if ($(this).attr('tag') == ui_status.tag) {
-						$(this).parent().addClass('selected');
-					}
-				});
 				selected.push({name: 'Tag', value: ui_status.tag, type: 'primary tag'});
+				full_link += "/tag/" + encodeURIComponent(ui_status.tag);
 			}
+			
 			$('#searchBox').val('');
 		}
 
@@ -387,10 +398,10 @@ $(document).ready(function () {
 				var current = parseInt(ui_status.pagination.from,10);
 				for (var i=0;i<ui_status.pagination.total;i++){
 					if ((i==(current+limit))) dot=false;
-					
 					if ((i>ui_status.pagination.total-3) || (i<2) || (i>(current-limit)) && (i<(current+limit))){
-							str = str + ((ui_status.pagination.from == i) ? " <a class=selected href=# page=" + i + ">" + (i+1) + "</a>"
-																		 : " <a href=# page=" + i + ">" + (i+1) + "</a>")
+							var link = full_link + "?p=" + i;
+							str = str + ((ui_status.pagination.from == i) ? " <a class=selected rel=\"address:" + link +  "\" href=\"" + full_link + "\">" + (i+1) + "</a>"
+																		 : " <a href=\"" + link + "\" rel=\"address:" + link + "\">" + (i+1) + "</a>")
 					}
 					else{
 						if (!dot){
@@ -464,13 +475,6 @@ $(document).ready(function () {
 	$('a.login').live ('click', function(){
 		$(this).html('Redirigiendo a login...')
 		$(this).attr('href', $(this).attr('href') + '?redirect=/directory#' + $.address.value());
-	});
-
-	$('#pagination a').live ('click', function() {
-		directory.load_data({from: $(this).attr('page')}, function (err, data, ui_status){
-			$(document).trigger("directory.onProfessionalListChanged", ui_status);
-		});
-		return false;
 	});
 
 	$('#searchBox').click (function(){ $(this).select(); });
