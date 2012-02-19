@@ -30,7 +30,6 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 		return sort_tags(tags);
 	}
 
-
 	function sort_tags (tags){
 		function sorter (a,b){
 			return ((a.t < b.t) ? -1 : ((a.t > b.t) ? 1 : 0));
@@ -39,7 +38,8 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	}
 	
 	function PrepareForDisplayUsers (req, users){ //users or user
-		if (users.length==undefined) //single object, not array
+		if (!users) return null;
+		if (!Array.isArray(users)) //single object, not array
 			return common.removeUnwantedFields(users);
 
 		var sortfield = req.query["sort"] || 'name';
@@ -123,22 +123,32 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	});
 
 	app.get('/api/search', function(req, res){
-		var params = {q : req.query["search"] || req.query["q"] || '', scope: req.query["scope"], logged_user: req.session.user}
+		var params = {
+			q : req.query["search"] || req.query["q"] || null, 
+			scope: req.query["scope"], 
+			pagination : {from : req.query["from"] || 0, pagesize : req.query["page"] || config.default_page_size},
+			logged_user: req.session.user
+		}
+
 		module_cats.GetCats (redis, params, function (err, cats){
-			params.max = 100; //max number of results in search
-			module_users.Search (redis, params, function (err, users){
+			module_users.Search (redis, params, function (err, users, total_records){
+				if (err){
+					common.renderJSON(req, res, {error: err});
+				}
+				else{
 				common.renderJSON(req, res, {
 					cats: cats,
 					users: PrepareForDisplayUsers(req, users), 
 					tags: get_unique_tags_by_users(users),
 					logged_user: common.removeUnwantedFields(req.session.user),
 					pagination: {
-						pagesize: config.default_page_size,
-						from: 0,
-						total: Math.ceil(users.length / config.default_page_size),
-						total_records: users.length
+						pagesize: params.pagination.pagesize,
+						from: params.pagination.from, 
+						total: Math.ceil(total_records / params.pagination.pagesize),
+						total_records: total_records
 					}
 					}, 200, req.query["callback"])
+				}
 			})
 		})
 	});
