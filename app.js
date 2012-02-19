@@ -87,6 +87,15 @@ var getApp = function (redis, config) {
 		res.redirect ('/directory#/categories/' + req.param('id') + '/' + req.param('name') + '/tag/' + req.param('tag'))
 	});
 
+	//search
+	app.get('/directory/search/:term', function(req, res){
+		res.redirect ('/directory#/search/' + req.param('term'))
+	});
+
+	app.get('/search', function(req, res){
+		res.redirect ('/directory#/search/' + encodeURIComponent(req.query['q']))
+	});
+
 	app.get('/about', function(req, res){
 		res.render('about', {title:'Sobre el directorio de Cachirulo Valley', user: req.session.user});
 	});
@@ -176,10 +185,6 @@ var getApp = function (redis, config) {
 		else{
 			res.redirect('/');
 		}
-	});
-
-	app.get('/search', function(req, res){
-		res.redirect ('/directory#/search/' + encodeURIComponent(req.query['q']))
 	});
 
 	app.get('/directory', function(req, res){
