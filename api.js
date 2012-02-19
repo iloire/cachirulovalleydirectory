@@ -108,6 +108,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 						},
 						tag: params.tag,
 						scope: params.scope,
+						logged_user: common.removeUnwantedFields(req.session.user)
 						}, 200, req.query["callback"])
 				});
 			});
@@ -117,7 +118,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 	app.get('/api/users/byid', function(req, res){
 		var params = {id : req.query["id"], logged_user: req.session.user}
 		module_users.GetUser (redis, params, function (err, user){
-			common.renderJSON(req, res, {user: user ? common.removeUnwantedFields(user) : null}, 200, req.query["callback"])
+			common.renderJSON(req, res, {user: user ? common.removeUnwantedFields(user) : null, logged_user: common.removeUnwantedFields(req.session.user)}, 200, req.query["callback"])
 		})
 	});
 
@@ -130,6 +131,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 					cats: cats,
 					users: PrepareForDisplayUsers(req, users), 
 					tags: get_unique_tags_by_users(users),
+					logged_user: common.removeUnwantedFields(req.session.user),
 					pagination: {
 						pagesize: config.default_page_size,
 						from: 0,
