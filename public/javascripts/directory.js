@@ -1,10 +1,9 @@
 var viewModel = {
+	logged_user: ko.observable(),
 	professionals: ko.observableArray(),
 	tags: ko.observableArray(),
 	cats: ko.observableArray(),
 	filter: ko.observableArray(),
-	tag_title: ko.observable(),
-	tag_explanation: ko.observable(),
 
 	bindprofessionals  : function (professionals){
 		for (var p=0;p<professionals.length;p++){
@@ -134,7 +133,6 @@ function set_content_by_hash (hash, callback){
 		}
 		else
 			params.id_cat = 1;
-
 		directory.load_data (params, function(err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 			if (callback) callback();
@@ -263,7 +261,6 @@ var directory = (function () {
 	}
 
 	dir.load_data = function (params, callback){
-		log (params)
 		if (!params) params={}
 
 		if (params.id_cat || params.tag) params.search = null; //clean search
@@ -280,17 +277,16 @@ var directory = (function () {
 		}
 		
 		params.scope = getScope();
-
 		$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
 		{
 			if (params.bindusers!==false){
 				viewModel.bindprofessionals (data.users);
 			}
-
+			
+			viewModel.logged_user (data.logged_user);
+			
 			if (data.tags && (params.bindusers!==false)){
 				viewModel.tags (data.tags);
-				viewModel.tag_title ('Especialidades');
-				viewModel.tag_explanation('');
 			}
 
 			viewModel.cats (data.cats);
