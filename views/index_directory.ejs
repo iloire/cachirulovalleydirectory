@@ -7,7 +7,7 @@
 		<div class="filterBox">
 			<div class="region_scope">
 				<input type="radio" name="region_scope" id="regional_scope"> 
-				<label onclick="$('#regional_scope').click()" rel="popover" title="Profesionales aragoneses" data-content="Seleccionando esta opción sólamente se mostrarán profesionales que se hayan registrado como aragoneses" for="regional_scope">Aragoneses</label>
+				<label onclick="$('#regional_scope').click()" rel="popover" title="Profesionales aragoneses" data-content="Seleccionando esta opción sólamente se mostrarán profesionales que se hayan registrado como aragoneses" for="regional_scope">Aragón</label>
 			 	
 				<br />
 				<input type="radio" name="region_scope" id="national_scope" >
@@ -33,17 +33,17 @@
 	
 	<div class="span10">
 		<div data-bind='template: {name:"filterTemplate", foreach: filter}'></div>
+		<div class="sortingOptions">
+			<span>Ordenado por:</span>
+			<select id="sortingSelect">
+				<option value="name">Alfabético A..Z</option>
+				<option value="name_">Alfabético Z..A</option>
+				<option value="votes_">Recomendaciones</option>
+			</select>
+		</div>
+
 		<div class="professionals_list">
-			<div class="sortingOptions">
-				<select id="sortingSelect">
-					<option value="name">Alfabético A..Z</option>
-					<option value="name_">Alfabético Z..A</option>
-					<option value="votes_">Recomendaciones</option>
-				</select>
-			</div>
-
 			<div id="pagination"></div>
-
 			<ul id="professionals" data-bind='template: {name:"profileTemplate", foreach: professionals}'></ul>
 		</div>
 	</div>
@@ -83,7 +83,7 @@
 				<span>
 				${votes}
 				</span>
-				<img src="/images/beer-badget.png" />
+				<img class="beer" src="/images/beer-badget.png" />
 			</span>
 		{{/if}}
 	</span>
@@ -93,6 +93,7 @@
 	{{else}}
 		<a rel="address:/user/${id}/${encodeURIComponent(name())}" class="viewprofile" idProfile="${id}" href="#/user/${id}/${name}">${name}</a>	
 	{{/if}}
+
 	<img class="avatar" src="${image}"/>
 	<span class="bio">${bio}</span>
 	<br />
@@ -100,26 +101,31 @@
 	${location}  (${region_display})
 	</span>
 
-	<span class="voteBox" data-bind='visible: $parent.logged_user()!=null'>
-		{{if (id != $parent.logged_user.id)}}
+	<span class="voteBox" data-bind='visible: (($parent.logged_user()!=null) && ($parent.logged_user().id != $data.id()))'>
+		{{if (true)}}
 			{{if (voted)}}
 				<a class="vote down" href="/vote" vote="-1" idProfile="${id}">+ dejar de recomendar</a>
 			{{else}}
 				<a class="vote up" href="/vote" vote="1" idProfile="${id}">- recomendar</a>
 			{{/if}}
-
-			{{if (favorite)}}
-				<a class="fav down" href="/favorite" fav="-1" idProfile="${id}">
-				<img alt="Eliminar de mis favoritos" src="/images/favorite_star.gif" />
-				</a>
-			{{else}}
-				<a class="fav up" href="/favorite" fav="1" idProfile="${id}">
-					<img alt="Añadir a mis favoritos" src="/images/favorite_star_empty.png" />
-				</a>
-			{{/if}}
 		{{/if}}
+		
+		<!--
+		{{if (favorite)}}
+			<a class="fav down" href="/favorite" fav="-1" idProfile="${id}">
+			es tu favorito
+			<img class="star" alt="Eliminar de mis favoritos" src="/images/favorite_star.gif" />
+			</a>
+		{{else}}
+			<a class="fav up" href="/favorite" fav="1" idProfile="${id}">
+				hacer tu favorito
+				<img class="star" alt="Añadir a mis favoritos" src="/images/favorite_star_empty.png" />
+			</a>
+		{{/if}}
+		-->
 	</span>
-	<span class="voteBox" data-bind='visible: $parent.logged_user()==null'>	
+
+	<span class="voteBox" data-bind='visible: $parent.logged_user()==null'>
 		<small class="expanded">
 		 	<a href="/login" class="login" rel="popover" title="Regístrate o inicia sesión" 
 			data-placement="left" 
@@ -130,7 +136,7 @@
 	
 	<div class="user_tags">
 	<span>tags:</span>
-	{{if tags().length}}
+	{{if tags()}}
 		 {{each tags()}}
 			{{if $value}}
 			<a tag="${$value}" rel="address:/tags/${encodeURIComponent($value)}" href="#/tags/${encodeURIComponent($value)}">${$value}</a>
@@ -141,20 +147,20 @@
 
 	<div class="clearfix"></div>
 	<div class="more">
-		{{if (linkedin_profile_url || web )}}	
+		{{if ((linkedin_profile_url()) || (web()))}}
 			<h3>Información de contacto</h3>
 			<ul>
 			{{if (linkedin_profile_url)}}
 			<li><a  target="_blank" href="${linkedin_profile_url}">visita mi perfil en linkedin</a></li>
 			{{/if}}
 			{{if (web)}}
-			<li>web: <a target="_blank" href="${web}">${web}</a></li>
+			<li><a target="_blank" href="${web}">${web}</a></li>
 			{{/if}}	
 			</ul>
 		{{/if}}
 
 		{{if (other_data && (other_data.entrepreneur || other_data.freelance || other_data.looking_for_contracts))}}
-		<h3>Más cosas sobre mi</h3>
+		<h3>Más cosicas sobre mi</h3>
 		<div>
 		   <ul>
 		   {{if other_data.entrepreneur}}
@@ -172,9 +178,9 @@
 		</div>
 		{{/if}}
 
-		{{if portfolio.length}}
-			<h3>Portfolio</h3>
+		{{if portfolio.length>0}}
 			<div class="portfolio">
+			<h3>Portfolio</h3>
 			<ul>
 			 {{each portfolio}}
 				{{if $value.url}}
@@ -186,8 +192,7 @@
 			</div>
 		{{/if}}
 
-
-		{{if twitter }}
+		{{if twitter}}
 		<h3>Últimos tweets: <small><a target="_blank" href="http://www.twitter.com/${twitter}">@${twitter}</a></small></h3>
 		<div class="tw_timeline"></div>
 		{{/if}}
