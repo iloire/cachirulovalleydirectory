@@ -1,5 +1,5 @@
 <div class="loginBox">
-	<div data-bind='visible: logged_user'>
+	<div style="display:none" data-bind='visible: logged_user'>
 		<div data-bind='template: {name:"logged_userTemplate", data: logged_user}'></div>	
 	</div>
 	<script id='logged_userTemplate' type="text/x-jquery-tmpl">
@@ -7,9 +7,11 @@
 			Hola ${name} ! ( <a href="/logout">salir</a> )
 		</span>
 	</script>
-	<div data-bind='visible: logged_user()==null'>
+	<div style="display:none" data-bind='visible: logged_user()==null'>
 		<a class="login" href="/login">
 			Entrar
 		</a>
+		/
+		<a href="/about">¿Qué es esto?</a>
 	</div>
 </div>
