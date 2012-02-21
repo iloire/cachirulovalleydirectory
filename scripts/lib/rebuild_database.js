@@ -7,7 +7,7 @@ var config = require ('../../config').values;
 
 var redis 
 
-var extra_users_for_each_cat = 10
+var extra_users_for_each_cat = 20
 
 function $() { return Array.prototype.slice.call(arguments).join(':') }
 
