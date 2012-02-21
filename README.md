@@ -5,7 +5,7 @@
 
 This is professional directory created in express.js and redis. Once you login (linkedin auth), you can create your profile, tag your skills, and recommend other people.
 
-## REDIS DATABASE STRUCTURE
+## REDIS DATABASE SCHEMA
 
     <Project>:user:<id>  (object) => user object in json notation
     <Project>:user:<id>:tags (set) => set of tags for particular user
