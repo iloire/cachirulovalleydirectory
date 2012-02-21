@@ -25,7 +25,53 @@ This is professional directory created in express.js and redis. Once you login (
 
     <Project>:cat:<id_cat>:tag:<tag>:f:<0/1>:e:<0/1>, region (ordered set) => fast access to filter by region, cat, tag, freelance and entrepreneur settings.
 
+##Installation
+
+###Install redis database in your server first
+
+[http://redis.io/download](http://redis.io/download)
+
+###Install dependencies with npm:
+
+    npm install
+
+###Run redis
+
+    redis-server redis.conf
+
+##Tests
+
+There is a test infrastructure built for:
+
+* **Http tests**: test the application "from the outside", with basic http requests.
+* **Module tests**: test the library internals.
+* **Zombie tests**: test the application with zombie's headless browser (tests ajax, checks DOM, js events, etc).
+
+**Run tests with npm**.
+
+The npm script with launch a new instance of redis database for testing, a new instance of the app, will launch the tests and then shutdown both redis database and app test instances, so no data is touched from the development or production databases.
+
+To run the tests:
+
+    npm test
+
+##Scripts
+
+###Rebuild database:
+
+There is a script used by the test suite in order to create an initial amount of dummy data the tests can run against. The data is populated on the testing database. This database is created on the fly and and deleted after the tests passes.
+
+You can also use the script manually to populate de production/development database:
+
+    node scripts/rebuild_database.js deletealldata
+
+("deletealldata" is a confirmation word, so you don't delete the production database by accident)
+
 ## TAGS (change log):
+
+**0.3** (not released yet)
+
+ * Deep linking through pagination and tag selection
 
 **0.2**
 
