@@ -213,7 +213,8 @@ var getApp = function (redis, config) {
 		}
 		var params = {uservoted: {id: req.param('user_voted_id')}, user: req.session.user, vote: req.param('vote')};
 		module_users.VoteUser (redis, params , function (err, status){
-			common.renderJSON(req, res, err || status, err ? 503 : 200, req.query["callback"])
+			var data = err ? {error: err} : status
+			common.renderJSON(req, res, data, err ? 503 : 200, req.query["callback"])
 		});
 	});
 
