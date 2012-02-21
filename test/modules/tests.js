@@ -22,7 +22,7 @@ exports.tests = [
 		printCurrentTest();
 		var params = {id_cat: 1, pagination: {pagesize : 100}}
 		module_users.GetUsers(redis, params, function(err, users){
-			assert.equal (users.length, 20)
+			assert.equal (users.length, 30)
 			for (var i = 0;i<users.length;i++)
 				assert.ok (users[i].id) //all users with id
 
@@ -136,7 +136,7 @@ exports.tests = [
 			assert.equal(cats.length, 7)
 			for (var i=0, l=cats.length;i<l;i++){
 				if (cats[i].name=='Programadores')
-					assert.equal (cats[i].users_count, 20)
+					assert.equal (cats[i].users_count, 30)
 			}
 			callback(null);
 		})
@@ -200,7 +200,7 @@ exports.tests = [
 									assert.equal(cats.length, 7)
 									for (var i=0, l=cats.length;i<l;i++){
 										if (cats[i].name=='Programadores')
-											assert.equal (cats[i].users_count, 19)
+											assert.equal (cats[i].users_count, 29)
 									}
 
 									module_tags.GetTags(redis, {}, function(err, tags){
@@ -209,7 +209,7 @@ exports.tests = [
 												assert.equal (tags[i].n, 1)
 										}
 										module_users.SetUsers(redis, {users:[user_original]}, function (err, users){
-											assert.equal(users[0].id, 83);
+											assert.equal(users[0].id, 153);
 											callback(null);	
 										})
 									})
@@ -224,13 +224,14 @@ exports.tests = [
 	}
 	,
 	function Search (callback){
-		module_users.Search(redis, {search:'redis'}, function(err, users){
+		module_users.Search(redis, {search:'redis node'}, function(err, users){
 			assert.equal (users[0].id, 1);
+			assert.equal (users.length, 2);
 			var found_new_user=false
 			for (var i=0;i<users.length;i++){
 				assert.ok(users[i].id!=2); //user 2 has been deleted
 				
-				if (users[i].id==83)
+				if (users[i].id==153)
 					found_new_user=true;
 			}
 			assert.ok(found_new_user);
@@ -239,13 +240,14 @@ exports.tests = [
 	}
 	,
 	function SearchWithAccent (callback){
-		module_users.Search(redis, {search:'rèdís'}, function(err, users){
+		module_users.Search(redis, {search:'rèdís nodé'}, function(err, users){
 			assert.equal (users[0].id, 1);
+			assert.equal (users.length, 2);
 			var found_new_user=false
 			for (var i=0;i<users.length;i++){
 				assert.ok(users[i].id!=2);
 				
-				if (users[i].id==83)
+				if (users[i].id==153)
 					found_new_user=true;
 			}
 			assert.ok(found_new_user);
@@ -253,22 +255,38 @@ exports.tests = [
 		})
 	}
 	,
+	function SearchPagination (callback){
+		module_users.Search(redis, {search:'javascript'}, function(err, users){
+			assert.equal (users.length, 140); //no pagination
+			module_users.Search(redis, {pagination:{from: 0}, search:'javascript'}, function(err, users){
+				assert.equal (users[0].id, 13);
+				assert.equal (users.length, 15);
+				module_users.Search(redis, {pagination:{from: 1}, search:'javascript'}, function(err, users){
+					assert.equal (users[0].id, 28);
+					assert.equal (users.length, 15);
+					callback(null);
+				})
+			})
+		})
+	}
+	,	
 	function FavUser(callback){
 		printCurrentTest();
-		module_users.GetUser(redis, {id: 83}, function(err, user){
+		var new_user_id = 153
+		module_users.GetUser(redis, {id: new_user_id}, function(err, user){
 			var user_original = user;
 			assert.ok(user);
 			assert.ok (!user.favorite);
-			var params = {user: {id:1 }, userfav :{id:83}}
+			var params = {user: {id:1 }, userfav :{id:new_user_id}}
 			module_users.FavUser(redis, params, function (err, user){
 				assert.ok (!user)
 				assert.ok (err);  //bad params (missing favstatus)
-				var params = {user: {id:1 }, userfav :{id:83}, favstatus:1}
+				var params = {user: {id:1 }, userfav :{id:new_user_id}, favstatus:1}
 				module_users.FavUser(redis, params, function (err, user){
 					assert.ok (user.favorite)
 					assert.ok (!err);
 					params.logged_user = params.user
-					params.id = 83
+					params.id = new_user_id
 					module_users.GetUser(redis, params, function(err, user){
 						assert.equal (user.favorite, 1);
 						callback(null);
