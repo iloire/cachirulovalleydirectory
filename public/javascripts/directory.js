@@ -485,7 +485,11 @@ $(document).ready(function () {
 	
 	$('#searchBox').keydown (function(e){
 		if ((e.keyCode=='13') || (e.keyCode=='32')){
-			$.address.value('search/' + $('#searchBox').val());
+			var virtualPath = document.URL.replace(/^(?:\/\/|[^\/]+)*\//, "")
+			if (virtualPath.indexOf('directory')==0) //directory page
+				$.address.value('search/' + $('#searchBox').val());
+			else //content page
+				window.location.href = '/directory/#search/' + $('#searchBox').val();
 		}
 	});
 
