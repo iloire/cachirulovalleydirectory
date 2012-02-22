@@ -159,7 +159,7 @@
 			</ul>
 		{{/if}}
 
-		{{if (other_data && (other_data.entrepreneur || other_data.freelance || other_data.looking_for_contracts))}}
+		{{if ((other_data!=null) && (other_data.entrepreneur || other_data.freelance || other_data.looking_for_contracts))}}
 		<h3>Más cosicas sobre mí</h3>
 		<div>
 		   <ul>
@@ -178,7 +178,7 @@
 		</div>
 		{{/if}}
 
-		{{if portfolio}}
+		{{if (portfolio!=null)}}
 			<div class="portfolio">
 			<h3>Portfolio</h3>
 			<ul>
