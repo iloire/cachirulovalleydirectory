@@ -3,6 +3,10 @@
 
 ![screenshot](https://github.com/iloire/CachiruloValleyDirectory/raw/master/screenshots/view01.png)
 
+##Check it out!
+
+[directorio.cachirulovalley.com](http://directorio.cachirulovalley.com)
+
 This is professional directory created in express.js and redis. Once you login (linkedin auth), you can create your profile, tag your skills, and recommend other people.
 
 ## REDIS DATABASE SCHEMA
@@ -69,9 +73,11 @@ You can also use the script manually to populate de production/development datab
 
 ## TAGS (change log):
 
-**0.3** (not released yet)
-
+**0.3** 
+ 
+ * Published at [directorio.cachirulovalley.com](http://directorio.cachirulovalley.com)
  * Deep linking through pagination and tag selection
+ * Added web site content and about section.
 
 **0.2**
 
