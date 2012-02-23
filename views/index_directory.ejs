@@ -164,7 +164,17 @@
 		<div>
 		   <ul>
 		   {{if other_data.entrepreneur}}
-			 <li>Me considero emprendedor. Estoy interesado en crear empresas a corto plazo.</li>
+			 <li>Me considero emprendedor. Estoy interesado en crear empresas a corto plazo.
+			   {{if other_data.vc_partner}}
+				 Me interesaría participar como socio capitalista.
+			   {{/if}}
+			   {{if other_data.tech_partner}}
+				 Me interesaría participar como socio técnico.
+			   {{/if}}
+			   {{if other_data.business_partner}}
+				 Me interesaría participar como socio especialista en negocio.
+			   {{/if}}
+			</li>
 		   {{/if}}
 
 		   {{if other_data.freelance}}
