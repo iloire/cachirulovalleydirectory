@@ -133,7 +133,10 @@ var getApp = function (redis, config) {
 
 							if (user_linkedin.pictureUrl) //update pic
 								user_db.image=user_linkedin.pictureUrl;
-							
+
+							if (user_linkedin.id) //linkedin_id
+								user_db.linkedin_id=user_linkedin.id;
+
 							callback (user_db);
 						}
 						else{
@@ -248,7 +251,7 @@ var getApp = function (redis, config) {
 				);	
 			})
 		}
-		if (!req.session.user){
+		if (!req.session.user) { //at this point we may have or not user.id
 			req.session.redirect = '/editprofile';
 			res.redirect ('/login');
 		}
@@ -256,9 +259,10 @@ var getApp = function (redis, config) {
 			var user_to_edit_id = req.query['id'] || req.session.user.id;
 			if (req.session.user.id != user_to_edit_id){
 				//editing other user.. admin?
-				if (!common.contains(config.admins, req.session.user.linkedin_id)){
+				if (!req.session.user.linkedin_id || !common.contains(config.admins, req.session.user.linkedin_id)){
  					res.writeHeader(403, {'Content-Type':'text/plain'});
 					res.end ('access denied');
+
 					return;
 				}
 			}
@@ -277,11 +281,11 @@ var getApp = function (redis, config) {
 	//edit or create profile POST
 	app.post ('/editprofile', function (req,res){
 		if (!config.registration_enabled){
-			res.send ('En este momento el formulario de registro y modificación de perfil no está habilitado')
+			res.send ('En este momento el formulario de registro y modificación de perfil no está habilitado. Por favor vuelve en un ratico co!')
 			return;
 		}
 
-		if (!req.session.user){
+		if (!req.session.user){ //at this point we may have or not user.id
 			res.redirect ('/editprofile')
 			return;
 		}
@@ -289,13 +293,13 @@ var getApp = function (redis, config) {
 		var user_to_edit_id = req.query['id'] || req.session.user.id;
 		if (req.session.user.id != user_to_edit_id){
 			//editing other user.. admin?
-			if (!common.contains(config.admins, req.session.user.linkedin_id)){
+			if (!req.session.user.linkedin_id || !common.contains(config.admins, req.session.user.linkedin_id)){
 				res.writeHeader(403, {'Content-Type':'text/plain'});
 				res.end ('access denied');
 				return;
 			}
 		}
-		
+
 		module_users.GetUser(redis, {id:user_to_edit_id}, function get_user (err, user){
 			if (!user){
 				//user doesn't exist in the database. Case of new user filling their profile.
