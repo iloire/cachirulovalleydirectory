@@ -425,6 +425,8 @@ $(document).ready(function () {
 		$('#pagination').html(str);
 
 		setFilterDisplay(selected);
+		
+		$('.popover').hide(); //avoid bootstrap tooltip to get stucked
 	});
 
 	//when profile loads	
