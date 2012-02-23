@@ -139,6 +139,8 @@ function set_content_by_hash (hash, callback){
 		else
 			params.id_cat = 1;
 
+		params.sort = $('#sortingSelect').val();
+
 		directory.load_data (params, function(err, data, ui_status){
 			$(document).trigger("directory.onProfessionalListChanged", ui_status);
 			if (callback) callback();
@@ -290,7 +292,6 @@ var directory = (function () {
 				viewModel.bindprofessionals (data.users);
 			}
 
-			
 			viewModel.logged_user (data.logged_user);
 			
 			if (data.tags && (params.bindusers!==false)){
