@@ -39,7 +39,6 @@ viewModel.tagslist = ko.dependentObservable(function() {
 	return tags;
 }, viewModel);
 
-var last_query = null;
 var loading = '<img class=loading alt="loading..." src="/images/menu-loading.gif" />'
 
 function setFilterDisplay (initial_filter){
@@ -239,7 +238,17 @@ function renderProfile(user, callback){
 var directory = (function () {
 	var dir = {}
 	var ui_status = {id_cat:1, tag: '', cat:{}};
+	var cache_keys = [];
  	
+	function add(arr, value) {
+		for (var i=0; i < arr.length; i++) {
+			if (arr[i] === value) {
+				return;
+			}
+		}
+		arr.push(value)
+	}
+
 	function post (url, params, callback){
 		 $.ajax({
 				type: "POST",
@@ -259,6 +268,13 @@ var directory = (function () {
 					callback(error, null);
 				}
 	    });
+	}
+
+	dir.invalidate_cache = function (callback){
+		//console.log ('invalidating cache')
+		for (var i=0;i<cache_keys.length;i++){
+			$('body').removeData(cache_keys[i]);
+		}
 	}
 	
 	//PUBLIC
@@ -286,8 +302,22 @@ var directory = (function () {
 		
 		params.scope = getScope();
 
-		$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
-		{
+		var cache_key = JSON.stringify(params);
+		var cache=true
+		if (cache && $('body').data(cache_key)){
+			//console.log ('hit cache' + cache_key)
+			process_data($('body').data(cache_key))
+		}
+		else{
+			$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
+			{
+				process_data(data);
+				$('body').data(cache_key, data);
+				add(cache_keys, cache_key)
+			});
+		}
+		
+		function process_data(data){
 			if (params.bindusers!==false){
 				viewModel.bindprofessionals (data.users);
 			}
@@ -308,7 +338,8 @@ var directory = (function () {
 
 			if (callback)
 				callback(null, data, ui_status);
-		});	
+		}
+		
 	}
 	
 	dir.vote = function (params, callback){
@@ -454,6 +485,7 @@ $(document).ready(function () {
 		var id = $(this).attr('idProfile');
 		var params = {vote:$(this).attr('vote'), id: id};
 		directory.vote(params, function(err, user_voted){
+			directory.invalidate_cache();
 			if (!err){
 				var user = viewModel.get_user_from_ViewModel(id);
 				if (user){
@@ -469,6 +501,7 @@ $(document).ready(function () {
 		var id = $(this).attr('idProfile');		
 		var params = {favstatus:$(this).attr('fav'), id:id};
 		directory.favorite (params, function(err, user_fav){
+			directory.invalidate_cache();
 			if (!err){
 				var user = viewModel.get_user_from_ViewModel(id);
 				if (user){
