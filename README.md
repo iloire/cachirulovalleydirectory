@@ -101,6 +101,7 @@ You can also use the script manually to populate de production/development datab
 
 ## TODO
 
+ * Static content compression/minification
  * Keyboard navigation
  * i18n
  * Improve recommendation icons and style.
