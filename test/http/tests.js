@@ -230,7 +230,7 @@ exports.tests = [
 	,
 	function users_by_cat_jsonp (callback){
 		printCurrentTest();
-		request(base_address + '/api/users?id_cat=1&page=20&callback=test', function (err,res,body) {
+		request(base_address + '/api/users?id_cat=1&page=30&callback=test', function (err,res,body) {
 			assert.equal (res.headers['content-type'],'application/javascript');
 			assert.equal(res.statusCode, 200);
 			assert.ok(body.indexOf ('test({"users":[')>-1);
@@ -409,12 +409,22 @@ exports.tests = [
 		});	
 	}	
 	,
+	function edit_other_profile_anonymous_fails (callback){
+		printCurrentTest();
+		request.get({url: base_address + '/editprofile?id=45', followRedirect:false}, function (err,res,body) {
+			assert.equal(res.statusCode, 403);  //denied. user without user.id (not registered yet) trying to reach other profile
+			callback(null);
+		});	
+	}
+	,
 	function edit_other_profile_fails (callback){
 		printCurrentTest();
-		request.get({url: base_address + '/editprofile?id=45'}, function (err,res,body) {
-			assert.equal (res.headers['content-type'],'text/plain');
-			assert.equal(res.statusCode, 403); 
-			callback(null);
+		request.get({url: base_address + '/injectsession?id=2'}, function (err,res,body) {
+			request.get({url: base_address + '/editprofile?id=45', followRedirect:false}, function (err,res,body) {
+				assert.equal (res.headers['content-type'],'text/plain', body);
+				assert.equal(res.statusCode, 403); 
+				callback(null);
+			});
 		});	
 	}
 	,	

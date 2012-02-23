@@ -4,6 +4,7 @@ var module_users = require ('../../lib/modules/users')
 var module_tags = require ('../../lib/modules/tags')
 var module_cats = require ('../../lib/modules/cats')
 var config = require ('../../config').values
+var common = require ('../../lib/common')
 var redis 
 var extra_dummy_users_for_each_cat 
 
@@ -295,5 +296,13 @@ exports.tests = [
 			})
 		})
 	}
-	
+	,
+	function contains (callback){
+		printCurrentTest();
+		var data=['hi','there']
+		assert.ok(common.contains(data,'hi'));
+		assert.ok(common.contains(data,'there'));
+		assert.ok(!common.contains(data,'hello'));
+		callback(null)
+	}
 ]
