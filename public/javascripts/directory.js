@@ -109,6 +109,7 @@ function set_content_by_hash (hash, callback){
 			directory.load_profile(id_profile, function (err, user){
 				directory.load_data ({id_cat: user.cats[0], bindusers: false, bindtags:false}, function(err, data){
 					viewModel.bindprofessionals([user]);
+					viewModel.tags (data.tags);
 					renderProfile(viewModel.professionals()[0], function(err, data){
 						$(document).trigger("directory.onProfileLoaded", user);	
 						if (callback) callback();
@@ -456,7 +457,7 @@ $(document).ready(function () {
 		$('#pagination').html(str);
 
 		setFilterDisplay(selected);
-		
+		$('.sortingOptions').show();
 		$('.popover').hide(); //avoid bootstrap tooltip to get stucked
 	});
 
