@@ -8,6 +8,7 @@ var viewModel = {
 	bindprofessionals  : function (professionals){
 		for (var p=0;p<professionals.length;p++){
 			professionals[p].expanded = false;
+			professionals[p].friendlyurlname = friendly_url(professionals[p].name);
 		}
 		this.professionals = ko.mapping.fromJS(professionals)
 		ko.applyBindings(this);
@@ -52,6 +53,22 @@ function setFilterDisplay (initial_filter){
 		initial_filter.push({name: 'Emprendedor', value: 'SI'});
 
 	viewModel.filter (initial_filter);
+}
+
+function friendly_url (url){
+	return url
+			.toLowerCase() // change everything to lowercase
+			.replace(/^\s+|\s+$/g, "") // trim leading and trailing spaces		
+			.replace(/[_|\s]+/g, "-") // change all spaces and underscores to a hyphen
+			.replace(/[^a-z0-9-]+/g, "") // remove all non-alphanumeric characters except the hyphen
+			.replace(/[-]+/g, "-") // replace multiple instances of the hyphen with a single instance
+			.replace(/^-+|-+$/g, "") // trim leading and trailing hyphens
+			.replace(new RegExp("[àáâãäå]", 'g'),"a")
+			.replace(new RegExp("[èéêë]", 'g'),"e")
+			.replace(new RegExp("[ìíîï]", 'g'),"i")
+			.replace(new RegExp("[òóôõö]", 'g'),"o")
+			.replace(new RegExp("[ùúûü]", 'g'),"u")
+			;	
 }
 
 function getScope(){ 
@@ -272,10 +289,7 @@ var directory = (function () {
 	}
 
 	dir.invalidate_cache = function (callback){
-		//console.log ('invalidating cache')
-		for (var i=0;i<cache_keys.length;i++){
-			$('body').removeData(cache_keys[i]);
-		}
+		localStorage.clear();
 	}
 	
 	//PUBLIC
@@ -303,18 +317,27 @@ var directory = (function () {
 		
 		params.scope = getScope();
 
-		var cache_key = JSON.stringify(params);
-		var cache=true
-		if (cache && $('body').data(cache_key)){
-			//console.log ('hit cache' + cache_key)
-			process_data($('body').data(cache_key))
+		var cache_key = params.id_cat + '.' + params.tag + '.' + params.search + '.' + params.sort + '.' + params.from + '.' + JSON.stringify(params.scope).replace('"','');
+		var cache = !!window.localStorage;
+		var refresh = true;
+		if (cache && localStorage.getItem(cache_key)){
+			//console.log (localStorage.getItem(cache_key))
+			var obj = JSON.parse(localStorage.getItem(cache_key));
+			var expiration_time = 1000 * 60 * 3; //miLliseconds
+			if (obj.cache_timestamp && ((new Date().getTime() - obj.cache_timestamp) < expiration_time)){
+				refresh = false;
+				process_data(obj)
+			}
 		}
-		else{
+		
+		if (refresh) {
 			$.getJSON(params.search ? '/api/search' : '/api/users', params, function (data) 
 			{
 				process_data(data);
-				$('body').data(cache_key, data);
-				add(cache_keys, cache_key)
+				if (cache){
+					data.cache_timestamp = new Date().getTime();
+					localStorage.setItem(cache_key, JSON.stringify(data));
+				}
 			});
 		}
 		
@@ -392,7 +415,7 @@ $(document).ready(function () {
 			full_link = '/search/' + encodeURIComponent(ui_status.search);
 		}
 		else{
-			var link = '';
+			var link_str = '';
 			if (ui_status.cat && ui_status.cat.id){
 				var text = "";
 				$('ul#categories li').removeClass('selected');
@@ -401,18 +424,20 @@ $(document).ready(function () {
 						$(this).parent().addClass('selected');
 					}
 				});
-				link = "/categories/" + ui_status.cat.id + '/' + ui_status.cat.name;
+				link_str = "/categories/" + ui_status.cat.id + '/' + ui_status.cat.name;
 				selected.push({name: 'Categoría', value: ui_status.cat.name, type: 'primary cat'});
 			}
 
-			full_link = link;
+			full_link = link_str;
 
 			$('ul#tags li').removeClass('selected'); //remove selected from tags
 			$('ul#tags li a').each(function() {
-				$(this).click (function () { return false; });
-
-				$(this).attr('rel', "address:" + link + '/tag/' + encodeURIComponent($(this).text()));
-				$(this).attr('href', '/directory' + link + '/tag/' + encodeURIComponent($(this).text()));
+				$(this).click (function () { 
+					$.address.value(link_str + '/tag/' + encodeURIComponent($(this).text()));
+					return false; 
+				});
+				$(this).attr('rel', "address:" + link_str + '/tag/' + encodeURIComponent($(this).text()));
+				$(this).attr('href', '/directory' + link_str + '/tag/' + encodeURIComponent($(this).text()));
 				if ($(this).attr('tag') == ui_status.tag) {
 					$(this).parent().addClass('selected');
 				}
@@ -455,7 +480,13 @@ $(document).ready(function () {
 		}
 		
 		$('#pagination').html(str);
-
+		$('#pagination a').each(function() {
+			$(this).click (function () { 
+				$.address.value($(this).attr('rel').replace('address:',''));
+				return false; 
+			});
+		});
+		
 		setFilterDisplay(selected);
 		$('.sortingOptions').show();
 		$('.popover').hide(); //avoid bootstrap tooltip to get stucked
