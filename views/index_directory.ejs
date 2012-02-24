@@ -91,7 +91,7 @@
 	{{if expanded}}
 		<h2>${name}</h2>
 	{{else}}
-		<a rel="address:/user/${id}/${encodeURIComponent(name())}" class="viewprofile" idProfile="${id}" href="#/user/${id}/${name}">${name}</a>	
+		<a rel="address:/user/${id}/${friendlyurlname}" class="viewprofile" idProfile="${id}" href="#/user/${id}/${friendlyurlname}">${name}</a>	
 	{{/if}}
 
 	<img class="avatar" src="${image}"/>
