@@ -1,7 +1,4 @@
 <div class="row">
-	<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley - Directorio">
-</div>
-<div class="row">
 	<div class="span8">
 		<div class="random_professionals">
 		<% for (i=0;i<users.length;i++){%>
@@ -9,13 +6,14 @@
 			<img src="<%=users[i].image%>" alt="">
 			</a>
 		<%}%>
+			<p><a href="/editprofile" class="btn large">¡Regístrate!</a></p>
 			<p>
-				Darte de alta sólo lleva 5 minutos, y únicamente necesitas una cuenta en linkedin.
+				Lleva 1 minuto, y sólo necesitas una cuenta en linkedin.
 			</p>
-			<p><a href="/editprofile" class="btn large">Registrarse o editar perfil</a></p>
 		</div>
 	</div>
 	<div class="span7 intro offset1">
+		<img class="logo" src="/images/logo.jpg" alt="Cachirulo Valley - Directorio">
 		<h3>Directorio de Cachirulo Valley</h3>
 		<ul>
 			<li>Busca <strong>perfiles complementarios</strong> en Aragón o fuera</li>
@@ -25,6 +23,20 @@
 		<p>	
 			<a id="btoEnter" href="/directory" class="btn large primary">Entrar al directorio</a>
 		</p>
+		<div class="searching_professionals">
+		<p>Buscas profesionales...</p>
+		<ul>
+			<li><a href="/directory#/categories/1/Programadores">programadores</a></li>
+			<li><a href="/directory#/categories/2/Diseñadores">diseñadores</a></li>
+			<li><a href="/directory#/categories/3/SEO">SEO</a></li>
+			<li><a href="/directory#/categories/4/Marketing">marketing</a></li>
+			<li><a href="/directory#/categories/5/Sistemas">sistemas</a></li>
+			<li><a href="/directory#/categories/6/UX">experiencia de usuario</a></li>
+			<li><a href="/directory#/categories/7/Negocio">de desarrollo de negocio</a></li>
+		</ul>
+		</div>
+		
+		<!--
 		<div class="iphone row">
 			<span class="span2">
 			<img src="/images/iphone.png" style="max-width:80px">
@@ -33,5 +45,6 @@
 			<p>Próximamente en tu iPhone</p>
 			</span>
 		</div>
+		-->
 	</div>
 </div>
