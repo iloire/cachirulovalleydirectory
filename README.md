@@ -114,12 +114,14 @@ You can also use the script manually to populate de production/development datab
 ##Contributions
 
  * [Fernando Val - @aaromnido](http://www.twitter.com/aaromnido) : Web site design
- * [CachiruloValley team](http://www.cachirulovalley.com): Brainstorming, feedback, support.
+ * [CachiruloValley team](http://www.cachirulovalley.com): Brainstorming, feedback, support. Cachirulo Valley are:
  
     * [Pablo Jimeno - @pablojimeno](http://www.twitter.com/pablojimeno)
     * [Alberto Gimeno - @gimenete](http://www.twitter.com/gimenete)
     * [Dani Latorre - @dani_latorre](http://www.twitter.com/dani_latorre)
     * [Guillermo Latorre - @superwillyfoc](http://www.twitter.com/superwillyfoc)
+	* [Fernando Val - @aaromnido](http://www.twitter.com/aaromnido)
+	* [Ivan Loire - @ivanloire](http://www.twitter.com/ivanloire)
 
 ##LICENSE
 
