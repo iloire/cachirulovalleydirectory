@@ -73,6 +73,11 @@ You can also use the script manually to populate de production/development datab
 
 ## TAGS (change log):
 
+**0.4** (on progress)  
+
+ * Make recommendation default sorting method
+ * User friendly urls for profile names.
+
 **0.3** 
  
  * Published at [directorio.cachirulovalley.com](http://directorio.cachirulovalley.com)
@@ -105,3 +110,23 @@ You can also use the script manually to populate de production/development datab
  * Keyboard navigation
  * i18n
  * Improve recommendation icons and style.
+
+##Contributions
+
+ * [Fernando Val - @aaromnido](http://www.twitter.com/aaromnido) : Web site design
+ * [CachiruloValley team](http://www.cachirulovalley.com): Brainstorming, feedback, support.
+ 
+    * [Pablo Jimeno - @pablojimeno](http://www.twitter.com/pablojimeno)
+    * [Alberto Gimeno - @gimenete](http://www.twitter.com/gimenete)
+    * [Dani Latorre - @dani_latorre](http://www.twitter.com/dani_latorre)
+    * [Guillermo Latorre - @superwillyfoc](http://www.twitter.com/superwillyfoc)
+
+##LICENSE
+
+Copyright (c) 2011 Iván Loire Mallén - [www.iloire.com](http://www.iloire.com) (twitter [@ivanloire](http://www.twitter.com/ivanloire))
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
