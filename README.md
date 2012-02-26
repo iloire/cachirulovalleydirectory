@@ -7,7 +7,7 @@
 
 [directorio.cachirulovalley.com](http://directorio.cachirulovalley.com)
 
-This is professional directory created in express.js and redis. Once you login (linkedin auth), you can create your profile, tag your skills, and recommend other people.
+This is **professional directory** created in express.js and redis. Once you login (linkedin auth), you can create your profile, tag your skills, and recommend other people.
 
 ## REDIS DATABASE SCHEMA
 
@@ -28,6 +28,8 @@ This is professional directory created in express.js and redis. Once you login (
     <Project>:votes:<id> (set) => set of votes for particular user (each item is the id of the user who voted)
 
     <Project>:cat:<id_cat>:tag:<tag>:f:<0/1>:e:<0/1>, region (ordered set) => fast access to filter by region, cat, tag, freelance and entrepreneur settings.
+
+The application has been **successfully tested with more than 100K users**.
 
 ##Installation
 
