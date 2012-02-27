@@ -1,5 +1,5 @@
 exports.values={
-	version: '0.2.10',
+	version: '0.2.11',
 	server : {
 		production : {
 			database : { port: 1212, host : '127.0.0.1', db: 'cachirulo' },
