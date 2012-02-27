@@ -545,6 +545,7 @@ $(document).ready(function () {
 	});
 
 	$('a.login').live ('click', function(){
+		directory.invalidate_cache();
 		$(this).html('Redirigiendo a login...')
 		$(this).attr('href', $(this).attr('href') + '?redirect=/directory#' + $.address.value());
 	});
@@ -560,6 +561,8 @@ $(document).ready(function () {
 				window.location.href = '/directory/#search/' + $('#searchBox').val();
 		}
 	});
+
+	directory.invalidate_cache(); //invalidate cache on initial page load (could have changed credentials, logout, etc)
 
 	$.address.init(function(event) {
 	
