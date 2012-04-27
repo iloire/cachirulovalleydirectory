@@ -44,7 +44,7 @@ exports.tests = [
 		browser.visit(base_address, function (err, browser) {
 			assert.ok(browser.success);
 			assert.ok(!browser.errors.length);
-			browser.clickLink ('Entrar al directorio', function(e, browser, status){
+			browser.clickLink ('programadores', function(e, browser, status){
 				assert.ok (browser.success);
 				assert.ok(!browser.errors.length);
 				//directory page looks good if I came from link in home
