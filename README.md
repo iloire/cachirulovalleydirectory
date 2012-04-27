@@ -35,7 +35,7 @@ The application has been **successfully tested with more than 100K users**.
 
 ### Watch the video (via codestre.am)
 
-[http://codestre.am/ef96eb866d595e7801277fa58](http://codestre.am/ef96eb866d595e7801277fa58)
+[http://codestre.am/713d63501a1b2d9a923cbc05e](http://codestre.am/713d63501a1b2d9a923cbc05e)
 
 ###Install redis database in your server first
 
