@@ -33,13 +33,17 @@ The application has been **successfully tested with more than 100K users**.
 
 ##Installation
 
+### Watch the video (via codestre.am)
+
+[http://codestre.am/ef96eb866d595e7801277fa58](http://codestre.am/ef96eb866d595e7801277fa58)
+
 ###Install redis database in your server first
 
 [http://redis.io/download](http://redis.io/download)
 
 ###Install dependencies with npm:
 
-    npm install
+    npm install -d
 
 ###Run redis
 
