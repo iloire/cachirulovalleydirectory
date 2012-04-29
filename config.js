@@ -10,6 +10,7 @@ exports.values={
 		}
 	}
 	,
+	min_tags_count_to_show : 2, //minimum ammount of tags to show
 	default_page_size: 15,
 	admins: ['HWHfu0v9eX'],
 	number_portfolio_urls : 5,
