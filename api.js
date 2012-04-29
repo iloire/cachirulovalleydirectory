@@ -36,6 +36,10 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 		}
 		return tags.sort(sorter);
 	}
+
+	function tags_with_at_least (tags, n){ //return tags with minimum number of items
+		return tags.filter(function(tag){return tag.n>=n}, tags);
+	}
 	
 	function PrepareForDisplayUsers (req, users){ //users or user
 		if (!users) return null;
@@ -97,7 +101,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 
 					common.renderJSON(req, res, {
 						users: common.removeUnwantedFields(users),
-						tags: sort_tags(tags),
+						tags: sort_tags(tags_with_at_least(tags,config.min_tags_count_to_show)),
 						cats: cats,
 						cat: cat,
 						pagination: {
@@ -139,7 +143,7 @@ exports.configure = function (app, redis, module_users, module_cats, module_tags
 				common.renderJSON(req, res, {
 					cats: cats,
 					users: PrepareForDisplayUsers(req, users), 
-					tags: get_unique_tags_by_users(users),
+					tags: tags_with_at_least(get_unique_tags_by_users(users),config.min_tags_count_to_show),
 					logged_user: common.removeUnwantedFields(req.session.user),
 					pagination: {
 						pagesize: params.pagination.pagesize,
