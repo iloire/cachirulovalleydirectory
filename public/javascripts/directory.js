@@ -530,7 +530,7 @@ $(document).ready(function () {
 	});
 
 	$('a.fav').live ('click', function(){
-		var id = $(this).attr('idProfile');		
+		var id = $(this).attr('idProfile');
 		var params = {favstatus:$(this).attr('fav'), id:id};
 		directory.favorite (params, function(err, user_fav){
 			directory.invalidate_cache();
