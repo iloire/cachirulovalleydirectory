@@ -79,18 +79,26 @@ You can also use the script manually to populate de production/development datab
 
 ## TAGS (change log):
 
-**0.4** (on progress)  
+**0.0.5**
+ 
+ * Added gzip compression using gzippo module.
+ * Compress JS assets with uglifyjs.
+ * Upgraded jquery.timeago to 0.11.1
+ * Project cleaning and refactoring.
+ * Filter tags by a those who contain a minimum of ocurrences (defined on config file).
+
+**0.0.4**
 
  * Make recommendation default sorting method
  * User friendly urls for profile names.
 
-**0.3** 
+**0.0.3** 
  
  * Published at [directorio.cachirulovalley.com](http://directorio.cachirulovalley.com)
  * Deep linking through pagination and tag selection
  * Added web site content and about section.
 
-**0.2**
+**0.0.2**
 
  * Huge performance improvement, load tests (successful load testing with +100.000 users)
  * Sorting
@@ -99,15 +107,12 @@ You can also use the script manually to populate de production/development datab
  * Added github own projects sorter by watchers.
  * Styling and other global improvements
 
-**0.1**
+**0.0.1**
 
  * Added tests (zombie.js based and pure http tests)
  * Added user recomendation feature
  * Improved style
  * Improvements overall
-
-**0.0**
-
  * Initial work based on previous code : FreelanceDirectory-server + FreelanceDirectory-web
 
 ## TODO
