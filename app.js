@@ -1,11 +1,10 @@
 var getApp = function (redis, config) {
-	var express = require('express');
-	var common = require ('./lib/common.js');
-	var api = require ('./api');
-
-	var module_cats = require("./lib/modules/cats.js")
-	var module_tags = require("./lib/modules/tags.js")
-	var module_users = require("./lib/modules/users.js")
+	var express = require('express')
+	, common = require ('./lib/common.js')
+	, api = require ('./api')
+	, module_cats = require("./lib/modules/cats.js")
+	, module_tags = require("./lib/modules/tags.js")
+	, module_users = require("./lib/modules/users.js")
 
 	var linkedin_client = require('linkedin-js')(
 		config.LINKEDIN_API_KEY, 
@@ -28,24 +27,19 @@ var getApp = function (redis, config) {
 		app.use(express.cookieParser());
 		app.use(local_env);
 		
-		var sessionManagementType = 1
-		if (sessionManagementType==0){
-			app.use(express.session({ secret: 'your secret here.. shhaahh' }));
-		}
-		else{
-			var RedisStore = require('connect-redis')(express);
-			app.use(express.session({ secret: "keyboard cat", store: new RedisStore({
-				host: config.server.production.session_database.host,
-				port : config.server.production.session_database.port, 
-				db : config.server.production.session_database.db
-			}) }));
-		}
+		//app.use(express.session({ secret: 'your secret here.. shhaahh' }));
+		var RedisStore = require('connect-redis')(express);
+		app.use(express.session({ secret: "keyboard cat", store: new RedisStore({
+			host: config.server.production.session_database.host,
+			port : config.server.production.session_database.port, 
+			db : config.server.production.session_database.db
+		}) }));
 
 		app.use(app.router);
-		
-		var oneYear = 31557600000;
-		app.use(express.static(__dirname + '/public', { maxAge: oneYear }));
-		//app.use(express.static(__dirname + '/public'));
+
+		var gzippo = require('gzippo');
+		app.use(gzippo.staticGzip(__dirname + '/public'));
+
 	});
 
 	app.configure('development', function(){
@@ -106,11 +100,10 @@ var getApp = function (redis, config) {
 			res.render('index', {layout:'layout_home', title: 'Directorio CachiruloValley', categories : [],  users:users.slice(0,12), user: req.session.user});
 		});
 	});
-
+	
 	app.get('/login', function(req, res){
 		if (req.query['redirect']){
 			req.session.redirect = req.query['redirect'];
-			console.log (req.query['redirect'])
 		}
 
 		if (!req.session.user){
@@ -148,7 +141,7 @@ var getApp = function (redis, config) {
 							user.bio = user_linkedin.headline || '';
 							user.image = user_linkedin.pictureUrl;
 							user.location = user_linkedin.location.name;
-							user.linkedin_profile_url = user_linkedin.publicProfileUrl || '';
+							user.linkedin_profile_url = user_linkedin.publicProfileUrl || '';
 							user.other_data = {};
 							user.portfolio = [];
 							callback (user);
