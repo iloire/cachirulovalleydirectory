@@ -79,6 +79,12 @@ You can also use the script manually to populate de production/development datab
 
 ## TAGS (change log):
 
+**0.0.6**
+ 
+ * Use gravatar instead of linkedin avatars because the image URL gets broken once the user changes its linkedin profile image.
+ * Make package.json version fixed. Fix some other things on package.json that were pretty broken.
+ * Improvements to package.json scripts (now it is easier to start/stop the server).
+
 **0.0.5**
  
  * Added gzip compression using gzippo module.
