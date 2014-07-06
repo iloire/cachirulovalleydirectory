@@ -24,7 +24,8 @@
     "async": "0.1.15",
     "connect-redis": "1.2.0",
     "gzippo": "0.1.4",
-    "request": "2.9.100"
+    "request": "2.9.100",
+    "gravatar": "~1.0.6"
   },
   "devDependencies": {
     "Faker": "0.1.3",
