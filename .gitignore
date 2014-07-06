@@ -6,3 +6,4 @@ dump.rdb
 data.rdb
 test.rdb
 exported_users_cat_1.json
+env.sh
