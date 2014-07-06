@@ -13,7 +13,7 @@ exports.values = {
 	default_page_size: 15,
 	admins: ['HWHfu0v9eX'],
 	number_portfolio_urls : 5,
-	base_url : 'http://localhost:3000',
+	base_url : process.env.CACHIRULO_DIRECTORIO_BASE_URL || 'http://localhost:3000',
 	project_key: 'CachiruloValleyDirectory', //redis prefix
 	LINKEDIN_API_KEY : process.env.LINKEDIN_API_KEY,
 	LINKEDIN_SECRET_KEY : process.env.LINKEDIN_SECRET_KEY,
