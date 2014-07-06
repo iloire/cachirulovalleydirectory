@@ -1,4 +1,4 @@
-exports.values={
+exports.values = {
 	version: '0.2.11',
 	server : {
 		production : {
@@ -8,16 +8,15 @@ exports.values={
 		test : {
 			database : { port: 1213, host : '127.0.0.1', db: 'test' }
 		}
-	}
-	,
+	},
 	min_tags_count_to_show : 2, //minimum ammount of tags to show
 	default_page_size: 15,
 	admins: ['HWHfu0v9eX'],
 	number_portfolio_urls : 5,
 	base_url : 'http://localhost:3000',
-	project_key: 'cv', //redis prefix
-	LINKEDIN_API_KEY : "",
-	LINKEDIN_SECRET_KEY : "",
+	project_key: 'CachiruloValleyDirectory', //redis prefix
+	LINKEDIN_API_KEY : process.env.LINKEDIN_API_KEY,
+	LINKEDIN_SECRET_KEY : process.env.LINKEDIN_SECRET_KEY,
 	registration_enabled : true,
 	suggested_tags : [
 						'java', 'php','asp.net', 'node.js', 'asp.net mvc', 'c#', //programming
