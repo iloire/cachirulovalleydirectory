@@ -5,7 +5,7 @@ var appFactory = require ('../app');
 
 var dbconfig = config.server.test.database;
 var redis = require("redis").createClient(dbconfig.port, dbconfig.host);
-redis.select(dbconfig.db)
+redis.select(dbconfig.db);
 
 config.server.production.session_database = dbconfig; //make sure session for tests is saved in testing database
 
@@ -21,7 +21,7 @@ function run_tests_parallel (tests, callback){
 	});
 }
 
-var r = require('../scripts/lib/rebuild_database')
+var r = require('../scripts/lib/rebuild_database');
 
 var tests = [
 	function rebuild_db (callback){
@@ -54,21 +54,6 @@ var tests = [
 			callback(err, 'http test passed');
 		});
 	}
-	,
-	function do_zombie_test (callback){ 
-		console.log(' -- Running zombie tests:');
-		var app = new appFactory.getApp(redis, config);
-		var module = require('./zombie/tests.js')
-		module.setup({app:app});
-		var port = 3434
-		app.listen(port);
-		
-		run_tests(module.tests, function(err){
-			app.close();	
-			callback(err, 'zombie test passed');
-		});
-	}
-
 ];
 
 console.log('Running tests with database: ' + JSON.stringify(dbconfig))
