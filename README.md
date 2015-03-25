@@ -45,6 +45,14 @@ The application has been **successfully tested with more than 100K users**.
 
     redis-server redis.conf
 
+###Configure your env
+
+```js
+export LINKEDIN_API_KEY='YOUR-KEY'
+export LINKEDIN_SECRET_KEY='YOUR-SECRET'
+export CACHIRULO_DIRECTORIO_BASE_URL='http://directorio.cachirulovalley.com'
+```
+
 ##Tests
 
 There is a test infrastructure built for:
@@ -119,6 +127,7 @@ You can also use the script manually to populate de production/development datab
 
 ## TODO
 
+ * Upgrade to a more recent version of Node, and Express... and everything else :)
  * Static content compression/minification
  * Keyboard navigation
  * i18n
