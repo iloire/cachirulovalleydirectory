@@ -9,6 +9,10 @@
 
 This is **professional directory** created in express.js and redis. Once you login (linkedin auth), you can create your profile, tag your skills, and recommend other people.
 
+## Note
+
+This app was developed in early 2012, and it has not been updated or maintained, which means this is some sort of JS prehistory, so proceed at your own risk.
+
 ## REDIS DATABASE SCHEMA
 
     <Project>:user:<id>  (object) => user object in json notation
