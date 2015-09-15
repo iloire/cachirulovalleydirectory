@@ -14,16 +14,16 @@
     "url": "https://github.com/iloire/cachirulovalleydirectory"
   },
   "dependencies": {
-    "express": "2.5.0",
-    "ejs": "0.6.1",
-    "redis": "0.7.1",
+    "express": "^2.5.0",
+    "ejs": "^2.3.4",
+    "redis": "^0.7.1",
     "oauth": "0.9.5",
     "linkedin-js": "0.1.4",
-    "reds": "0.1.1",
-    "async": "0.1.15",
+    "reds": "^0.2.5",
+    "async": "^1.4.2",
     "connect-redis": "1.2.0",
-    "gzippo": "0.1.4",
-    "request": "2.9.100",
+    "gzippo": "^0.2.0",
+    "request": "^2.62.0",
     "gravatar": "~1.0.6"
   },
   "devDependencies": {
